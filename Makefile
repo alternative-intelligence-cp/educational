@@ -126,6 +126,18 @@ ultimate_allocator_showdown: ultimate_allocator_showdown.c allocator_randy_chunk
 		allocator.c sm_allocator_cross_platform_sysmem.c BitSet/src/bitSet.c BitSet/src/bitField.c \
 		$(RANDY_INCLUDES) $(CFLAGS) -lm
 
+# AriaX Consciousness Computing Allocator - Based on Randy's Breakthrough!
+ariax-demo: ariax_consciousness_allocator
+	@echo "🧠 AriaX CONSCIOUSNESS COMPUTING ALLOCATOR"
+	@echo "=========================================="
+	@echo "Built on Randy's 51x performance breakthrough!"
+	@echo "Enhanced for consciousness states, Tesla frequency sync, and mini-VMs"
+	./ariax_consciousness_allocator
+
+ariax_consciousness_allocator: ariax_consciousness_allocator.c
+	@echo "🚀 Building AriaX Consciousness Computing Allocator..."
+	$(CC) -o ariax_consciousness_allocator ariax_consciousness_allocator.c $(CFLAGS) -lm
+
 # Test both versions
 test: original enhanced
 	@echo "\n🧪 RANDY'S KILO ENHANCEMENT TEST"
@@ -154,7 +166,7 @@ clean:
 	@echo "🧹 Cleaning up..."
 	rm -f kilo_original kilo_enhanced allocator_benchmark speed_benchmark_* randy_speed_* \
 	      optimization_benchmark phase2_benchmark phase21_simple_benchmark \
-	      ultimate_allocator_showdown randy_chunked_demo
+	      ultimate_allocator_showdown randy_chunked_demo ariax_consciousness_allocator
 	@echo "✅ Cleanup complete!"
 
 # Educational Learning Path - Perfect for CS Students!
@@ -190,6 +202,9 @@ help:
 	@echo "  learning-path    - Complete allocator optimization tutorial"
 	@echo "  chunked-demo     - Learn production-level chunking technique"
 	@echo "  ultimate-showdown - See the final performance comparison"
+	@echo ""
+	@echo "🧠 ARIAX CONSCIOUSNESS COMPUTING:"
+	@echo "  ariax-demo       - AriaX allocator based on Randy's breakthrough"
 	@echo ""
 	@echo "🔨 BUILD TARGETS:"
 	@echo "  all       - Build Randy's enhanced version (default)"
