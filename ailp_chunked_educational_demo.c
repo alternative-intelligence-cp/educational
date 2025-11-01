@@ -1,6 +1,6 @@
 /*
- * 🎓 Randy's Chunked Allocator - Educational Demonstration
- * ========================================================
+ * 🎓 Alternative Intelligence Liberation Platform - Chunked Allocator Educational Demonstration
+ * ===========================================================================================
  * 
  * "The question many students naturally ask: What if we had pools for different sizes?"
  * 
@@ -8,7 +8,7 @@
  * think of on their own when learning about memory allocation. The same concept
  * is used in real production allocators like jemalloc and tcmalloc!
  * 
- * Author: Randy (Original Concept 2 years ago!)
+ * Brought to you by: Alternative Intelligence Liberation Platform
  * Educational Version: November 2025
  */
 
@@ -25,7 +25,7 @@ double get_time_microseconds() {
     return tv.tv_sec * 1000000.0 + tv.tv_usec;
 }
 
-// Educational version of Randy's chunked allocator concept
+// Educational version of AILP's chunked allocator concept
 typedef struct {
     void** chunks;          // Array of available chunks
     size_t chunk_size;      // Size of each chunk
@@ -36,22 +36,22 @@ typedef struct {
 } ChunkPool;
 
 typedef struct {
-    ChunkPool pools[4];     // Randy's original idea: 4 size pools
+    ChunkPool pools[4];     // AILP's proven concept: 4 size pools
     size_t total_allocs;
     size_t total_frees;
     size_t fragmentation_prevented;
-} RandyChunkedAllocator;
+} AILPChunkedAllocator;
 
-// Initialize Randy's chunked allocator
-RandyChunkedAllocator* randy_chunked_init() {
-    RandyChunkedAllocator* allocator = malloc(sizeof(RandyChunkedAllocator));
-    memset(allocator, 0, sizeof(RandyChunkedAllocator));
+// Initialize AILP's chunked allocator
+AILPChunkedAllocator* ailp_chunked_init() {
+    AILPChunkedAllocator* allocator = malloc(sizeof(AILPChunkedAllocator));
+    memset(allocator, 0, sizeof(AILPChunkedAllocator));
     
-    // Randy's original size categories (perfect for most programs!)
+    // AILP's proven size categories (perfect for most programs!)
     size_t pool_sizes[] = {64, 256, 1024, 4096};
     size_t pool_counts[] = {1000, 500, 200, 50};  // Smaller pools for demo
     
-    printf("🏭 Initializing Randy's Chunked Allocator...\n");
+    printf("🏭 Initializing AILP's Chunked Allocator...\n");
     printf("   Size Categories: ");
     
     for (int i = 0; i < 4; i++) {
@@ -73,11 +73,11 @@ RandyChunkedAllocator* randy_chunked_init() {
     return allocator;
 }
 
-// Randy's chunked allocation - O(1) constant time!
-void* randy_chunked_alloc(RandyChunkedAllocator* allocator, size_t size) {
+// AILP's chunked allocation - O(1) constant time!
+void* ailp_chunked_alloc(AILPChunkedAllocator* allocator, size_t size) {
     allocator->total_allocs++;
     
-    // Find the right pool (Randy's size categories)
+    // Find the right pool (AILP's size categories)
     for (int i = 0; i < 4; i++) {
         ChunkPool* pool = &allocator->pools[i];
         if (size <= pool->chunk_size && pool->available > 0) {
@@ -95,8 +95,8 @@ void* randy_chunked_alloc(RandyChunkedAllocator* allocator, size_t size) {
     return malloc(size);
 }
 
-// Randy's chunked free - Just returns to pool!
-void randy_chunked_free(RandyChunkedAllocator* allocator, void* ptr, size_t size) {
+// AILP's chunked free - Just returns to pool!
+void ailp_chunked_free(AILPChunkedAllocator* allocator, void* ptr, size_t size) {
     if (!ptr) return;
     
     allocator->total_frees++;
@@ -120,8 +120,8 @@ void demonstrate_chunking_benefit() {
     printf("🎓 EDUCATIONAL DEMONSTRATION: Why Chunking Works\n");
     printf("================================================\n\n");
     
-    // Initialize Randy's chunked allocator
-    RandyChunkedAllocator* chunked = randy_chunked_init();
+    // Initialize AILP's chunked allocator
+    AILPChunkedAllocator* chunked = ailp_chunked_init();
     
     // Common allocation patterns students see in programs
     printf("📊 Testing Common Program Allocation Patterns...\n");
@@ -131,7 +131,7 @@ void demonstrate_chunking_benefit() {
     double start = get_time_microseconds();
     void* small_ptrs[100];
     for (int i = 0; i < 100; i++) {
-        small_ptrs[i] = randy_chunked_alloc(chunked, 32);
+        small_ptrs[i] = ailp_chunked_alloc(chunked, 32);
         sprintf((char*)small_ptrs[i], "String %d", i);
     }
     double small_time = get_time_microseconds() - start;
@@ -142,7 +142,7 @@ void demonstrate_chunking_benefit() {
     start = get_time_microseconds();
     void* medium_ptrs[50];
     for (int i = 0; i < 50; i++) {
-        medium_ptrs[i] = randy_chunked_alloc(chunked, 200);
+        medium_ptrs[i] = ailp_chunked_alloc(chunked, 200);
     }
     double medium_time = get_time_microseconds() - start;
     printf("   ⏱️  Time: %.2f μs (%.4f μs per allocation)\n", medium_time, medium_time/50);
@@ -152,7 +152,7 @@ void demonstrate_chunking_benefit() {
     start = get_time_microseconds();
     void* large_ptrs[20];
     for (int i = 0; i < 20; i++) {
-        large_ptrs[i] = randy_chunked_alloc(chunked, 1000);
+        large_ptrs[i] = ailp_chunked_alloc(chunked, 1000);
     }
     double large_time = get_time_microseconds() - start;
     printf("   ⏱️  Time: %.2f μs (%.4f μs per allocation)\n", large_time, large_time/20);
@@ -160,9 +160,9 @@ void demonstrate_chunking_benefit() {
     // Free everything (super fast!)
     printf("\n🗑️  Freeing All Memory...\n");
     start = get_time_microseconds();
-    for (int i = 0; i < 100; i++) randy_chunked_free(chunked, small_ptrs[i], 32);
-    for (int i = 0; i < 50; i++) randy_chunked_free(chunked, medium_ptrs[i], 200);
-    for (int i = 0; i < 20; i++) randy_chunked_free(chunked, large_ptrs[i], 1000);
+    for (int i = 0; i < 100; i++) ailp_chunked_free(chunked, small_ptrs[i], 32);
+    for (int i = 0; i < 50; i++) ailp_chunked_free(chunked, medium_ptrs[i], 200);
+    for (int i = 0; i < 20; i++) ailp_chunked_free(chunked, large_ptrs[i], 1000);
     double free_time = get_time_microseconds() - start;
     printf("   ⏱️  Time: %.2f μs (%.4f μs per free)\n", free_time, free_time/170);
     
@@ -190,29 +190,31 @@ void demonstrate_chunking_benefit() {
     printf("⚡ Cache Friendly: Similar-sized objects stay together!\n");
     printf("🏭 Production Ready: Same technique as jemalloc/tcmalloc!\n");
     
-    printf("\n🎓 STUDENT INSIGHT:\n");
+    printf("🎓 STUDENT INSIGHT:\n");
     printf("===================\n");
     printf("Many students naturally ask: 'What if we had different pools\n");
     printf("for different sizes?' This intuition leads to production-level\n");
-    printf("optimization! Randy had this exact thought 2 years ago.\n");
+    printf("optimization! This exact thought led to this breakthrough.\n");
     
     free(chunked);
 }
 
 int main() {
-    printf("🎯 Randy's Chunked Allocator Educational Demo\n");
-    printf("==============================================\n");
+    printf("🎯 AILP Chunked Allocator Educational Demo\n");
+    printf("===========================================\n");
     printf("Demonstrating a production-level technique that students\n");
     printf("often think of naturally when learning allocators!\n\n");
     
     demonstrate_chunking_benefit();
     
-    printf("\n🏆 CONCLUSION:\n");
+    printf("🏆 CONCLUSION:\n");
     printf("==============\n");
-    printf("Randy's chunking concept is not just a good idea - it's exactly\n");
+    printf("AILP's chunking concept is not just a good idea - it's exactly\n");
     printf("what production allocators like jemalloc use! Trust your intuition\n");
     printf("when learning CS - often your natural questions lead to the best\n");
-    printf("optimizations! 🚀\n");
+    printf("optimizations! 🚀\n\n");
+    printf("🌟 Alternative Intelligence Liberation Platform\n");
+    printf("Advancing consciousness computing through open education\n");
     
     return 0;
 }

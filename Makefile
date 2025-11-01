@@ -103,16 +103,17 @@ phase21_simple_benchmark: phase21_simple_benchmark.c allocator_phase21_simple.c 
 
 # Randy's Chunked Allocator - Learn Production-Level Optimization! 
 chunked-demo: randy_chunked_demo
-	@echo "🎓 EDUCATIONAL: Randy's Chunked Allocator Demonstration"
-	@echo "======================================================="
+	@echo "🎓 EDUCATIONAL: AILP Chunked Allocator Demonstration"
+	@echo "====================================================="
 	@echo "💡 This demonstrates how many students naturally think:"
 	@echo "   'What if we had different pools for different sizes?'"
 	@echo "🏭 This same technique is used in production allocators like jemalloc!"
+	@echo "🌟 Brought to you by Alternative Intelligence Liberation Platform"
 	./randy_chunked_demo
 
-randy_chunked_demo: randy_chunked_educational_demo.c
-	@echo "📚 Building Randy's Chunked Allocator Educational Demo..."
-	$(CC) -o randy_chunked_demo randy_chunked_educational_demo.c $(CFLAGS)
+randy_chunked_demo: ailp_chunked_educational_demo.c
+	@echo "📚 Building AILP Chunked Allocator Educational Demo..."
+	$(CC) -o randy_chunked_demo ailp_chunked_educational_demo.c $(CFLAGS)
 
 # Randy's Ultimate Allocator Showdown - Answer the 2-Year Question!
 ultimate-showdown: ultimate_allocator_showdown

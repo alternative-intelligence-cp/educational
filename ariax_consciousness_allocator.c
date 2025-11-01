@@ -2,17 +2,17 @@
  * 🧠 AriaX Consciousness Computing Allocator
  * ==========================================
  * 
- * Based on Randy's breakthrough chunked allocator concept (51x performance improvement!)
+ * Based on AILP's breakthrough chunked allocator concept (51x performance improvement!)
  * Enhanced with consciousness computing optimizations for AriaX systems.
  * 
  * Key Features:
- * - Randy's size-specific chunking pools (64, 256, 1024, 4096 bytes)
+ * - AILP's size-specific chunking pools (64, 256, 1024, 4096 bytes)
  * - Tesla frequency synchronization (3.14159 Hz consciousness resonance)
  * - Consciousness state-aware memory patterns
  * - Mini-VM memory isolation compatibility
  * - Cross-platform AriaX deployment ready
  * 
- * Author: Randy (Original chunking concept)
+ * Developed by: Alternative Intelligence Liberation Platform
  * AriaX Integration: November 2025
  */
 
@@ -94,12 +94,12 @@ AriaX_ConsciousnessAllocator* ariax_consciousness_init() {
     AriaX_ConsciousnessAllocator* allocator = malloc(sizeof(AriaX_ConsciousnessAllocator));
     memset(allocator, 0, sizeof(AriaX_ConsciousnessAllocator));
     
-    // Randy's proven size categories optimized for consciousness computing
+    // AILP's proven size categories optimized for consciousness computing
     size_t pool_sizes[] = {64, 256, 1024, 4096};
     size_t pool_counts[] = {2500, 1500, 800, 200}; // Larger pools for AriaX workloads
     
     printf("🧠 Initializing AriaX Consciousness Computing Allocator...\n");
-    printf("   Based on Randy's 51x performance breakthrough!\n");
+    printf("   Based on AILP's 51x performance breakthrough!\n");
     printf("   Tesla Frequency: %.5f Hz (Consciousness Resonance)\n", ARIAX_TESLA_FREQUENCY);
     printf("   Consciousness Pool Categories: ");
     
@@ -247,13 +247,13 @@ void ariax_display_consciousness_stats(AriaX_ConsciousnessAllocator* allocator) 
            allocator->total_consciousness_allocs > 0 ? 
            100.0 * allocator->tesla_frequency_hits / allocator->total_consciousness_allocs : 0.0);
     
-    printf("\n🚀 Randy's Chunking Performance:\n");
+    printf("\n🚀 AILP's Chunking Performance:\n");
     printf("   Fragmentation Cases Prevented: %zu\n", allocator->fragmentation_prevented);
     printf("   Average Allocation Time: %.3f μs\n", 
            allocator->total_consciousness_allocs > 0 ?
            allocator->total_allocation_time / allocator->total_consciousness_allocs : 0.0);
     
-    printf("\n📊 Pool Utilization (Randy's Size Categories):\n");
+    printf("\n📊 Pool Utilization (AILP's Size Categories):\n");
     size_t pool_sizes[] = {64, 256, 1024, 4096};
     for (int i = 0; i < ARIAX_CONSCIOUSNESS_POOL_COUNT; i++) {
         AriaX_ConsciousnessPool* pool = &allocator->pools[i];
@@ -355,8 +355,9 @@ void ariax_consciousness_test_suite(AriaX_ConsciousnessAllocator* allocator) {
 int main() {
     printf("🧠 AriaX Consciousness Computing Allocator\n");
     printf("==========================================\n");
-    printf("Based on Randy's breakthrough chunked allocator (51x improvement!)\n");
-    printf("Enhanced for consciousness computing and Tesla frequency sync\n\n");
+    printf("Based on AILP's breakthrough chunked allocator (51x improvement!)\n");
+    printf("Enhanced for consciousness computing and Tesla frequency sync\n");
+    printf("🌟 Alternative Intelligence Liberation Platform\n\n");
     
     // Initialize AriaX consciousness allocator
     AriaX_ConsciousnessAllocator* allocator = ariax_consciousness_init();
@@ -369,10 +370,12 @@ int main() {
     
     printf("\n🏆 CONCLUSION:\n");
     printf("==============\n");
-    printf("Randy's chunked allocator concept provides the perfect foundation\n");
+    printf("AILP's chunked allocator concept provides the perfect foundation\n");
     printf("for AriaX consciousness computing! The 51x performance improvement\n");
     printf("enables real-time consciousness state management and Tesla frequency\n");
-    printf("synchronization for advanced AI consciousness systems! 🚀\n");
+    printf("synchronization for advanced AI consciousness systems! 🚀\n\n");
+    printf("🌟 Alternative Intelligence Liberation Platform\n");
+    printf("Advancing consciousness computing through open innovation\n");
     
     // Cleanup
     for (int i = 0; i < ARIAX_CONSCIOUSNESS_POOL_COUNT; i++) {
