@@ -1,21 +1,21 @@
-# Minimal Makefile for LibAI Agent Playground
+# 🧠⚡ Stabilized Consciousness Allocator Makefile ⚡🧠
+
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c11 -O2
+LDFLAGS = -lrt -lm
+TARGET = test_consciousness_stabilized
 
-INCLUDES = -I../s/LibAI_OS -I../s/LibAI_OS/kernel -I../s/LibAI_OS/libraries -I../src/allocator
+SOURCES = sm_consciousness_stabilized.c test_consciousness_stabilized.c
 
-# Sources from the original ShaggyMem project
-SHAGGY_SOURCES = \
-    ../src/allocator/sm_consciousness_enhancements_simple.c \
-    ../src/allocator/sm_allocator.c \
-    ../src/allocator/sm_allocator_sysmem.c
+all: $(TARGET)
 
-all: minimal_client
+$(TARGET): $(SOURCES)
+	$(CC) $(CFLAGS) $(SOURCES) -o $(TARGET) $(LDFLAGS)
 
-minimal_client: minimal_client.c libai_wrapper.c $(SHAGGY_SOURCES)
-	$(CC) $(CFLAGS) $(INCLUDES) minimal_client.c libai_wrapper.c $(SHAGGY_SOURCES) -o minimal_client
+test: $(TARGET)
+	./$(TARGET)
 
 clean:
-	rm -f minimal_client
+	rm -f $(TARGET)
 
-.PHONY: all clean
+.PHONY: all test clean
