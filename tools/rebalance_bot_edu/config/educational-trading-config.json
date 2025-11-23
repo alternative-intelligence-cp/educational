@@ -1,0 +1,38 @@
+{
+  "version": "2.0.0-educational",
+  "mode": "paper",
+  "created": "2025-11-23T11:33:32.780Z",
+  "portfolio": {
+    "tokens": {
+      "BTC": {
+        "name": "Bitcoin",
+        "targetPercent": 10,
+        "pair": "BTC/USD"
+      },
+      "ETH": {
+        "name": "Ethereum",
+        "targetPercent": 10,
+        "pair": "ETH/USD"
+      },
+      "ADA": {
+        "name": "Cardano",
+        "targetPercent": 10,
+        "pair": "ADA/USD"
+      }
+    },
+    "cashReservePercent": 40,
+    "totalAllocation": 30
+  },
+  "risk": {
+    "name": "Conservative (Safe)",
+    "cash": 40,
+    "rebalance": 60,
+    "stopLoss": 15
+  },
+  "rebalancing": {
+    "intervalMinutes": 60,
+    "maxDeviationPercent": 5,
+    "stopLossPercent": 15,
+    "strategy": "percentage_of_portfolio"
+  }
+}

@@ -1,0 +1,29 @@
+EDUCATIONAL CRYPTO TRADING BOT CONFIGURATION
+Generated: 11/23/2025, 6:34:02 AM
+
+PORTFOLIO ALLOCATION:
+BTC: 10%, ETH: 10%, ADA: 10%
+Cash Reserve: 40%
+
+RISK PROFILE: Conservative (Safe)
+Rebalance Frequency: 60 minutes
+Stop Loss: 15%
+
+MODE: PAPER
+(No real money - safe for learning!)
+
+EDUCATIONAL NOTES:
+- This configuration implements portfolio rebalancing theory
+- Rebalancing automatically "buys low, sells high" over time  
+- Cash reserves provide liquidity and reduce volatility
+- Stop losses limit downside risk on individual positions
+- Paper trading mode lets you learn without financial risk
+
+NEXT STEPS:
+1. Run the bot in paper trading mode: npm run start:paper
+2. Watch the dashboard: http://localhost:3000
+3. Learn how each trade decision is made
+4. Study the educational materials provided
+5. Only consider live trading after full understanding
+
+Remember: This is educational software. Learn first, trade later!

@@ -1,0 +1,81 @@
+{
+    "name": "crypto-trading-bot-educational",
+    "version": "2.0.0",
+    "description": "Educational cryptocurrency rebalancing bot - learn trading algorithms, WebSockets, and financial markets",
+    "main": "bot.js",
+    "scripts": {
+        "setup": "node setup-wizard.js",
+        "start": "node bot.js",
+        "start:paper": "NODE_ENV=paper node bot.js",
+        "start:live": "NODE_ENV=live node bot.js",
+        "test": "node test/run-tests.js",
+        "validate-config": "node tools/validate-config.js",
+        "backup-config": "node tools/backup-config.js",
+        "dashboard": "node ui/dashboard.js"
+    },
+    "keywords": [
+        "cryptocurrency",
+        "trading-bot",
+        "education",
+        "portfolio-rebalancing",
+        "websockets",
+        "financial-algorithms",
+        "risk-management",
+        "kraken-api"
+    ],
+    "author": "Randy (Original), Educational Community (Modernization)",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/educational-tools/crypto-trading-bot-edu.git"
+    },
+    "dependencies": {
+        "chalk": "^4.1.2",
+        "ws": "^8.14.2",
+        "axios": "^1.6.0",
+        "express": "^4.18.2",
+        "socket.io": "^4.7.2",
+        "node-cron": "^3.0.2",
+        "winston": "^3.11.0",
+        "joi": "^17.11.0"
+    },
+    "devDependencies": {
+        "jest": "^29.7.0",
+        "nodemon": "^3.0.1",
+        "eslint": "^8.52.0"
+    },
+    "engines": {
+        "node": ">=16.0.0"
+    },
+    "educational": {
+        "difficulty": "intermediate",
+        "topics": [
+            "websockets",
+            "multi-threading",
+            "api-integration",
+            "financial-algorithms",
+            "real-time-systems",
+            "configuration-management",
+            "error-handling",
+            "risk-management"
+        ],
+        "prerequisites": [
+            "Basic JavaScript knowledge",
+            "Understanding of async/await",
+            "Basic knowledge of financial markets"
+        ],
+        "learning-outcomes": [
+            "Build real-time trading systems",
+            "Implement portfolio rebalancing algorithms",
+            "Handle WebSocket connections and workers",
+            "Design user-friendly configuration systems",
+            "Understand cryptocurrency markets and trading"
+        ]
+    },
+    "safety": {
+        "default-mode": "paper",
+        "requires-explicit-live-mode": true,
+        "educational-warnings": true,
+        "risk-management-enforced": true
+    }
+}
