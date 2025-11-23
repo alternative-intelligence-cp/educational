@@ -291,3 +291,48 @@ make -f Makefile_segfit && ./test_segfit_allocator
 
 ---
 
+# 🧠⚡ Educational Mamba Trilogy ⚡🧠
+
+**NEW: Cross-Language Algorithm Implementation Study**
+
+## 📚 Mamba State Space Model - Three Language Paradigms
+
+Explore the same advanced ML algorithm implemented across three programming paradigms:
+
+### 🐍 **Python Implementation** (`mamba-trilogy/python-mamba/`)
+- **Focus**: Educational clarity and mathematical documentation
+- **Performance**: ~1,200 tokens/sec (NumPy optimized)
+- **Highlights**: Comprehensive explanations, visualization tools, learning-friendly
+
+### ⚡ **C Implementation** (`mamba-trilogy/c-mamba/`)  
+- **Focus**: Raw performance with manual memory management
+- **Performance**: ~21,900 tokens/sec (17x faster than Python)
+- **Highlights**: Hand-optimized algorithms, production-grade techniques
+
+### 🦎 **Zig Implementation** (`mamba-trilogy/zig-mamba/`)
+- **Focus**: Modern systems programming with safety + performance
+- **Performance**: ~7,400 tokens/sec (memory-safe high performance)
+- **Highlights**: Compile-time optimizations, zero-cost abstractions
+
+## 🚀 Quick Mamba Start
+
+```bash
+# Educational Python (start here)
+cd mamba-trilogy/python-mamba/
+python educational_mamba.py
+
+# High-performance C
+cd mamba-trilogy/c-mamba/
+make && ./educational_mamba
+
+# Modern Zig  
+cd mamba-trilogy/zig-mamba/
+zig build run
+```
+
+**🎯 Learn**: Algorithm evolution, language trade-offs, performance engineering, modern ML implementation patterns.
+
+See complete documentation in `mamba-trilogy/README.md`
+
+---
+
