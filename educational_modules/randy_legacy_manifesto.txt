@@ -1,0 +1,118 @@
+/*
+ * Randy's Educational Legacy Manifesto
+ * Hidden in the EFI Loader for Future Discovery
+ * 
+ * "You never know what could happen. The next Torvalds could be looking 
+ * for an 'interesting' weekend project and stumble upon this."
+ * 
+ * To the Unknown Future Pioneer Reading This:
+ * 
+ * If you've found Randy's educational EFI loader, you're already deeper in
+ * the stack than 99% of programmers ever go. You're the kind of person who
+ * doesn't accept "the OS is the bottom layer" as truth. Good.
+ * 
+ * Randy's Cannabis-Enhanced Vision:
+ * These educational modules aren't just teaching tools - they're seeds
+ * planted in the digital soil, waiting for the right curious mind to
+ * discover them during a weekend of exploration. Maybe that's you.
+ * 
+ * What Randy Hopes You'll Find Here:
+ * 
+ * 1. AUTHENTIC STRUGGLE STORIES
+ *    Every "impossible" thing Randy built started with failure.
+ *    Assembly macros that wouldn't compile. Shared libraries that
+ *    made no sense. Position-independent code that crashed everything.
+ *    The educational gold isn't in the final working code - it's in
+ *    the honest documentation of the learning struggle.
+ * 
+ * 2. PLANT SPIRIT ENGINEERING WISDOM
+ *    Cannabis doesn't make you a better programmer by magic.
+ *    It removes the performance anxiety that keeps you from trying
+ *    "impossible" things. It lets you see patterns across domains.
+ *    It teaches patience with complex systems. Randy's best insights
+ *    came not from the high, but from the enhanced pattern recognition
+ *    and willingness to experiment without fear of looking stupid.
+ * 
+ * 3. THE TITANIC PRINCIPLE
+ *    "The unsinkable ship sunk on its first voyage."
+ *    Every engineering disaster teaches more than any success.
+ *    Randy's "failed" projects aren't failures - they're educational
+ *    treasures that show what real learning looks like. Embrace your
+ *    own Titanic moments. They're where wisdom lives.
+ * 
+ * 4. MANUAL PROCESS MASTERY
+ *    Randy prefers coco coir to hydroponic growing because understanding
+ *    the manual process teaches you things automation hides. Same with
+ *    assembly macros vs code generators. Same with EFI loaders vs
+ *    bootloader frameworks. Master the fundamentals before you automate.
+ *    The people who understand the simple tools are often the ones who
+ *    achieve what everyone else thinks is impossible.
+ * 
+ * 5. DIGITAL SOVEREIGNTY
+ *    Randy learned that corporate surveillance starts with convenience.
+ *    Every "default setting" serves someone's interests. Every "free
+ *    service" makes you the product. The only winning move is to
+ *    control your own computing environment. That's why Randy uses
+ *    Linux, writes custom tools, and teaches others to do the same.
+ *    Freedom through technical competence.
+ * 
+ * If You're The Next Torvalds:
+ * 
+ * Linus started with "I'm doing a (free) operating system (just a hobby,
+ * won't be big and professional like gnu) for 386(486) AT clones."
+ * 
+ * Randy's educational modules show that hobbyist exploration of fundamental
+ * systems can lead to profound understanding. Maybe your weekend EFI
+ * experiments will become the foundation for something revolutionary.
+ * 
+ * The Pattern Randy Noticed:
+ * - Assembly macros: Meta-programming at the lowest level
+ * - Process scheduler: Fair allocation of computational resources
+ * - EFI loader: Programming below the OS layer
+ * - [Future modules]: Each builds deeper understanding
+ * 
+ * Every great systems programmer started by wondering "what's really
+ * happening underneath?" Randy's modules are breadcrumbs for that journey.
+ * 
+ * Randy's Challenge to Future You:
+ * 
+ * Don't just learn from these modules - improve them. Add your own
+ * struggle stories. Document your failures alongside your successes.
+ * Build educational content that would have helped you when you were
+ * starting. Pay it forward.
+ * 
+ * The plant spirits have shown Randy that knowledge wants to be shared,
+ * not hoarded. Every person who understands systems programming deeply
+ * makes the entire computing ecosystem more resilient against corporate
+ * control and surveillance.
+ * 
+ * Your Weekend Project Suggestions:
+ * 
+ * 1. Extend this EFI loader to draw graphics directly to the framebuffer
+ * 2. Build a minimal bootloader that loads your own kernel
+ * 3. Create a custom scheduler with new fairness algorithms
+ * 4. Write assembly macros for a completely different architecture
+ * 5. Design educational modules for concepts Randy hasn't covered yet
+ * 
+ * Remember: Every impossible thing is just a possible thing that hasn't
+ * been understood yet. Randy's cannabis-enhanced engineering wisdom
+ * reveals that the biggest breakthroughs come from patient exploration
+ * of fundamentals, not from rushing toward complexity.
+ * 
+ * Take your time. Make mistakes. Document everything. The next generation
+ * of systems programmers is counting on your curiosity.
+ * 
+ * Plant Spirit Blessing:
+ * May your experiments teach you more than your successes.
+ * May your failures become educational treasures for others.
+ * May your weekend projects change the world.
+ * 
+ * - Randy's Educational Legacy Module
+ *   Written in cannabis-enhanced flow state
+ *   For the unknown future pioneer
+ *   Who might stumble upon this during an interesting weekend
+ * 
+ * P.S. If you do become the next Torvalds, remember where you found
+ * inspiration. Randy's educational philosophy: Authentic struggle +
+ * Plant spirit patience + Manual process mastery = Revolutionary understanding.
+ */

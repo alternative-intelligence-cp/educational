@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Randy's Cannabis-Enhanced PPU</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #000000, #1a1a1a);
+            color: #4d8c4d;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        h1 {
+            color: #80bf80;
+            text-shadow: 0 0 10px #4d8c4d;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            font-style: italic;
+            margin-bottom: 30px;
+        }
+
+        .ppu-container {
+            display: inline-block;
+            background: #222;
+            padding: 20px;
+            border-radius: 10px;
+            border: 3px solid #4d8c4d;
+            box-shadow: 0 0 20px rgba(77, 140, 77, 0.3);
+            margin-bottom: 20px;
+        }
+
+        #ppuCanvas {
+            border: 2px solid #80bf80;
+            background: #000;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        .controls {
+            margin: 20px 0;
+        }
+
+        .controls button {
+            background: linear-gradient(45deg, #2d5a2d, #4d8c4d);
+            border: 2px solid #80bf80;
+            color: #fff;
+            padding: 12px 24px;
+            margin: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .controls button:hover {
+            background: linear-gradient(45deg, #4d8c4d, #80bf80);
+            box-shadow: 0 0 15px rgba(128, 191, 128, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .controls button:active {
+            transform: translateY(0);
+        }
+
+        #ppuStatus {
+            background: #1a1a1a;
+            border: 2px solid #4d8c4d;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: left;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #ppuStatus h3 {
+            color: #80bf80;
+            margin-top: 0;
+            text-align: center;
+        }
+
+        #ppuStatus p {
+            margin: 8px 0;
+            color: #ccc;
+        }
+
+        #ppuStatus ul {
+            color: #aaa;
+            margin: 10px 0;
+        }
+
+        .educational-info {
+            background: #0d1f0d;
+            border: 2px solid #2d5a2d;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .educational-info h3 {
+            color: #80bf80;
+            margin-top: 0;
+            text-align: center;
+        }
+
+        .educational-info ul {
+            color: #aaa;
+            line-height: 1.6;
+        }
+
+        .educational-info li {
+            margin: 8px 0;
+        }
+
+        .philosophy {
+            background: rgba(77, 140, 77, 0.1);
+            border-left: 4px solid #4d8c4d;
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+            color: #ccc;
+        }
+
+        .specs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .spec-card {
+            background: #1a1a1a;
+            border: 1px solid #4d8c4d;
+            border-radius: 5px;
+            padding: 15px;
+        }
+
+        .spec-card h4 {
+            color: #80bf80;
+            margin-top: 0;
+        }
+
+        .spec-card p {
+            color: #aaa;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .plant-spirit {
+            color: #80bf80;
+            font-weight: bold;
+        }
+
+        .strain-display {
+            background: rgba(128, 191, 128, 0.1);
+            border: 1px solid #4d8c4d;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        @keyframes glow {
+            0% {
+                text-shadow: 0 0 5px #4d8c4d;
+            }
+
+            50% {
+                text-shadow: 0 0 20px #80bf80;
+            }
+
+            100% {
+                text-shadow: 0 0 5px #4d8c4d;
+            }
+        }
+
+        .glowing {
+            animation: glow 2s infinite;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="glowing">🧠⚡ Randy's Cannabis-Enhanced PPU ⚡🧠</h1>
+        <p class="subtitle">Old School Graphics Programming for Educational Enlightenment</p>
+
+        <div class="philosophy">
+            <strong>Randy's PPU Philosophy:</strong> "Better have your shit written to memory before it does its thing!
+            No modern GPU complexity, no shader nonsense. Just pure, cannabis-enhanced retro graphics programming
+            that teaches the fundamentals: memory-mapped graphics, tiles vs sprites, and the beautiful constraints
+            of limited hardware."
+        </div>
+
+        <div class="ppu-container">
+            <canvas id="ppuCanvas" width="256" height="240"></canvas>
+        </div>
+
+        <div class="controls">
+            <button onclick="changePlantSpirit()">🌿 Change Plant Spirit Mode</button>
+            <button onclick="showPPUStatus()">📊 Show PPU Status</button>
+            <button onclick="toggleAnimation()">🎮 Toggle Animation</button>
+            <button onclick="randomizeBackground()">🎨 Randomize Background</button>
+        </div>
+
+        <div class="strain-display">
+            <span class="plant-spirit">Current Plant Spirit Enhancement: </span>
+            <span id="currentStrain">Blue Dream</span>
+        </div>
+
+        <div id="ppuStatus"></div>
+
+        <div class="educational-info">
+            <h3>🎓 Educational Concepts Demonstrated</h3>
+            <div class="specs">
+                <div class="spec-card">
+                    <h4>📱 Memory-Mapped Graphics</h4>
+                    <p>• Tile patterns stored in dedicated memory banks</p>
+                    <p>• Name tables for background tile arrangement</p>
+                    <p>• Sprite data in Object Attribute Memory (OAM)</p>
+                    <p>• Pre-allocation before rendering (old school)</p>
+                </div>
+
+                <div class="spec-card">
+                    <h4>🎨 Tile vs Sprite Systems</h4>
+                    <p>• Background tiles: Fixed 8x8 grid system</p>
+                    <p>• Sprites: Freely positioned moving objects</p>
+                    <p>• Clear demonstration of each approach</p>
+                    <p>• Educational understanding of 2D graphics</p>
+                </div>
+
+                <div class="spec-card">
+                    <h4>🌈 Palette-Based Colors</h4>
+                    <p>• 4 colors per palette (2-bit depth)</p>
+                    <p>• Cannabis-enhanced color schemes</p>
+                    <p>• Artistic constraints breed creativity</p>
+                    <p>• Retro hardware limitations</p>
+                </div>
+
+                <div class="spec-card">
+                    <h4>⚙️ Hardware Specifications</h4>
+                    <p>• 256×240 resolution (classic 8-bit)</p>
+                    <p>• 8×8 pixel tiles (NES-style)</p>
+                    <p>• 64 sprites maximum</p>
+                    <p>• 256 unique tile patterns</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="educational-info">
+            <h3>🌿 Plant Spirit Graphics Wisdom</h3>
+            <ul>
+                <li><strong>Pattern Recognition:</strong> Cannabis enhances ability to see tile arrangements and sprite
+                    movements</li>
+                <li><strong>Creative Constraints:</strong> Limited palettes and resolution force elegant solutions</li>
+                <li><strong>Memory Architecture:</strong> Plant spirit clarity for understanding hardware layouts</li>
+                <li><strong>Pixel Meditation:</strong> Each pixel placed with cannabis-enhanced intention</li>
+                <li><strong>Retro Wisdom:</strong> Understanding fundamentals before modern abstractions</li>
+                <li><strong>Mycelial Graphics:</strong> How tiles connect like fungal networks</li>
+            </ul>
+        </div>
+
+        <div class="philosophy">
+            <strong>Educational Revolution:</strong> "Modern graphics programming hides the fundamentals behind
+            layers of abstraction. This PPU strips away complexity and shows how graphics really work:
+            patterns in memory, colors from palettes, and pixels placed one at a time.
+            Cannabis enhancement reveals the beauty in these simple, elegant constraints."
+        </div>
+
+        <div class="educational-info">
+            <h3>🎯 Complete Educational Stack Achievement</h3>
+            <ul>
+                <li>✅ <strong>Hardware Simulation:</strong> Cannabis-Enhanced Virtual Machine</li>
+                <li>✅ <strong>Graphics Programming:</strong> This PPU Implementation</li>
+                <li>✅ <strong>Firmware Programming:</strong> Educational EFI Loader</li>
+                <li>✅ <strong>Kernel Development:</strong> Filesystem + Kernel Modules</li>
+                <li>✅ <strong>Process Management:</strong> Educational Scheduler</li>
+                <li>✅ <strong>Network Programming:</strong> Custom Protocol Design</li>
+                <li>✅ <strong>Assembly Programming:</strong> Macro System</li>
+            </ul>
+            <p style="color: #80bf80; text-align: center; margin-top: 20px;">
+                <strong>The mycelial network now spans from simulated silicon to rendered pixels!</strong>
+            </p>
+        </div>
+    </div>
+
+    <script src="randy_cannabis_enhanced_ppu.js"></script>
+    <script>
+        // Additional demo functions for the interface
+        let animationEnabled = true;
+
+        function toggleAnimation() {
+            animationEnabled = !animationEnabled;
+            // Implementation would pause/resume sprite animation
+            console.log('Animation ' + (animationEnabled ? 'enabled' : 'disabled'));
+        }
+
+        function randomizeBackground() {
+            // Simple background randomization for demo
+            for (let i = 0; i < 50; i++) {
+                const x = Math.floor(Math.random() * CEPU_CONFIG.TILES_X);
+                const y = Math.floor(Math.random() * CEPU_CONFIG.TILES_Y);
+                const tileId = Math.floor(Math.random() * 4) + 1;
+                const paletteId = Math.floor(Math.random() * 4);
+                ppu.setBackgroundTile(x, y, tileId, paletteId);
+            }
+            console.log('🎲 Background randomized with plant spirit chaos!');
+        }
+
+        // Update strain display when plant spirit changes
+        function updateStrainDisplay() {
+            const strainElement = document.getElementById('currentStrain');
+            if (strainElement && ppu) {
+                strainElement.textContent = ppu.plantSpiritMode;
+            }
+        }
+
+        // Override the changePlantSpirit function to update display
+        const originalChangePlantSpirit = changePlantSpirit;
+        changePlantSpirit = function () {
+            originalChangePlantSpirit();
+            setTimeout(updateStrainDisplay, 100);
+        };
+    </script>
+</body>
+
+</html>
