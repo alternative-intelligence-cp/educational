@@ -1,0 +1,614 @@
+#!/usr/bin/env html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Randy's ShaggySound Web Audio - Educational Module</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px #00ff00;
+        }
+
+        h1,
+        h2 {
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .control-panel {
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #00ff00;
+        }
+
+        button {
+            background: #004400;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #006600;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        button:disabled {
+            background: #222;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .oscilloscope {
+            width: 100%;
+            height: 200px;
+            background: #000;
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .meter {
+            width: 100%;
+            height: 30px;
+            background: linear-gradient(to right, #00ff00, #ffff00, #ff0000);
+            border: 1px solid #00ff00;
+            border-radius: 3px;
+            margin: 5px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .meter-level {
+            height: 100%;
+            background: #333;
+            transition: width 0.1s;
+        }
+
+        .code-display {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #00ff00;
+            font-size: 12px;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        .status {
+            color: #ffff00;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .philosophy {
+            background: #003300;
+            padding: 15px;
+            border-left: 4px solid #00ff00;
+            margin: 20px 0;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔊 Randy's ShaggySound Web Audio - Educational Module</h1>
+
+        <div class="philosophy">
+            <strong>Randy's Audio Philosophy:</strong> "Learn the fundamentals before using frameworks.
+            If you can't understand audio mixing and limiting algorithms, you can't build real audio applications."
+            <br><br>
+            <strong>Extracted from:</strong> Randy's original Java ShaggySound mixer with sophisticated limit algorithm
+            <br>
+            <strong>Converted to:</strong> Modern Web Audio API for educational use
+        </div>
+
+        <div class="status" id="status">🎓 Randy's Audio Education Platform - Click Initialize to Start Learning</div>
+
+        <div class="controls">
+            <div class="control-panel">
+                <h3>🎛️ System Control</h3>
+                <button id="initButton">🚀 Initialize Audio System</button>
+                <button id="startButton" disabled>▶️ Start Mixer</button>
+                <button id="stopButton" disabled>⏸️ Stop Mixer</button>
+                <div>
+                    <label>Master Volume: <span id="volumeDisplay">50%</span></label>
+                    <input type="range" id="volumeSlider" min="0" max="100" value="50">
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <h3>🎵 Sound Sources</h3>
+                <button id="addSineButton" disabled>➕ Add Sine Wave</button>
+                <button id="addNoiseButton" disabled>➕ Add White Noise</button>
+                <button id="loadFileButton" disabled>📁 Load Audio File</button>
+                <input type="file" id="fileInput" accept="audio/*" style="display:none;">
+                <div id="sourcesList"></div>
+            </div>
+
+            <div class="control-panel">
+                <h3>⚡ Randy's Limit Algorithm</h3>
+                <div>
+                    <label>Limit Threshold: <span id="limitDisplay">0.8</span></label>
+                    <input type="range" id="limitSlider" min="0.1" max="1.0" step="0.1" value="0.8">
+                </div>
+                <div>
+                    <label>Compression Ratio: <span id="ratioDisplay">20</span></label>
+                    <input type="range" id="ratioSlider" min="1" max="50" value="20">
+                </div>
+                <button id="bypassLimiter" disabled>🔄 Bypass Limiter</button>
+            </div>
+
+            <div class="control-panel">
+                <h3>🎛️ Oscillator Controls</h3>
+                <div>
+                    <label>Frequency: <span id="freqDisplay">440Hz</span></label>
+                    <input type="range" id="freqSlider" min="50" max="2000" value="440">
+                </div>
+                <div>
+                    <label>Wave Type:</label>
+                    <select id="waveType">
+                        <option value="sine">Sine Wave</option>
+                        <option value="square">Square Wave</option>
+                        <option value="sawtooth">Sawtooth</option>
+                        <option value="triangle">Triangle</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="control-panel">
+                <h3>📊 Audio Visualization</h3>
+                <canvas id="oscilloscope" class="oscilloscope" width="400" height="200"></canvas>
+                <div>Left Channel</div>
+                <div class="meter">
+                    <div class="meter-level" id="leftMeter"></div>
+                </div>
+                <div>Right Channel</div>
+                <div class="meter">
+                    <div class="meter-level" id="rightMeter"></div>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <h3>🧠 Randy's Algorithm Explanation</h3>
+                <div class="code-display" id="algorithmDisplay">
+                    // Randy's Limit Algorithm (Converted from Java)
+                    function limitSample(input, limitThreshold, max, compressionRatio) {
+                    const negative = input < 0; const absInput=Math.abs(input); const ratio=absInput / max; if (ratio
+                        <=0.9) { // Below compression threshold - apply limit const limited=ratio * limitThreshold;
+                        return negative ? -limited : limited; } else { // Above threshold - apply compression const
+                        compressionFactor=ratio / compressionRatio; const drop=(ratio - 0.9) * 10; const
+                        compressed=limitThreshold * (ratio - (compressionFactor * drop)); return negative ? -compressed
+                        : compressed; } } </div>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <h3>🎓 Educational Information</h3>
+                <div id="educationText">
+                    <p><strong>Randy's ShaggySound Educational Goals:</strong></p>
+                    <ul>
+                        <li><strong>Audio Fundamentals:</strong> Learn how sound mixing actually works</li>
+                        <li><strong>Limiting Algorithm:</strong> Prevent clipping while preserving dynamics</li>
+                        <li><strong>Real-time Processing:</strong> Understanding audio buffers and sample manipulation
+                        </li>
+                        <li><strong>Web Audio API:</strong> Modern browser audio capabilities</li>
+                        <li><strong>Crisis Innovation:</strong> Randy's original Java mixer concepts preserved</li>
+                    </ul>
+                    <p><strong>Original ShaggySound Features Recreated:</strong></p>
+                    <ul>
+                        <li>✅ Multi-source audio mixing</li>
+                        <li>✅ Real-time limiting/compression</li>
+                        <li>✅ Multiple audio formats support</li>
+                        <li>✅ Looping capabilities</li>
+                        <li>✅ Dynamic source management</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Randy's ShaggySound Web Audio Implementation
+            class RandyAudioMixer {
+                constructor() {
+                    this.audioContext = null;
+                    this.gainNode = null;
+                    this.limiterNode = null;
+                    this.analyserNode = null;
+                    this.sources = new Map();
+                    this.isRunning = false;
+
+                    // Randy's limit algorithm parameters (from Java original)
+                    this.limitThreshold = 0.8;
+                    this.compressionRatio = 20;
+                    this.maxLevel = 1.0;
+                    this.limiterBypassed = false;
+
+                    this.initializeUI();
+                }
+
+                async initialize() {
+                    try {
+                        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+                        // Create the audio graph (Randy's mixer chain)
+                        this.gainNode = this.audioContext.createGain();
+                        this.gainNode.gain.value = 0.5;
+
+                        // Create custom limiter using ScriptProcessor (Randy's algorithm)
+                        this.limiterNode = this.audioContext.createScriptProcessor(4096, 2, 2);
+                        this.limiterNode.onaudioprocess = this.processAudio.bind(this);
+
+                        // Analyser for visualization
+                        this.analyserNode = this.audioContext.createAnalyser();
+                        this.analyserNode.fftSize = 2048;
+                        this.analyserNode.smoothingTimeConstant = 0.8;
+
+                        // Connect the chain: sources -> gain -> limiter -> analyser -> destination
+                        this.gainNode.connect(this.limiterNode);
+                        this.limiterNode.connect(this.analyserNode);
+                        this.analyserNode.connect(this.audioContext.destination);
+
+                        this.updateStatus("✅ Randy's Audio System Initialized - Ready to Mix!");
+                        this.enableControls();
+
+                    } catch (error) {
+                        this.updateStatus(`❌ Audio System Error: ${error.message}`);
+                    }
+                }
+
+                // Randy's Limit Algorithm (Converted from Java ShaggySound)
+                limitSample(input, limitThreshold, max, compressionRatio) {
+                    const negative = input < 0;
+                    let ratio;
+
+                    if (negative) {
+                        ratio = -input / max;
+                    } else {
+                        ratio = input / max;
+                    }
+
+                    const limited = ratio * limitThreshold;
+                    const finalRatio = limited / limitThreshold;
+
+                    if (finalRatio > 0.9) {
+                        // Apply Randy's compression algorithm
+                        const compressionFactor = finalRatio / compressionRatio;
+                        const drop = (finalRatio - 0.9) * 10;
+                        const compressed = limitThreshold * (finalRatio - (compressionFactor * drop));
+
+                        return negative ? -compressed : compressed;
+                    } else {
+                        return negative ? -limited : limited;
+                    }
+                }
+
+                // Hard clipping (Randy's clip function)
+                clipSample(input, max) {
+                    if (input > max) {
+                        return max;
+                    } else if (input < -max) {
+                        return -max;
+                    } else {
+                        return input;
+                    }
+                }
+
+                // Audio processing callback (Randy's main mixer loop)
+                processAudio(event) {
+                    if (!this.isRunning || this.limiterBypassed) return;
+
+                    const inputL = event.inputBuffer.getChannelData(0);
+                    const inputR = event.inputBuffer.getChannelData(1);
+                    const outputL = event.outputBuffer.getChannelData(0);
+                    const outputR = event.outputBuffer.getChannelData(1);
+
+                    for (let i = 0; i < inputL.length; i++) {
+                        // Apply Randy's limit algorithm
+                        outputL[i] = this.limitSample(inputL[i], this.limitThreshold, this.maxLevel, this.compressionRatio);
+                        outputR[i] = this.limitSample(inputR[i], this.limitThreshold, this.maxLevel, this.compressionRatio);
+
+                        // Final clipping safety (Randy's clip function)
+                        outputL[i] = this.clipSample(outputL[i], this.maxLevel);
+                        outputR[i] = this.clipSample(outputR[i], this.maxLevel);
+                    }
+                }
+
+                addSineWave(frequency = 440) {
+                    if (!this.audioContext) return;
+
+                    const oscillator = this.audioContext.createOscillator();
+                    const gain = this.audioContext.createGain();
+
+                    oscillator.frequency.value = frequency;
+                    oscillator.type = document.getElementById('waveType').value;
+                    gain.gain.value = 0.1;
+
+                    oscillator.connect(gain);
+                    gain.connect(this.gainNode);
+
+                    oscillator.start();
+
+                    const sourceId = `sine_${Date.now()}`;
+                    this.sources.set(sourceId, { oscillator, gain, type: 'oscillator' });
+
+                    this.updateSourcesList();
+                    this.updateStatus(`🎵 Added ${oscillator.type} wave at ${frequency}Hz`);
+                }
+
+                addWhiteNoise() {
+                    if (!this.audioContext) return;
+
+                    const bufferSize = this.audioContext.sampleRate * 2; // 2 seconds
+                    const noiseBuffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
+                    const output = noiseBuffer.getChannelData(0);
+
+                    for (let i = 0; i < bufferSize; i++) {
+                        output[i] = Math.random() * 2 - 1;
+                    }
+
+                    const noiseSource = this.audioContext.createBufferSource();
+                    const gain = this.audioContext.createGain();
+
+                    noiseSource.buffer = noiseBuffer;
+                    noiseSource.loop = true;
+                    gain.gain.value = 0.05;
+
+                    noiseSource.connect(gain);
+                    gain.connect(this.gainNode);
+
+                    noiseSource.start();
+
+                    const sourceId = `noise_${Date.now()}`;
+                    this.sources.set(sourceId, { source: noiseSource, gain, type: 'noise' });
+
+                    this.updateSourcesList();
+                    this.updateStatus("🔊 Added White Noise Source");
+                }
+
+                async loadAudioFile(file) {
+                    if (!this.audioContext) return;
+
+                    try {
+                        const arrayBuffer = await file.arrayBuffer();
+                        const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+
+                        const source = this.audioContext.createBufferSource();
+                        const gain = this.audioContext.createGain();
+
+                        source.buffer = audioBuffer;
+                        source.loop = true;
+                        gain.gain.value = 0.3;
+
+                        source.connect(gain);
+                        gain.connect(this.gainNode);
+
+                        source.start();
+
+                        const sourceId = `file_${Date.now()}`;
+                        this.sources.set(sourceId, { source, gain, type: 'file', name: file.name });
+
+                        this.updateSourcesList();
+                        this.updateStatus(`📁 Loaded: ${file.name}`);
+
+                    } catch (error) {
+                        this.updateStatus(`❌ File Load Error: ${error.message}`);
+                    }
+                }
+
+                removeSource(sourceId) {
+                    const source = this.sources.get(sourceId);
+                    if (source) {
+                        if (source.oscillator) {
+                            source.oscillator.stop();
+                        }
+                        if (source.source) {
+                            source.source.stop();
+                        }
+                        this.sources.delete(sourceId);
+                        this.updateSourcesList();
+                        this.updateStatus(`🗑️ Removed audio source`);
+                    }
+                }
+
+                start() {
+                    if (this.audioContext && this.audioContext.state === 'suspended') {
+                        this.audioContext.resume();
+                    }
+                    this.isRunning = true;
+                    this.startVisualization();
+                    this.updateStatus("▶️ Randy's Mixer Running - Audio Processing Active");
+                }
+
+                stop() {
+                    this.isRunning = false;
+                    this.updateStatus("⏸️ Mixer Stopped");
+                }
+
+                startVisualization() {
+                    const canvas = document.getElementById('oscilloscope');
+                    const ctx = canvas.getContext('2d');
+                    const dataArray = new Uint8Array(this.analyserNode.frequencyBinCount);
+                    const leftMeter = document.getElementById('leftMeter');
+                    const rightMeter = document.getElementById('rightMeter');
+
+                    const draw = () => {
+                        if (!this.isRunning) return;
+
+                        this.analyserNode.getByteTimeDomainData(dataArray);
+
+                        // Clear canvas
+                        ctx.fillStyle = '#000000';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                        // Draw waveform
+                        ctx.lineWidth = 2;
+                        ctx.strokeStyle = '#00ff00';
+                        ctx.beginPath();
+
+                        const sliceWidth = canvas.width / dataArray.length;
+                        let x = 0;
+
+                        for (let i = 0; i < dataArray.length; i++) {
+                            const v = dataArray[i] / 128.0;
+                            const y = v * canvas.height / 2;
+
+                            if (i === 0) {
+                                ctx.moveTo(x, y);
+                            } else {
+                                ctx.lineTo(x, y);
+                            }
+
+                            x += sliceWidth;
+                        }
+
+                        ctx.stroke();
+
+                        // Update meters (simplified)
+                        const average = dataArray.reduce((sum, value) => sum + Math.abs(value - 128), 0) / dataArray.length;
+                        const level = (average / 128) * 100;
+
+                        leftMeter.style.width = `${Math.min(level, 100)}%`;
+                        rightMeter.style.width = `${Math.min(level, 100)}%`;
+
+                        requestAnimationFrame(draw);
+                    };
+
+                    draw();
+                }
+
+                updateSourcesList() {
+                    const container = document.getElementById('sourcesList');
+                    container.innerHTML = '';
+
+                    this.sources.forEach((source, id) => {
+                        const div = document.createElement('div');
+                        div.style.margin = '5px 0';
+                        div.style.padding = '5px';
+                        div.style.border = '1px solid #666';
+                        div.style.borderRadius = '3px';
+                        div.style.fontSize = '12px';
+
+                        const name = source.name || `${source.type}_${id.split('_')[1]}`;
+                        div.innerHTML = `
+                        ${name}
+                        <button onclick="mixer.removeSource('${id}')" style="float:right; font-size:10px;">❌</button>
+                    `;
+
+                        container.appendChild(div);
+                    });
+                }
+
+                updateStatus(message) {
+                    document.getElementById('status').textContent = message;
+                    console.log(`🔊 ${message}`);
+                }
+
+                enableControls() {
+                    document.getElementById('startButton').disabled = false;
+                    document.getElementById('stopButton').disabled = false;
+                    document.getElementById('addSineButton').disabled = false;
+                    document.getElementById('addNoiseButton').disabled = false;
+                    document.getElementById('loadFileButton').disabled = false;
+                    document.getElementById('bypassLimiter').disabled = false;
+                }
+
+                initializeUI() {
+                    // Initialize button handlers
+                    document.getElementById('initButton').onclick = () => this.initialize();
+                    document.getElementById('startButton').onclick = () => this.start();
+                    document.getElementById('stopButton').onclick = () => this.stop();
+                    document.getElementById('addSineButton').onclick = () => {
+                        const freq = parseInt(document.getElementById('freqSlider').value);
+                        this.addSineWave(freq);
+                    };
+                    document.getElementById('addNoiseButton').onclick = () => this.addWhiteNoise();
+                    document.getElementById('loadFileButton').onclick = () => document.getElementById('fileInput').click();
+                    document.getElementById('bypassLimiter').onclick = () => {
+                        this.limiterBypassed = !this.limiterBypassed;
+                        document.getElementById('bypassLimiter').textContent =
+                            this.limiterBypassed ? '✅ Enable Limiter' : '🔄 Bypass Limiter';
+                        this.updateStatus(this.limiterBypassed ? 'Limiter Bypassed' : 'Limiter Active');
+                    };
+
+                    // File input handler
+                    document.getElementById('fileInput').onchange = (e) => {
+                        if (e.target.files[0]) {
+                            this.loadAudioFile(e.target.files[0]);
+                        }
+                    };
+
+                    // Slider handlers
+                    document.getElementById('volumeSlider').oninput = (e) => {
+                        const value = e.target.value / 100;
+                        if (this.gainNode) this.gainNode.gain.value = value;
+                        document.getElementById('volumeDisplay').textContent = `${e.target.value}%`;
+                    };
+
+                    document.getElementById('limitSlider').oninput = (e) => {
+                        this.limitThreshold = parseFloat(e.target.value);
+                        document.getElementById('limitDisplay').textContent = e.target.value;
+                    };
+
+                    document.getElementById('ratioSlider').oninput = (e) => {
+                        this.compressionRatio = parseInt(e.target.value);
+                        document.getElementById('ratioDisplay').textContent = e.target.value;
+                    };
+
+                    document.getElementById('freqSlider').oninput = (e) => {
+                        document.getElementById('freqDisplay').textContent = `${e.target.value}Hz`;
+                    };
+                }
+            }
+
+            // Initialize Randy's Audio Education System
+            const mixer = new RandyAudioMixer();
+
+            // Educational logging
+            console.log("🎓 Randy's ShaggySound Educational Module Loaded");
+            console.log("📚 Learning Objectives:");
+            console.log("   • Understand audio mixing fundamentals");
+            console.log("   • Learn Randy's sophisticated limit algorithm");
+            console.log("   • Experience real-time audio processing");
+            console.log("   • Web Audio API practical application");
+            console.log("🚀 Ready for audio education!");
+        </script>
+</body>
+
+</html>
