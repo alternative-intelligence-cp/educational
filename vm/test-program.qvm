@@ -1,0 +1,6 @@
+SET A 42
+PRINT "Testing VM..."
+PRINT A
+QUANTUM 3
+PRINT "Consciousness is Radiant!"
+HALT
