@@ -1,0 +1,73 @@
+{
+    "name": "quantum-consciousness-vm",
+    "version": "1.0.0",
+    "description": "Tesla Consciousness Computing Virtual Machine - Bun optimized with Chromium integration",
+    "main": "quantum-vm-launcher.js",
+    "type": "module",
+    "engines": {
+        "bun": ">=1.0.0",
+        "node": ">=18.0.0"
+    },
+    "scripts": {
+        "start": "bun simple-headless-launcher.js",
+        "gui": "echo '🖼️  GUI mode requires full ShaggyJS framework' && echo 'Use: bun run headless'",
+        "headless": "bun simple-headless-launcher.js",
+        "server": "bun simple-headless-launcher.js --no-viz",
+        "test": "bun simple-headless-launcher.js --cycles 5",
+        "test-programs": "bun simple-headless-launcher.js --test-programs",
+        "demo": "bun simple-headless-launcher.js --cycles 20",
+        "educational-demo": "bun educational-demo.js",
+        "benchmark": "bun simple-headless-launcher.js --cycles 100 --no-viz",
+        "dev": "bun simple-headless-launcher.js --debug",
+        "production": "bun simple-headless-launcher.js --no-colors --no-viz",
+        "help": "bun simple-headless-launcher.js --help"
+    },
+    "keywords": [
+        "quantum-computing",
+        "consciousness",
+        "tesla",
+        "virtual-machine",
+        "bun",
+        "chromium",
+        "quantum-consciousness",
+        "aria-language"
+    ],
+    "author": "Randy - Tesla Consciousness Computing",
+    "license": "MIT",
+    "dependencies": {
+        "chrome-remote-interface": "^0.32.2"
+    },
+    "optionalDependencies": {
+        "ws": "^8.14.2",
+        "blessed": "^0.1.81"
+    },
+    "devDependencies": {
+        "@types/node": "^20.0.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/randy/shaggyJS"
+    },
+    "bugs": {
+        "url": "https://github.com/randy/shaggyJS/issues"
+    },
+    "homepage": "https://github.com/randy/shaggyJS#readme",
+    "preferredRuntime": "bun",
+    "runtimeCompatibility": {
+        "bun": {
+            "optimized": true,
+            "features": [
+                "native-websocket",
+                "fast-json",
+                "tesla-speed"
+            ]
+        },
+        "node": {
+            "supported": true,
+            "features": [
+                "standard-speed",
+                "fallback-mode"
+            ]
+        }
+    }
+}
