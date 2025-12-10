@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello World - SJS Framework</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 600px;
+            margin: 60px auto;
+            padding: 0 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            background: #f5f5f5;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        #counter {
+            font-size: 48px;
+            font-weight: bold;
+            color: #007bff;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        #log {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px 0;
+        }
+    </style>
+    <script>
+        // Configure SJS to load automatically
+        globalThis.configFileSrc = "./config.json";
+    </script>
+    <!-- Load SJS Framework -->
+    <script src="../../core/sjs-full.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🚀 SJS Framework - Hello World</h1>
+        <p>This example demonstrates:</p>
+        <ul>
+            <li><strong>Pub/Sub</strong> - Event-driven communication</li>
+            <li><strong>Storage</strong> - Persistent counter</li>
+            <li><strong>Logger</strong> - Structured logging</li>
+        </ul>
+
+        <div id="counter">0</div>
+
+        <div style="text-align: center;">
+            <button id="inc-btn">Increment</button>
+            <button id="dec-btn">Decrement</button>
+            <button id="reset-btn">Reset</button>
+        </div>
+
+        <div id="log">
+            <strong>Event Log:</strong>
+        </div>
+    </div>
+
+    <script type="module">
+        // Wait for SJS to initialize
+        setTimeout(async () => {
+            const SJS = globalThis.SJS;
+            const pubSub = SJS.modules.get("pubSub");
+            const storage = SJS.modules.get("storage");
+            const logger = SJS.modules.get("logger");
+
+            // Create app logger
+            const log = logger.create("hello-world", { level: "info" });
+
+            // DOM elements
+            const counterEl = document.getElementById("counter");
+            const logEl = document.getElementById("log");
+            const incBtn = document.getElementById("inc-btn");
+            const decBtn = document.getElementById("dec-btn");
+            const resetBtn = document.getElementById("reset-btn");
+
+            // Add log entry to UI
+            function addLogEntry(message, data = {}) {
+                const entry = document.createElement("div");
+                entry.className = "log-entry";
+                entry.textContent = `[${new Date().toLocaleTimeString()}] ${message} ${JSON.stringify(data)}`;
+                logEl.appendChild(entry);
+                logEl.scrollTop = logEl.scrollHeight;
+            }
+
+            // Load counter from storage
+            let counter = (await storage.get("counter")) || 0;
+            counterEl.textContent = counter;
+            log.info("Counter loaded from storage", { counter });
+            addLogEntry("App initialized", { counter });
+
+            // Subscribe to counter updates
+            pubSub.subscribe("counter:changed", async (data) => {
+                counter = data.value;
+                counterEl.textContent = counter;
+                await storage.set("counter", counter);
+                log.info("Counter updated", data);
+                addLogEntry("Counter changed", data);
+            });
+
+            // Button handlers
+            incBtn.addEventListener("click", () => {
+                pubSub.publish("counter:changed", {
+                    value: counter + 1,
+                    action: "increment"
+                });
+            });
+
+            decBtn.addEventListener("click", () => {
+                pubSub.publish("counter:changed", {
+                    value: counter - 1,
+                    action: "decrement"
+                });
+            });
+
+            resetBtn.addEventListener("click", () => {
+                pubSub.publish("counter:changed", {
+                    value: 0,
+                    action: "reset"
+                });
+            });
+
+            log.info("Event listeners attached");
+            addLogEntry("Ready for interaction");
+
+        }, 100);
+    </script>
+</body>
+
+</html>

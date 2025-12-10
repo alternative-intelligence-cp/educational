@@ -1,0 +1,7 @@
+{
+    "storage": {
+        "driver": "auto",
+        "namespace": "hello-world",
+        "broadcast": true
+    }
+}
