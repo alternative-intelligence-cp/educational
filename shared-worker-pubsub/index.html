@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SharedWorker PubSub Demo</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; transition: background 0.5s; }
+        .controls { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 2rem; }
+        button { padding: 10px; cursor: pointer; }
+        input { padding: 10px; }
+        #logs { border: 1px solid #ddd; height: 300px; overflow-y: auto; padding: 10px; background: #fafafa; }
+        .card { border: 1px solid #ccc; padding: 15px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>📡 Pub/Sub Hub</h1>
+    <p>Open this page in multiple tabs to see them talk.</p>
+    
+    <div class="controls">
+        <div class="card">
+            <h3>💬 Chat</h3>
+            <input type="text" id="chat-input" placeholder="Type a message...">
+            <button id="send-chat">Publish</button>
+        </div>
+        <div class="card">
+            <h3>📢 System</h3>
+            <button id="send-broadcast">Broadcast Alert</button>
+        </div>
+        <div class="card">
+            <h3>🧮 Worker Job</h3>
+            <button id="send-math">Request Heavy Math</button>
+        </div>
+    </div>
+
+    <h3>Event Log</h3>
+    <div id="logs"></div>
+
+    <script type="module" src="./main.js"></script>
+</body>
+</html>
