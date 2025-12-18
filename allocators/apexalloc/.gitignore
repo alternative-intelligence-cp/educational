@@ -1,0 +1,16 @@
+build/
+*.o
+*.so
+*.a
+*.dylib
+*.exe
+*.out
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+*.log
+core
+vgcore.*
