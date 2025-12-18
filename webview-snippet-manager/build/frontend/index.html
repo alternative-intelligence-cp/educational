@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snippet Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px 30px;
+            border-bottom: 2px solid #0f3460;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            color: #00d4ff;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            padding: 15px 30px;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid #0f3460;
+        }
+
+        #searchInput {
+            flex: 1;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #0f3460;
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 1em;
+        }
+
+        #searchInput:focus {
+            outline: none;
+            border-color: #00d4ff;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Buttons */
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1em;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+            color: #1a1a2e;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff4757 0%, #cc3a48 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Snippet List */
+        .snippet-list {
+            width: 350px;
+            background: rgba(0, 0, 0, 0.2);
+            border-right: 1px solid #0f3460;
+            overflow-y: auto;
+        }
+
+        #snippetListContainer {
+            padding: 10px;
+        }
+
+        .snippet-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #0f3460;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .snippet-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #00d4ff;
+        }
+
+        .snippet-item.active {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: #00d4ff;
+        }
+
+        .snippet-item-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #00d4ff;
+            margin-bottom: 8px;
+        }
+
+        .snippet-item-meta {
+            display: flex;
+            gap: 10px;
+            font-size: 0.85em;
+            color: #888;
+        }
+
+        .snippet-item-language {
+            background: rgba(0, 212, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #00d4ff;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        /* Editor Panel */
+        .editor-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #editorContainer {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .editor-header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid #0f3460;
+        }
+
+        .title-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #0f3460;
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+
+        .title-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+
+        .editor-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .language-select, .tags-input {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #0f3460;
+            border-radius: 6px;
+            color: #e0e0e0;
+        }
+
+        .language-select {
+            width: 150px;
+        }
+
+        .tags-input {
+            flex: 1;
+        }
+
+        #codeEditor {
+            flex: 1;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border: none;
+            color: #e0e0e0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: none;
+            tab-size: 4;
+        }
+
+        #codeEditor:focus {
+            outline: none;
+        }
+
+        .editor-footer {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid #0f3460;
+            display: flex;
+            gap: 10px;
+        }
+
+        .empty-editor {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-editor-content {
+            text-align: center;
+            color: #666;
+        }
+
+        .empty-editor h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 30px;
+            border-top: 1px solid #0f3460;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #0f3460;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00d4ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>📝 Snippet Manager</h1>
+            <p class="subtitle">Built with webview • C++ ↔ JavaScript Bridge Demo</p>
+        </header>
+
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 Search snippets..." />
+            <button id="newSnippetBtn" class="btn-primary">+ New Snippet</button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Snippet List -->
+            <div class="snippet-list">
+                <div id="snippetListContainer">
+                    <p class="empty-state">No snippets yet. Create your first one!</p>
+                </div>
+            </div>
+
+            <!-- Editor Panel -->
+            <div class="editor-panel">
+                <div id="editorContainer" class="hidden">
+                    <div class="editor-header">
+                        <input type="text" id="snippetTitle" placeholder="Snippet Title" class="title-input" />
+                        <div class="editor-controls">
+                            <select id="languageSelect" class="language-select">
+                                <option value="javascript">JavaScript</option>
+                                <option value="python">Python</option>
+                                <option value="cpp">C++</option>
+                                <option value="rust">Rust</option>
+                                <option value="go">Go</option>
+                                <option value="bash">Bash</option>
+                                <option value="sql">SQL</option>
+                                <option value="html">HTML</option>
+                                <option value="css">CSS</option>
+                                <option value="json">JSON</option>
+                            </select>
+                            <input type="text" id="snippetTags" placeholder="Tags (comma separated)" class="tags-input" />
+                        </div>
+                    </div>
+
+                    <textarea id="codeEditor" placeholder="Write your code here..."></textarea>
+
+                    <div class="editor-footer">
+                        <button id="saveBtn" class="btn-success">💾 Save</button>
+                        <button id="deleteBtn" class="btn-danger">🗑️ Delete</button>
+                        <button id="cancelBtn" class="btn-secondary">Cancel</button>
+                    </div>
+                </div>
+
+                <div id="emptyEditor" class="empty-editor">
+                    <div class="empty-editor-content">
+                        <h2>👈 Select a snippet</h2>
+                        <p>Or create a new one to get started</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span id="statusText">Ready</span>
+            <span id="snippetCount">0 snippets</span>
+        </div>
+    </div>
+
+    <script>
+        // Snippet Manager Frontend - Webview Bridge Demo
+
+        let snippets = [];
+        let currentSnippet = null;
+        let isNewSnippet = false;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            log('Snippet Manager initializing...');
+
+            document.getElementById('newSnippetBtn').addEventListener('click', createNewSnippet);
+            document.getElementById('saveBtn').addEventListener('click', saveSnippet);
+            document.getElementById('deleteBtn').addEventListener('click', deleteSnippet);
+            document.getElementById('cancelBtn').addEventListener('click', cancelEdit);
+            document.getElementById('searchInput').addEventListener('input', handleSearch);
+
+            await loadSnippets();
+            setStatus('Ready');
+        });
+
+        // Load all snippets
+        async function loadSnippets() {
+            try {
+                setStatus('Loading snippets...');
+                const result = await list_snippets();
+                snippets = JSON.parse(result);
+
+                if (snippets.error) {
+                    setStatus('Error: ' + snippets.error);
+                    return;
+                }
+
+                renderSnippetList();
+                updateSnippetCount();
+                setStatus('Loaded ' + snippets.length + ' snippets');
+            } catch (error) {
+                log('Failed to load snippets: ' + error);
+                setStatus('Error loading snippets');
+            }
+        }
+
+        // Render snippet list
+        function renderSnippetList() {
+            const container = document.getElementById('snippetListContainer');
+
+            if (snippets.length === 0) {
+                container.innerHTML = '<p class="empty-state">No snippets yet. Create your first one!</p>';
+                return;
+            }
+
+            container.innerHTML = snippets.map(snippet => `
+                <div class="snippet-item ${currentSnippet && currentSnippet.id === snippet.id ? 'active' : ''}" 
+                     onclick="selectSnippet('${snippet.id}')">
+                    <div class="snippet-item-title">${escapeHtml(snippet.title)}</div>
+                    <div class="snippet-item-meta">
+                        <span class="snippet-item-language">${snippet.language}</span>
+                        ${snippet.tags && snippet.tags.length > 0 ? `<span>${snippet.tags.join(', ')}</span>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Select snippet
+        async function selectSnippet(id) {
+            try {
+                const result = await get_snippet(id);
+                const snippet = JSON.parse(result);
+
+                if (snippet.error) {
+                    setStatus('Error: ' + snippet.error);
+                    return;
+                }
+
+                currentSnippet = snippet;
+                isNewSnippet = false;
+
+                displaySnippet(snippet);
+                renderSnippetList();
+            } catch (error) {
+                log('Failed to get snippet: ' + error);
+                setStatus('Error loading snippet');
+            }
+        }
+
+        // Display snippet in editor
+        function displaySnippet(snippet) {
+            document.getElementById('emptyEditor').classList.add('hidden');
+            document.getElementById('editorContainer').classList.remove('hidden');
+
+            document.getElementById('snippetTitle').value = snippet.title;
+            document.getElementById('languageSelect').value = snippet.language;
+            document.getElementById('codeEditor').value = snippet.code;
+            document.getElementById('snippetTags').value = snippet.tags.join(', ');
+        }
+
+        // Create new snippet
+        function createNewSnippet() {
+            currentSnippet = null;
+            isNewSnippet = true;
+
+            document.getElementById('emptyEditor').classList.add('hidden');
+            document.getElementById('editorContainer').classList.remove('hidden');
+
+            document.getElementById('snippetTitle').value = '';
+            document.getElementById('languageSelect').value = 'javascript';
+            document.getElementById('codeEditor').value = '';
+            document.getElementById('snippetTags').value = '';
+
+            document.getElementById('snippetTitle').focus();
+        }
+
+        // Save snippet
+        async function saveSnippet() {
+            const title = document.getElementById('snippetTitle').value.trim();
+            const language = document.getElementById('languageSelect').value;
+            const code = document.getElementById('codeEditor').value;
+            const tags = document.getElementById('snippetTags').value.trim();
+
+            if (!title) {
+                alert('Please enter a title');
+                return;
+            }
+
+            try {
+                setStatus('Saving...');
+
+                let result;
+                if (isNewSnippet) {
+                    result = await create_snippet(title, language, code, tags);
+                    const data = JSON.parse(result);
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    currentSnippet = { id: data.id };
+                    isNewSnippet = false;
+                } else {
+                    result = await update_snippet(currentSnippet.id, title, language, code, tags);
+                    const data = JSON.parse(result);
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                }
+
+                await loadSnippets();
+                await selectSnippet(currentSnippet.id);
+
+                setStatus('Saved!');
+            } catch (error) {
+                log('Failed to save: ' + error);
+                setStatus('Error saving');
+                alert('Failed to save: ' + error);
+            }
+        }
+
+        // Delete snippet
+        async function deleteSnippet() {
+            if (!currentSnippet || isNewSnippet) return;
+
+            if (!confirm(`Delete snippet "${currentSnippet.title}"?`)) return;
+
+            try {
+                setStatus('Deleting...');
+                const result = await delete_snippet(currentSnippet.id);
+                const data = JSON.parse(result);
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                currentSnippet = null;
+                document.getElementById('editorContainer').classList.add('hidden');
+                document.getElementById('emptyEditor').classList.remove('hidden');
+
+                await loadSnippets();
+                setStatus('Deleted');
+            } catch (error) {
+                log('Failed to delete: ' + error);
+                setStatus('Error deleting');
+                alert('Failed to delete: ' + error);
+            }
+        }
+
+        // Cancel editing
+        function cancelEdit() {
+            currentSnippet = null;
+            isNewSnippet = false;
+            document.getElementById('editorContainer').classList.add('hidden');
+            document.getElementById('emptyEditor').classList.remove('hidden');
+        }
+
+        // Search snippets
+        let searchTimeout;
+        async function handleSearch(event) {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(async () => {
+                const query = event.target.value.trim();
+                if (query.length === 0) {
+                    await loadSnippets();
+                } else {
+                    const result = await search_snippets(query);
+                    snippets = JSON.parse(result);
+                    renderSnippetList();
+                    updateSnippetCount();
+                }
+            }, 300);
+        }
+
+        // Update snippet count
+        function updateSnippetCount() {
+            document.getElementById('snippetCount').textContent = 
+                snippets.length + ' snippet' + (snippets.length !== 1 ? 's' : '');
+        }
+
+        // Set status message
+        function setStatus(message) {
+            document.getElementById('statusText').textContent = message;
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

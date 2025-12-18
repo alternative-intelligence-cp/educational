@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snippet Manager</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>📝 Snippet Manager</h1>
+            <p class="subtitle">Built with Saucer • C++ ↔ JavaScript Bridge Demo</p>
+        </header>
+
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 Search snippets..." />
+            <button id="newSnippetBtn" class="btn-primary">+ New Snippet</button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Snippet List -->
+            <div class="snippet-list">
+                <div id="snippetListContainer">
+                    <p class="empty-state">No snippets yet. Create your first one!</p>
+                </div>
+            </div>
+
+            <!-- Editor Panel -->
+            <div class="editor-panel">
+                <div id="editorContainer" class="hidden">
+                    <div class="editor-header">
+                        <input type="text" id="snippetTitle" placeholder="Snippet Title" class="title-input" />
+                        <div class="editor-controls">
+                            <select id="languageSelect" class="language-select">
+                                <option value="javascript">JavaScript</option>
+                                <option value="python">Python</option>
+                                <option value="cpp">C++</option>
+                                <option value="rust">Rust</option>
+                                <option value="go">Go</option>
+                                <option value="bash">Bash</option>
+                                <option value="sql">SQL</option>
+                                <option value="html">HTML</option>
+                                <option value="css">CSS</option>
+                                <option value="json">JSON</option>
+                            </select>
+                            <input type="text" id="snippetTags" placeholder="Tags (comma separated)"
+                                class="tags-input" />
+                        </div>
+                    </div>
+
+                    <textarea id="codeEditor" placeholder="Write your code here..."></textarea>
+
+                    <div class="editor-footer">
+                        <button id="saveBtn" class="btn-success">💾 Save</button>
+                        <button id="deleteBtn" class="btn-danger">🗑️ Delete</button>
+                        <button id="cancelBtn" class="btn-secondary">Cancel</button>
+                    </div>
+                </div>
+
+                <div id="emptyEditor" class="empty-editor">
+                    <div class="empty-editor-content">
+                        <h2>👈 Select a snippet</h2>
+                        <p>Or create a new one to get started</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span id="statusText">Ready</span>
+            <span id="snippetCount">0 snippets</span>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

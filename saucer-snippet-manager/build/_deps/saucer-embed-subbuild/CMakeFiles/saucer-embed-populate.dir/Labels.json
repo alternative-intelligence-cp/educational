@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/saucer-embed-subbuild/CMakeFiles/saucer-embed-populate"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/saucer-embed-subbuild/CMakeFiles/saucer-embed-populate.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/saucer-embed-subbuild/CMakeFiles/saucer-embed-populate-complete.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/saucer-embed-subbuild/saucer-embed-populate-prefix/src/saucer-embed-populate-stamp/saucer-embed-populate-build.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/saucer-embed-subbuild/saucer-embed-populate-prefix/src/saucer-embed-populate-stamp/saucer-embed-populate-configure.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/saucer-embed-subbuild/saucer-embed-populate-prefix/src/saucer-embed-populate-stamp/saucer-embed-populate-download.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/saucer-embed-subbuild/saucer-embed-populate-prefix/src/saucer-embed-populate-stamp/saucer-embed-populate-install.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/saucer-embed-subbuild/saucer-embed-populate-prefix/src/saucer-embed-populate-stamp/saucer-embed-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/saucer-embed-subbuild/saucer-embed-populate-prefix/src/saucer-embed-populate-stamp/saucer-embed-populate-patch.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/saucer-embed-subbuild/saucer-embed-populate-prefix/src/saucer-embed-populate-stamp/saucer-embed-populate-test.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/saucer-embed-subbuild/saucer-embed-populate-prefix/src/saucer-embed-populate-stamp/saucer-embed-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"saucer-embed-populate"
+		],
+		"name" : "saucer-embed-populate"
+	}
+}

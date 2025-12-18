@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/polo-subbuild/CMakeFiles/polo-populate"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/polo-subbuild/CMakeFiles/polo-populate.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/polo-subbuild/CMakeFiles/polo-populate-complete.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/polo-subbuild/polo-populate-prefix/src/polo-populate-stamp/polo-populate-build.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/polo-subbuild/polo-populate-prefix/src/polo-populate-stamp/polo-populate-configure.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/polo-subbuild/polo-populate-prefix/src/polo-populate-stamp/polo-populate-download.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/polo-subbuild/polo-populate-prefix/src/polo-populate-stamp/polo-populate-install.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/polo-subbuild/polo-populate-prefix/src/polo-populate-stamp/polo-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/polo-subbuild/polo-populate-prefix/src/polo-populate-stamp/polo-populate-patch.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/polo-subbuild/polo-populate-prefix/src/polo-populate-stamp/polo-populate-test.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/polo-subbuild/polo-populate-prefix/src/polo-populate-stamp/polo-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"polo-populate"
+		],
+		"name" : "polo-populate"
+	}
+}

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The $8 Level vs The $800 Level</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero .tagline {
+            font-size: 1.3em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .hero .subtitle {
+            font-size: 1.1em;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.8;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .intro {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            border-left: 4px solid #ffa500;
+        }
+
+        .intro h2 {
+            color: #ffa500;
+            margin-bottom: 15px;
+        }
+
+        .modules {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .module {
+            background: #2a2a2a;
+            padding: 25px;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .module:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.3);
+        }
+
+        .module h3 {
+            color: #4CAF50;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+        }
+
+        .module p {
+            color: #aaa;
+            margin-bottom: 15px;
+        }
+
+        .module a {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .module a:hover {
+            background: #45a049;
+        }
+
+        .philosophy {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+        }
+
+        .philosophy h2 {
+            color: #ff6b6b;
+            margin-bottom: 20px;
+        }
+
+        .principle {
+            margin: 20px 0;
+            padding: 15px;
+            background: #1a1a1a;
+            border-radius: 4px;
+            border-left: 3px solid #ff6b6b;
+        }
+
+        .principle h4 {
+            color: #ff6b6b;
+            margin-bottom: 8px;
+        }
+
+        .cta {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .cta p {
+            font-size: 1.2em;
+            margin-bottom: 25px;
+            opacity: 0.9;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-buttons a {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 15px 30px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .cta-buttons a:hover {
+            transform: scale(1.05);
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            border-top: 1px solid #333;
+        }
+
+        .quote {
+            font-style: italic;
+            color: #888;
+            padding: 20px;
+            border-left: 3px solid #666;
+            margin: 20px 0;
+            background: #222;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hero">
+        <h1>🔨 The $8 Level vs The $800 Level</h1>
+        <p class="tagline">Programming Lessons Learned Through Construction Work</p>
+        <p class="subtitle">Teaching precision, compound errors, and the difference between looking professional and
+            being competent</p>
+    </div>
+
+    <div class="container">
+        <div class="intro">
+            <h2>What This Is</h2>
+            <p>This is not a typical programming tutorial. This is a collection of hard-won lessons about
+                <strong>precision, compound errors, and craftsmanship</strong> - taught through actual construction work
+                and translated into code.
+            </p>
+
+            <p>The title comes from a simple truth: <strong>An $8 bubble level that you understand completely is better
+                    than an $800 digital level you don't know how to verify.</strong></p>
+
+            <div class="quote">
+                "The bubble is either dead center or it's not. Everything else is accumulated slop that you'll pay for
+                later."
+            </div>
+        </div>
+
+        <h2 style="text-align: center; margin-bottom: 30px; color: #4CAF50;">📚 Modules</h2>
+
+        <div class="modules">
+            <div class="module">
+                <h3>01: Compound Errors</h3>
+                <p><strong>The Crooked Wall Problem</strong></p>
+                <p>Why "close enough" fails at scale. How 1/16" becomes 1/4". How 0.005¢ becomes $50. The fundamental
+                    lesson about precision.</p>
+                <a href="examples/01-compound-errors/demo.html">Interactive Demo →</a>
+            </div>
+
+            <div class="module">
+                <h3>02: Type Safety</h3>
+                <p><strong>The 14 Ladder Climbs</strong></p>
+                <p>Why types prevent debugging sessions. Do the math on the ground before climbing the ladder. Runtime
+                    vs compile-time errors.</p>
+                <a href="examples/02-type-safety/demo.html">Interactive Demo →</a>
+            </div>
+
+            <div class="module">
+                <h3>03: Error Handling</h3>
+                <p><strong>The Rafter That Doesn't Fit</strong></p>
+                <p>Why explicit errors save time. Treating problems as information, not catastrophes. Result types vs
+                    exceptions.</p>
+                <a href="examples/03-error-handling/README.md">Read Lesson →</a>
+            </div>
+
+            <div class="module">
+                <h3>04: Premature Optimization</h3>
+                <p><strong>The $800 Tool You Can't Verify</strong></p>
+                <p>Why simple tools often beat complex frameworks. The flip test applied to code. When to actually
+                    optimize.</p>
+                <a href="examples/04-premature-optimization/README.md">Read Lesson →</a>
+            </div>
+
+            <div class="module">
+                <h3>05: The Octagon Incident</h3>
+                <p><strong>Managing Incompetence</strong></p>
+                <p>How to survive bad management. Document everything, CYA mode, protecting your career when the boss
+                    insists on 45° angles for an octagon.</p>
+                <a href="examples/05-the-octagon-incident/README.md">Read Lesson →</a>
+            </div>
+
+            <div class="module" style="border-left-color: #666;">
+                <h3>05: The Octagon Incident</h3>
+                <p><strong>Managing Incompetence</strong></p>
+                <p>Coming soon: What to do when the boss doesn't know what a square root is.</p>
+                <a href="#" style="background: #666; cursor: not-allowed;">Coming Soon</a>
+            </div>
+        </div>
+
+        <div class="philosophy">
+            <h2>🎯 Core Philosophy</h2>
+
+            <div class="principle">
+                <h4>1. Dead Center or Don't Bother</h4>
+                <p>Precision compounds positively. Slop compounds negatively. "Close enough" on measurement 1 becomes
+                    "way off" by measurement 10.</p>
+            </div>
+
+            <div class="principle">
+                <h4>2. The Flip Test</h4>
+                <p>If you can't verify your tool works in 5 seconds, you don't understand it well enough to use it. The
+                    $8 level has a flip test. The $800 level requires trust.</p>
+            </div>
+
+            <div class="principle">
+                <h4>3. The Ladder Principle</h4>
+                <p>Every bug you ship is a ladder you'll climb later. Do it right once, or do it wrong repeatedly. The
+                    debugging ladder is just as real as the physical one.</p>
+            </div>
+
+            <div class="quote" style="background: #1a1a1a; border-left-color: #ff6b6b;">
+                "I climbed down from a hot roof to spell 'octagon' for my boss who drew a hexagon. That's when I knew
+                there had to be a better way."
+            </div>
+        </div>
+
+        <div class="cta">
+            <h2>Ready to Build Things That Work?</h2>
+            <p>Start with Module 1 and learn why "close enough" compounds into disaster</p>
+            <div class="cta-buttons">
+                <a href="examples/01-compound-errors/demo.html">Start Interactive Demo</a>
+                <a href="README.md">Read Full Guide</a>
+                <a href="manifesto.md">The Manifesto</a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p><strong>Graduate competent or get your suffering back.</strong></p>
+        <p style="margin-top: 10px;">— Randy's School of Hard Knocks</p>
+        <p style="margin-top: 20px; font-size: 0.9em;">
+            "The ladder doesn't lie. Neither does the compiler."
+        </p>
+    </footer>
+</body>
+
+</html>

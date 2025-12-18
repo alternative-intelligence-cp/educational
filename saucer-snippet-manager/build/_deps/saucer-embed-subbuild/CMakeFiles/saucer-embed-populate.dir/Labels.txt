@@ -1,0 +1,14 @@
+# Target labels
+ saucer-embed-populate
+# Source files and their labels
+/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/saucer-embed-subbuild/CMakeFiles/saucer-embed-populate
+/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/saucer-embed-subbuild/CMakeFiles/saucer-embed-populate.rule
+/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/saucer-embed-subbuild/CMakeFiles/saucer-embed-populate-complete.rule
+/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/saucer-embed-subbuild/saucer-embed-populate-prefix/src/saucer-embed-populate-stamp/saucer-embed-populate-build.rule
+/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/saucer-embed-subbuild/saucer-embed-populate-prefix/src/saucer-embed-populate-stamp/saucer-embed-populate-configure.rule
+/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/saucer-embed-subbuild/saucer-embed-populate-prefix/src/saucer-embed-populate-stamp/saucer-embed-populate-download.rule
+/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/saucer-embed-subbuild/saucer-embed-populate-prefix/src/saucer-embed-populate-stamp/saucer-embed-populate-install.rule
+/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/saucer-embed-subbuild/saucer-embed-populate-prefix/src/saucer-embed-populate-stamp/saucer-embed-populate-mkdir.rule
+/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/saucer-embed-subbuild/saucer-embed-populate-prefix/src/saucer-embed-populate-stamp/saucer-embed-populate-patch.rule
+/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/saucer-embed-subbuild/saucer-embed-populate-prefix/src/saucer-embed-populate-stamp/saucer-embed-populate-test.rule
+/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/saucer-embed-subbuild/saucer-embed-populate-prefix/src/saucer-embed-populate-stamp/saucer-embed-populate-update.rule

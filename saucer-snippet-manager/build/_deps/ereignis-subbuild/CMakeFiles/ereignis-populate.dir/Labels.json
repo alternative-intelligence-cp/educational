@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/ereignis-subbuild/CMakeFiles/ereignis-populate"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/ereignis-subbuild/CMakeFiles/ereignis-populate.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/ereignis-subbuild/CMakeFiles/ereignis-populate-complete.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/ereignis-subbuild/ereignis-populate-prefix/src/ereignis-populate-stamp/ereignis-populate-build.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/ereignis-subbuild/ereignis-populate-prefix/src/ereignis-populate-stamp/ereignis-populate-configure.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/ereignis-subbuild/ereignis-populate-prefix/src/ereignis-populate-stamp/ereignis-populate-download.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/ereignis-subbuild/ereignis-populate-prefix/src/ereignis-populate-stamp/ereignis-populate-install.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/ereignis-subbuild/ereignis-populate-prefix/src/ereignis-populate-stamp/ereignis-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/ereignis-subbuild/ereignis-populate-prefix/src/ereignis-populate-stamp/ereignis-populate-patch.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/ereignis-subbuild/ereignis-populate-prefix/src/ereignis-populate-stamp/ereignis-populate-test.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/ereignis-subbuild/ereignis-populate-prefix/src/ereignis-populate-stamp/ereignis-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"ereignis-populate"
+		],
+		"name" : "ereignis-populate"
+	}
+}

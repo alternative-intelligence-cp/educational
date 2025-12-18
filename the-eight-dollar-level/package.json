@@ -1,0 +1,30 @@
+{
+    "name": "the-eight-dollar-level",
+    "version": "1.0.0",
+    "description": "Programming lessons learned through construction work - teaching precision, compound errors, and craftsmanship",
+    "main": "index.js",
+    "scripts": {
+        "demo:compound-bad": "node examples/01-compound-errors/bad.js",
+        "demo:compound-good": "node examples/01-compound-errors/good.js",
+        "demo:compound": "npm run demo:compound-bad && echo '\n---\n' && npm run demo:compound-good",
+        "serve": "python3 -m http.server 8080 || python -m SimpleHTTPServer 8080"
+    },
+    "keywords": [
+        "education",
+        "programming",
+        "craftsmanship",
+        "precision",
+        "compound-errors",
+        "type-safety",
+        "error-handling",
+        "floating-point",
+        "tutorial",
+        "philosophy"
+    ],
+    "author": "Randy (School of Hard Knocks)",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/yourusername/educational"
+    }
+}

@@ -1,0 +1,2 @@
+/usr/bin/ar qc libcoco.a CMakeFiles/coco.dir/src/latch.cpp.o CMakeFiles/coco.dir/src/stray.cpp.o
+/usr/bin/ranlib libcoco.a

@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/packageproject-subbuild/CMakeFiles/packageproject-populate"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/packageproject-subbuild/CMakeFiles/packageproject-populate.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/packageproject-subbuild/CMakeFiles/packageproject-populate-complete.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/packageproject-subbuild/packageproject-populate-prefix/src/packageproject-populate-stamp/packageproject-populate-build.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/packageproject-subbuild/packageproject-populate-prefix/src/packageproject-populate-stamp/packageproject-populate-configure.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/packageproject-subbuild/packageproject-populate-prefix/src/packageproject-populate-stamp/packageproject-populate-download.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/packageproject-subbuild/packageproject-populate-prefix/src/packageproject-populate-stamp/packageproject-populate-install.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/packageproject-subbuild/packageproject-populate-prefix/src/packageproject-populate-stamp/packageproject-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/packageproject-subbuild/packageproject-populate-prefix/src/packageproject-populate-stamp/packageproject-populate-patch.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/packageproject-subbuild/packageproject-populate-prefix/src/packageproject-populate-stamp/packageproject-populate-test.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/packageproject-subbuild/packageproject-populate-prefix/src/packageproject-populate-stamp/packageproject-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"packageproject-populate"
+		],
+		"name" : "packageproject-populate"
+	}
+}

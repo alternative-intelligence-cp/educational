@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compound Errors: The Crooked Wall</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #ff6b6b;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .controls {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: inline-block;
+            width: 200px;
+            color: #aaa;
+        }
+
+        input[type="number"],
+        input[type="range"] {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            color: #e0e0e0;
+            padding: 8px;
+            border-radius: 4px;
+            width: 200px;
+        }
+
+        input[type="range"] {
+            width: 300px;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            font-family: inherit;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .result-box {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .result-box.bad {
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .result-box.good {
+            border-left: 4px solid #4CAF50;
+        }
+
+        .result-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .bad .result-title {
+            color: #ff6b6b;
+        }
+
+        .good .result-title {
+            color: #4CAF50;
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .stat:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: #888;
+        }
+
+        .stat-value {
+            font-weight: bold;
+        }
+
+        .error {
+            color: #ff6b6b;
+        }
+
+        .success {
+            color: #4CAF50;
+        }
+
+        .visualization {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        #errorChart {
+            width: 100%;
+            height: 300px;
+            background: #1a1a1a;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .explanation {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #ffa500;
+        }
+
+        .explanation h3 {
+            color: #ffa500;
+            margin-bottom: 10px;
+        }
+
+        .code-example {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        .code-example code {
+            color: #4ec9b0;
+        }
+
+        .highlight {
+            background: #ff6b6b22;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>💀 Compound Errors: The Crooked Wall</h1>
+        <p class="subtitle">Watch "close enough" become disaster in real-time</p>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="transactions">Number of Transactions:</label>
+                <input type="range" id="transactions" min="100" max="100000" value="10000" step="100">
+                <span id="transactionValue">10,000</span>
+            </div>
+            <div class="control-group">
+                <label for="amount">Transaction Amount ($):</label>
+                <input type="number" id="amount" value="10.00" step="0.01" min="0.01">
+            </div>
+            <button onclick="runSimulation()">Run Simulation</button>
+        </div>
+
+        <div class="results">
+            <div class="result-box bad">
+                <div class="result-title">❌ "Close Enough" (Float)</div>
+                <div class="stat">
+                    <span class="stat-label">Total Collected:</span>
+                    <span class="stat-value" id="badTotal">—</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Expected:</span>
+                    <span class="stat-value" id="badExpected">—</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label error">Money Lost:</span>
+                    <span class="stat-value error" id="badLost">—</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Error Rate:</span>
+                    <span class="stat-value error" id="badError">—</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Processing Time:</span>
+                    <span class="stat-value" id="badTime">—</span>
+                </div>
+            </div>
+
+            <div class="result-box good">
+                <div class="result-title">✅ "Dead Center" (Integer)</div>
+                <div class="stat">
+                    <span class="stat-label">Total Collected:</span>
+                    <span class="stat-value" id="goodTotal">—</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Expected:</span>
+                    <span class="stat-value" id="goodExpected">—</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label success">Money Lost:</span>
+                    <span class="stat-value success" id="goodLost">$0.00</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Error Rate:</span>
+                    <span class="stat-value success" id="goodError">0.0000%</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Processing Time:</span>
+                    <span class="stat-value" id="goodTime">—</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="visualization">
+            <h3 style="color: #ffa500; margin-bottom: 15px;">📊 Error Accumulation Over Time</h3>
+            <canvas id="errorChart"></canvas>
+        </div>
+
+        <div class="explanation">
+            <h3>🔨 The Construction Analogy</h3>
+            <p>Imagine you're framing a wall. You check your level and the bubble is "in the marks" - not dead center,
+                but close enough. Maybe 1/16" off.</p>
+
+            <p style="margin-top: 10px;"><strong>Wall 1:</strong> 1/16" off - barely noticeable<br>
+                <strong>Wall 2:</strong> 1/8" off - starting to compound<br>
+                <strong>Wall 3:</strong> 3/16" off - getting worse<br>
+                <strong>Wall 4:</strong> 1/4" off - <span class="highlight">door doesn't fit</span>
+            </p>
+
+            <p style="margin-top: 15px;">You just spent 8 hours building walls you now have to tear down. <strong>16
+                    hours of work because "close enough" compounded.</strong></p>
+
+            <h3 style="margin-top: 20px;">💻 The Programming Version</h3>
+
+            <div class="code-example">
+                <code>// The "close enough" approach<br>
+const fee = amount * 0.029;<br>
+const rounded = Math.round(fee * 100) / 100;  // <span class="highlight">Loses up to 0.005¢</span></code>
+            </div>
+
+            <p>Each transaction loses a fraction of a cent. Looks fine. But compound that over thousands or millions of
+                transactions...</p>
+
+            <div class="code-example">
+                <code>// The "dead center" approach<br>
+const amountCents = Math.round(amount * 100);<br>
+const feeCents = Math.floor((amountCents * 29) / 1000);  // <span class="success">EXACT</span></code>
+            </div>
+
+            <p>Integer arithmetic. Zero rounding error. Scales to billions of transactions with perfect accuracy.</p>
+
+            <h3 style="margin-top: 20px;">📖 The Lesson</h3>
+            <p><strong>Small errors compound.</strong> What seems negligible at the individual level becomes disaster at
+                scale.</p>
+            <p style="margin-top: 10px;">The bubble is either dead center or it's not. Everything else is accumulated
+                slop.</p>
+        </div>
+    </div>
+
+    <script>
+        // Update range display
+        document.getElementById('transactions').addEventListener('input', function (e) {
+            document.getElementById('transactionValue').textContent = parseInt(e.target.value).toLocaleString();
+        });
+
+        // Simulation classes (simplified versions)
+        class FloatProcessor {
+            constructor() {
+                this.total = 0.0;
+            }
+            process(amount) {
+                const fee = amount * 0.029;
+                const rounded = Math.round(fee * 100) / 100;
+                this.total += rounded;
+                return this.total;
+            }
+        }
+
+        class IntegerProcessor {
+            constructor() {
+                this.totalCents = 0;
+            }
+            process(amount) {
+                const amountCents = Math.round(amount * 100);
+                const feeCents = Math.floor((amountCents * 29) / 1000);
+                this.totalCents += feeCents;
+                return this.totalCents / 100;
+            }
+        }
+
+        function runSimulation() {
+            const count = parseInt(document.getElementById('transactions').value);
+            const amount = parseFloat(document.getElementById('amount').value);
+
+            // Run float version
+            const floatProc = new FloatProcessor();
+            const startFloat = performance.now();
+            for (let i = 0; i < count; i++) {
+                floatProc.process(amount);
+            }
+            const timeFloat = performance.now() - startFloat;
+
+            // Run integer version
+            const intProc = new IntegerProcessor();
+            const startInt = performance.now();
+            for (let i = 0; i < count; i++) {
+                intProc.process(amount);
+            }
+            const timeInt = performance.now() - startInt;
+
+            // Calculate expected
+            const amountCents = Math.round(amount * 100);
+            const feePerTx = Math.floor((amountCents * 29) / 1000);
+            const expected = (count * feePerTx) / 100;
+
+            // Update bad results
+            document.getElementById('badTotal').textContent = '$' + floatProc.total.toFixed(2);
+            document.getElementById('badExpected').textContent = '$' + expected.toFixed(2);
+            const lost = Math.abs(expected - floatProc.total);
+            document.getElementById('badLost').textContent = '$' + lost.toFixed(2);
+            document.getElementById('badError').textContent = ((lost / expected) * 100).toFixed(4) + '%';
+            document.getElementById('badTime').textContent = timeFloat.toFixed(2) + 'ms';
+
+            // Update good results
+            const intTotal = intProc.totalCents / 100;
+            document.getElementById('goodTotal').textContent = '$' + intTotal.toFixed(2);
+            document.getElementById('goodExpected').textContent = '$' + expected.toFixed(2);
+            document.getElementById('goodTime').textContent = timeInt.toFixed(2) + 'ms';
+
+            // Draw chart
+            drawChart(count, amount);
+        }
+
+        function drawChart(maxCount, amount) {
+            const canvas = document.getElementById('errorChart');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 300;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Sample points
+            const samples = 50;
+            const step = Math.floor(maxCount / samples);
+            const errors = [];
+            let maxError = 0;
+
+            const floatProc = new FloatProcessor();
+            for (let i = 1; i <= samples; i++) {
+                const count = i * step;
+                // Process transactions
+                for (let j = 0; j < step; j++) {
+                    floatProc.process(amount);
+                }
+                const amountCents = Math.round(amount * 100);
+                const expected = (count * Math.floor((amountCents * 29) / 1000)) / 100;
+                const error = Math.abs(expected - floatProc.total);
+                errors.push({ count, error });
+                maxError = Math.max(maxError, error);
+            }
+
+            // Draw axes
+            ctx.strokeStyle = '#444';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(50, 10);
+            ctx.lineTo(50, 260);
+            ctx.lineTo(canvas.width - 10, 260);
+            ctx.stroke();
+
+            // Labels
+            ctx.fillStyle = '#888';
+            ctx.font = '12px Monaco';
+            ctx.fillText('Transactions', canvas.width / 2, 290);
+            ctx.save();
+            ctx.translate(15, 150);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('$ Lost', 0, 0);
+            ctx.restore();
+
+            // Draw error line
+            ctx.strokeStyle = '#ff6b6b';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            errors.forEach((point, i) => {
+                const x = 50 + (i / samples) * (canvas.width - 60);
+                const y = 260 - (point.error / (maxError * 1.1)) * 250;
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            ctx.stroke();
+
+            // Draw max error label
+            ctx.fillStyle = '#ff6b6b';
+            ctx.fillText('$' + maxError.toFixed(2), canvas.width - 80, 30);
+        }
+
+        // Run initial simulation
+        runSimulation();
+    </script>
+</body>
+
+</html>

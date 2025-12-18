@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/lockpp-subbuild/CMakeFiles/lockpp-populate"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/lockpp-subbuild/CMakeFiles/lockpp-populate.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/lockpp-subbuild/CMakeFiles/lockpp-populate-complete.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/lockpp-subbuild/lockpp-populate-prefix/src/lockpp-populate-stamp/lockpp-populate-build.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/lockpp-subbuild/lockpp-populate-prefix/src/lockpp-populate-stamp/lockpp-populate-configure.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/lockpp-subbuild/lockpp-populate-prefix/src/lockpp-populate-stamp/lockpp-populate-download.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/lockpp-subbuild/lockpp-populate-prefix/src/lockpp-populate-stamp/lockpp-populate-install.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/lockpp-subbuild/lockpp-populate-prefix/src/lockpp-populate-stamp/lockpp-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/lockpp-subbuild/lockpp-populate-prefix/src/lockpp-populate-stamp/lockpp-populate-patch.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/lockpp-subbuild/lockpp-populate-prefix/src/lockpp-populate-stamp/lockpp-populate-test.rule"
+		},
+		{
+			"file" : "/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/lockpp-subbuild/lockpp-populate-prefix/src/lockpp-populate-stamp/lockpp-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"lockpp-populate"
+		],
+		"name" : "lockpp-populate"
+	}
+}

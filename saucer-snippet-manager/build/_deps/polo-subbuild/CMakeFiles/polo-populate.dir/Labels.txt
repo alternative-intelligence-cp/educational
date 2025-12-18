@@ -1,0 +1,14 @@
+# Target labels
+ polo-populate
+# Source files and their labels
+/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/polo-subbuild/CMakeFiles/polo-populate
+/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/polo-subbuild/CMakeFiles/polo-populate.rule
+/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/polo-subbuild/CMakeFiles/polo-populate-complete.rule
+/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/polo-subbuild/polo-populate-prefix/src/polo-populate-stamp/polo-populate-build.rule
+/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/polo-subbuild/polo-populate-prefix/src/polo-populate-stamp/polo-populate-configure.rule
+/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/polo-subbuild/polo-populate-prefix/src/polo-populate-stamp/polo-populate-download.rule
+/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/polo-subbuild/polo-populate-prefix/src/polo-populate-stamp/polo-populate-install.rule
+/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/polo-subbuild/polo-populate-prefix/src/polo-populate-stamp/polo-populate-mkdir.rule
+/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/polo-subbuild/polo-populate-prefix/src/polo-populate-stamp/polo-populate-patch.rule
+/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/polo-subbuild/polo-populate-prefix/src/polo-populate-stamp/polo-populate-test.rule
+/home/randy/._____RANDY_____/REPOS/educational/saucer-snippet-manager/build/_deps/polo-subbuild/polo-populate-prefix/src/polo-populate-stamp/polo-populate-update.rule
