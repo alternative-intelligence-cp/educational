@@ -1,0 +1,21 @@
+# Minimal test program that triggers the type defaulting bug
+# This represents a real Aria program using a custom type
+
+func motorControl(direction: i32, speed: i32) -> void {
+    # MotorCommand is a 16-byte struct:
+    # - i32 direction (4 bytes)
+    # - i32 speed (4 bytes)
+    # - i32 force_limit (4 bytes)
+    # - i32 safety_check (4 bytes)
+    # = 16 bytes total
+    
+    let cmd: MotorCommand = {
+        direction: direction,
+        speed: speed,
+        force_limit: 100,
+        safety_check: 0xDEADBEEF
+    };
+    
+    # Try to use the command
+    sendMotorCommand(cmd);
+}
