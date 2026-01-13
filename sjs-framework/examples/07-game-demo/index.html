@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SJS Game Demo - Space Invaders</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #111;
+            color: #0f0;
+            font-family: monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            margin: 0 0 10px 0;
+            text-align: center;
+        }
+
+        #info {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        #gameCanvas {
+            border: 2px solid #0f0;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        #controls {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .key {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 2px;
+            border: 1px solid #0f0;
+            background: #222;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🎮 SJS GAME DEMO 🎮</h1>
+    <div id="info">
+        Score: <span id="score">0</span> |
+        Lives: <span id="lives">3</span> |
+        FPS: <span id="fps">0</span>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+    <div id="controls">
+        <div><span class="key">←→</span> Move | <span class="key">SPACE</span> Shoot | <span class="key">R</span>
+            Restart</div>
+        <div id="status">Press any key to start!</div>
+    </div>
+
+    <!-- Load SJS Framework -->
+    <script src="../../core/sjs-full.js"></script>
+
+    <!-- Load Game Modules -->
+    <script src="../../modules/audio.js"></script>
+    <script src="../../modules/renderer.js"></script>
+    <script src="../../modules/ecs.js"></script>
+
+    <!-- Game Code -->
+    <script src="game.js"></script>
+</body>
+
+</html>

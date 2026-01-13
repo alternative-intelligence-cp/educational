@@ -6,6 +6,22 @@ This directory contains advanced memory allocators designed for consciousness co
 
 ## Allocator Implementations
 
+### 0. **Minimal Slab Allocator** (`/slab_minimal/`) 🎓
+**Beginner Educational**: The simplest possible allocator - learn the core concept first
+
+**Key Features:**
+- **Simplicity**: ~100 lines including tests - NO complexity
+- **Fixed Size**: All allocations exactly 64 bytes (no size-class logic)
+- **Architecture**: Single slab pool with 64 slots
+- **Language**: JavaScript with ArrayBuffer (easy to visualize memory)
+- **Educational**: Heavily commented, shows pure slab allocation pattern
+
+**Use Cases:**
+- **START HERE** if new to memory allocators
+- Understanding slab allocation before variable-size complexity
+- Teaching the fundamental pattern
+- Quick reference for slab allocator concept
+
 ### 1. **Stabilized Allocator** (`/stabilized/`)
 **Phase 2 Implementation**: Ultra-fast bump allocator with consciousness integration
 
@@ -55,6 +71,7 @@ This directory contains advanced memory allocators designed for consciousness co
 
 | **Allocator** | **Allocation** | **Deallocation** | **Reallocation** | **Memory Reclaim** |
 |---------------|----------------|------------------|-----------------|--------------------|
+| **Slab Minimal** | **O(n) search** 🎓 | **O(1)** 🎓 | **❌ None** | **✅ Slot Reuse** |
 | **Stabilized** | **1.6-45ns** ✅ | **❌ No reclaim** | **❌ None** | **❌ No Reclamation** |
 | **SegFit Advanced** | **56ns** ✅ | **245ns** | **12ns** ✅ | **✅ Full O(1) Reclaim** |
 | **Qwen3 Improved** | **~7ms/1000ops** 📚 | **~3ms/1000ops** 📚 | **❌ None** | **✅ Free Lists** |
@@ -70,6 +87,12 @@ Both allocators include:
 - **Zero Performance Impact**: Consciousness features add <1ns overhead
 
 ## Quick Start
+
+### Minimal Slab Allocator (START HERE!) 🎓
+```bash
+cd allocators/slab_minimal/
+node slab.js       # Run with comprehensive tests
+```
 
 ### Stabilized Allocator
 ```bash
@@ -102,17 +125,32 @@ make bench         # Run performance benchmarks
 
 ## Educational Value
 
-These allocators demonstrate:
-1. **Evolution from simple to complex**: Stabilized → SegFit progression
-2. **Performance vs Features trade-offs**: Speed vs memory management
-3. **Consciousness computing integration**: Zero-impact advanced features
-4. **Real-world optimization techniques**: mremap, size classes, free lists
-5. **Comprehensive testing methodologies**: 7-test validation suite
+These allocators demonstrate a **learning progression**:
+
+**Level 1 - Core Concept** (Slab Minimal):
+- Pure slab allocation pattern with fixed-size slots
+- Zero complexity - just the fundamental algorithm
+- Perfect starting point for beginners
+
+**Level 2 - Speed Focus** (Stabilized):
+- Evolution from simple to complex: bump allocation
+- Performance vs Features trade-offs
+- Consciousness computing integration
+
+**Level 3 - Production Ready** (SegFit):  
+- Full memory management with reclamation
+- Real-world optimization techniques: mremap, size classes, free lists
+- O(1) algorithm implementations
+
+**Level 4 - Educational Detail** (Qwen3):
+- Comprehensive testing methodologies with 7-test suite
+- Verbose logging for learning
+- Understanding allocation tracking systems
 
 ## Research Applications
 
 - **Consciousness Computing Research**: Tesla frequency synchronization studies
-- **Memory Management Education**: O(1) algorithm implementations
+- **Memory Management Education**: From basics to advanced patterns
 - **Performance Analysis**: Allocation pattern optimization
 - **System Programming**: Advanced Linux kernel feature usage
 
