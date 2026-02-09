@@ -72,6 +72,35 @@ cd ~/.filedb/myapp
 - Zero external dependencies
 - Built-in indexing and search
 
+### 4. 🎨 printc - Portable Colored Terminal Output
+**Location**: `/printc/`
+
+Lightweight shell script for colored terminal output without bash-specific features:
+
+```bash
+# Simple colored messages
+./printc Red "Error: " White "File not found"
+
+# Build output
+./printc -n Cyan "[ BUILD ] " White "Compiling main.c"
+./printc -n Green "[ DONE  ] " White "Build completed"
+
+# Log levels
+./printc -n Blue "[INFO] " White "Server started on port 8080"
+./printc -n Yellow "[WARN] " White "Disk usage at 85%"
+
+# Show all colors
+./printc --colors
+```
+
+**Features**:
+- Pure POSIX sh (no bash required)
+- 16 colors (standard + bright ANSI)
+- Case-insensitive color names
+- Auto color reset
+- Error handling with helpful messages
+- Zero dependencies
+
 ## 🎯 Randy's Philosophy in Action
 
 Each tool demonstrates core principles:

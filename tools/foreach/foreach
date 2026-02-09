@@ -1,0 +1,795 @@
+#!/bin/sh
+
+# foreach - Apply a command to each element from args or stdin
+# Usage:
+#   foreach [options] COMMAND ARRAY...
+#   some_command | foreach [options] COMMAND
+#   foreach [options] COMMAND < <(command_producing_lines)
+#   foreach [options] COMMAND <<EOF
+#       line1
+#       line2
+#   EOF
+#
+# Use $_THIS_ for the current element and $_THIS_I for the iteration count.
+
+show_help() {
+    cat <<'EOF'
+Usage:
+  foreach [options] COMMAND ARRAY...
+  some_command | foreach [options] COMMAND
+  foreach [options] COMMAND < <(command_producing_lines)
+  foreach [options] COMMAND <<EOF
+      line1
+      line2
+  EOF
+
+Description:
+  Applies COMMAND to each element from ARRAY or stdin.
+  The current element is available as $_THIS_ and the iteration count as $_THIS_I.
+
+Options:
+  -v, --verbose           Print each element before running COMMAND
+  -f, --fail              Stop on first non-zero exit code
+  -H, --head COUNT         Only process the first COUNT elements
+  -t, --tail COUNT         Only process the last COUNT elements
+  -r, --range FIRST LAST   Only process elements from FIRST to LAST (1-based)
+  -s, --search PATH       Generate input by searching PATH
+      -s-is TYPE          Include only TYPE: dir, file, link, exe
+      -s-not TYPE         Exclude TYPE: dir, file, link, exe
+      -s-name NAME        Match name (case-sensitive)
+      -s-iname NAME       Match name (case-insensitive)
+      -s-not-name NAME    Exclude name (case-sensitive)
+      -s-not-iname NAME   Exclude name (case-insensitive)
+      -s-path PATTERN     Match path (case-sensitive)
+      -s-ipath PATTERN    Match path (case-insensitive)
+      -s-not-path PATTERN Exclude path (case-sensitive)
+      -s-regex PATTERN    Match regex against full path (GNU find)
+      -s-iregex PATTERN   Match regex (case-insensitive, GNU find)
+      -s-ext EXT          Match extension (e.g. log, .log)
+      -s-not-ext EXT      Exclude extension
+      -s-starts PREFIX    Match name prefix
+      -s-ends SUFFIX      Match name suffix
+      -s-contains TEXT    Match name containing text
+      -s-istarts PREFIX   Case-insensitive prefix
+      -s-iends SUFFIX     Case-insensitive suffix
+      -s-icontains TEXT   Case-insensitive contains
+      -s-prune PATH       Exclude PATH subtree
+      -s-owner OWNER      Match file owner
+      -s-group GROUP      Match file group
+      -s-uid UID          Match numeric user ID
+      -s-gid GID          Match numeric group ID
+      -s-when MIN MAX     Match by modification date range
+      -s-newer FILE       Match files newer than FILE
+      -s-older FILE       Match files older than FILE
+      -s-maxdepth N       Max directory depth
+      -s-mindepth N       Min directory depth
+      -s-size SIZE        Match size (find syntax, e.g. +1M)
+      -s-mtime DAYS       Match mtime in days (e.g. -7, +3)
+      -s-atime DAYS       Match atime in days (e.g. -7, +3)
+      -s-ctime DAYS       Match ctime in days (e.g. -7, +3)
+      -s-links N          Match number of hard links
+      -s-perm MODE        Match permissions (find syntax)
+      -s-empty            Match empty files/dirs
+      -s-hidden           Match hidden files/dirs
+      -s-nohidden         Exclude hidden files/dirs
+      -s-readable         Match readable files
+      -s-writable         Match writable files
+      -s-executable       Match executable files
+      -s-follow           Follow symlinks
+      -s-xdev             Stay on one filesystem
+      -s-depth            Process entries in depth-first order
+  -h, --help              Show this help message
+
+Notes:
+  - If COMMAND contains spaces, wrap it in quotes.
+  - You can use "--" to stop option parsing.
+  - For compatibility, "-h COUNT" is accepted as a head alias when COUNT is numeric.
+    - For -s-when, use "-" to leave MIN or MAX open-ended.
+
+Examples:
+  foreach "echo $_THIS_" a b c
+  printf '%s\n' a b c | foreach "echo $_THIS_I: $_THIS_"
+  foreach -r 2 4 "echo $_THIS_" one two three four five
+  foreach -f "cp $_THIS_ /tmp/" file1 file2 file3
+    foreach -s /var/log -s-name "*.log" "echo $_THIS_"
+EOF
+}
+
+error() {
+    printf "Error: %s\n" "$1" >&2
+}
+
+is_uint() {
+    case "$1" in
+        ''|*[!0-9]*) return 1 ;;
+        *) return 0 ;;
+    esac
+}
+
+mktemp_safe() {
+    if command -v mktemp >/dev/null 2>&1; then
+        mktemp "${TMPDIR:-/tmp}/foreach.XXXXXX"
+    else
+        printf '%s' "${TMPDIR:-/tmp}/foreach.$$"
+    fi
+}
+
+supports_newermt() {
+    find . -maxdepth 0 -newermt '1970-01-01' >/dev/null 2>&1
+}
+
+append_list() {
+    if [ -n "$1" ]; then
+        printf '%s\n%s' "$1" "$2"
+    else
+        printf '%s' "$2"
+    fi
+}
+
+build_search_list() {
+    [ -n "$search_path" ] || { error "--search requires PATH"; exit 1; }
+    [ -e "$search_path" ] || { error "Search path not found: $search_path"; exit 1; }
+
+    if [ "$search_follow" -eq 1 ]; then
+        set -- -L "$search_path"
+    else
+        set -- "$search_path"
+    fi
+
+    [ "$search_xdev" -eq 1 ] && set -- "$@" -xdev
+    [ "$search_depth" -eq 1 ] && set -- "$@" -depth
+
+    if [ -n "$search_maxdepth" ]; then
+        set -- "$@" -maxdepth "$search_maxdepth"
+    fi
+    if [ -n "$search_mindepth" ]; then
+        set -- "$@" -mindepth "$search_mindepth"
+    fi
+
+    if [ -n "$search_is" ]; then
+        case "$search_is" in
+            dir)  set -- "$@" -type d ;;
+            file) set -- "$@" -type f ;;
+            link) set -- "$@" -type l ;;
+            exe)  set -- "$@" -type f -perm -111 ;;
+            *) error "Invalid --s-is TYPE: $search_is (use dir|file|link|exe)"; exit 1 ;;
+        esac
+    fi
+
+    if [ -n "$search_not" ]; then
+        case "$search_not" in
+            dir)  set -- "$@" ! -type d ;;
+            file) set -- "$@" ! -type f ;;
+            link) set -- "$@" ! -type l ;;
+            exe)  set -- "$@" ! -perm -111 ;;
+            *) error "Invalid --s-not TYPE: $search_not (use dir|file|link|exe)"; exit 1 ;;
+        esac
+    fi
+
+    [ -n "$search_name" ] && set -- "$@" -name "$search_name"
+    [ -n "$search_iname" ] && set -- "$@" -iname "$search_iname"
+    [ -n "$search_not_name" ] && set -- "$@" ! -name "$search_not_name"
+    [ -n "$search_not_iname" ] && set -- "$@" ! -iname "$search_not_iname"
+    [ -n "$search_path_pattern" ] && set -- "$@" -path "$search_path_pattern"
+    [ -n "$search_ipath_pattern" ] && set -- "$@" -ipath "$search_ipath_pattern"
+    [ -n "$search_regex" ] && set -- "$@" -regex "$search_regex"
+    [ -n "$search_iregex" ] && set -- "$@" -iregex "$search_iregex"
+
+    if [ -n "$search_ext" ]; then
+        ext=${search_ext#.}
+        [ -n "$ext" ] || { error "--s-ext requires a non-empty extension"; exit 1; }
+        set -- "$@" -name "*.$ext"
+    fi
+    if [ -n "$search_not_ext" ]; then
+        ext=${search_not_ext#.}
+        [ -n "$ext" ] || { error "--s-not-ext requires a non-empty extension"; exit 1; }
+        set -- "$@" ! -name "*.$ext"
+    fi
+    [ -n "$search_starts" ] && set -- "$@" -name "${search_starts}*"
+    [ -n "$search_ends" ] && set -- "$@" -name "*${search_ends}"
+    [ -n "$search_contains" ] && set -- "$@" -name "*${search_contains}*"
+    [ -n "$search_istarts" ] && set -- "$@" -iname "${search_istarts}*"
+    [ -n "$search_iends" ] && set -- "$@" -iname "*${search_iends}"
+    [ -n "$search_icontains" ] && set -- "$@" -iname "*${search_icontains}*"
+
+    if [ -n "$search_not_path_list" ]; then
+        old_ifs=$IFS
+        IFS=$(printf '\n')
+
+        for pattern in $search_not_path_list; do
+            [ -n "$pattern" ] || continue
+            set -- "$@" ! -path "$pattern"
+        done
+        IFS=$old_ifs
+    fi
+
+    if [ -n "$search_prune_list" ]; then
+        old_ifs=$IFS
+        IFS=$(printf '\n')
+        for prune_path in $search_prune_list; do
+            [ -n "$prune_path" ] || continue
+            set -- "$@" ! -path "$prune_path" ! -path "$prune_path/*"
+        done
+        IFS=$old_ifs
+    fi
+    [ -n "$search_owner" ] && set -- "$@" -user "$search_owner"
+    [ -n "$search_group" ] && set -- "$@" -group "$search_group"
+    [ -n "$search_uid" ] && set -- "$@" -uid "$search_uid"
+    [ -n "$search_gid" ] && set -- "$@" -gid "$search_gid"
+
+    [ -n "$search_size" ] && set -- "$@" -size "$search_size"
+    [ -n "$search_mtime" ] && set -- "$@" -mtime "$search_mtime"
+    [ -n "$search_atime" ] && set -- "$@" -atime "$search_atime"
+    [ -n "$search_ctime" ] && set -- "$@" -ctime "$search_ctime"
+    [ -n "$search_links" ] && set -- "$@" -links "$search_links"
+    [ -n "$search_perm" ] && set -- "$@" -perm "$search_perm"
+
+    [ "$search_empty" -eq 1 ] && set -- "$@" -empty
+    if [ "$search_hidden" -eq 1 ]; then
+        set -- "$@" -path '*/.*'
+    fi
+    if [ "$search_nohidden" -eq 1 ]; then
+        set -- "$@" ! -path '*/.*'
+    fi
+    [ "$search_readable" -eq 1 ] && set -- "$@" -readable
+    [ "$search_writable" -eq 1 ] && set -- "$@" -writable
+    [ "$search_executable" -eq 1 ] && set -- "$@" -executable
+    if [ -n "$search_when_min" ] || [ -n "$search_when_max" ]; then
+        if supports_newermt; then
+            [ -n "$search_when_min" ] && set -- "$@" -newermt "$search_when_min"
+            [ -n "$search_when_max" ] && set -- "$@" ! -newermt "$search_when_max"
+        else
+            if [ -n "$search_when_min" ]; then
+                date_min_file=$(mktemp_safe)
+                touch -d "$search_when_min" "$date_min_file" 2>/dev/null || { error "Invalid MIN date for --s-when"; exit 1; }
+                set -- "$@" -newer "$date_min_file"
+            fi
+            if [ -n "$search_when_max" ]; then
+                date_max_file=$(mktemp_safe)
+                touch -d "$search_when_max" "$date_max_file" 2>/dev/null || { error "Invalid MAX date for --s-when"; exit 1; }
+                set -- "$@" ! -newer "$date_max_file"
+            fi
+        fi
+    fi
+
+    if [ -n "$search_newer" ]; then
+        [ -e "$search_newer" ] || { error "--s-newer file not found: $search_newer"; exit 1; }
+        set -- "$@" -newer "$search_newer"
+    fi
+    if [ -n "$search_older" ]; then
+        [ -e "$search_older" ] || { error "--s-older file not found: $search_older"; exit 1; }
+        set -- "$@" ! -newer "$search_older"
+    fi
+
+    find "$@" -print > "$input_file"
+}
+
+verbose=0
+fail_fast=0
+head_count=""
+tail_count=""
+range_first=""
+range_last=""
+search_enabled=0
+search_path=""
+search_is=""
+search_not=""
+search_name=""
+search_iname=""
+search_not_name=""
+search_not_iname=""
+search_path_pattern=""
+search_ipath_pattern=""
+search_not_path_list=""
+search_regex=""
+search_iregex=""
+search_ext=""
+search_not_ext=""
+search_starts=""
+search_ends=""
+search_contains=""
+search_istarts=""
+search_iends=""
+search_icontains=""
+search_prune_list=""
+search_owner=""
+search_group=""
+search_uid=""
+search_gid=""
+search_when_min=""
+search_when_max=""
+search_newer=""
+search_older=""
+search_maxdepth=""
+search_mindepth=""
+search_size=""
+search_mtime=""
+search_atime=""
+search_ctime=""
+search_links=""
+search_perm=""
+search_empty=0
+search_hidden=0
+search_nohidden=0
+search_readable=0
+search_writable=0
+search_executable=0
+search_follow=0
+search_xdev=0
+search_depth=0
+search_filters_used=0
+date_min_file=""
+date_max_file=""
+
+# Parse options
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -v|--verbose)
+            verbose=1
+            shift
+            ;;
+        -f|--fail)
+            fail_fast=1
+            shift
+            ;;
+        -H|--head)
+            [ $# -lt 2 ] && { error "--head requires COUNT"; exit 1; }
+            head_count="$2"
+            shift 2
+            ;;
+        -t|--tail)
+            [ $# -lt 2 ] && { error "--tail requires COUNT"; exit 1; }
+            tail_count="$2"
+            shift 2
+            ;;
+        -r|--range)
+            [ $# -lt 3 ] && { error "--range requires FIRST and LAST"; exit 1; }
+            range_first="$2"
+            range_last="$3"
+            shift 3
+            ;;
+        -s|--search)
+            [ $# -lt 2 ] && { error "--search requires PATH"; exit 1; }
+            search_enabled=1
+            search_path="$2"
+            shift 2
+            ;;
+        -s-is)
+            [ $# -lt 2 ] && { error "--s-is requires TYPE"; exit 1; }
+            search_is="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-not)
+            [ $# -lt 2 ] && { error "--s-not requires TYPE"; exit 1; }
+            search_not="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-name)
+            [ $# -lt 2 ] && { error "--s-name requires NAME"; exit 1; }
+            search_name="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-iname)
+            [ $# -lt 2 ] && { error "--s-iname requires NAME"; exit 1; }
+            search_iname="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-not-name)
+            [ $# -lt 2 ] && { error "--s-not-name requires NAME"; exit 1; }
+            search_not_name="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-not-iname)
+            [ $# -lt 2 ] && { error "--s-not-iname requires NAME"; exit 1; }
+            search_not_iname="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-path)
+            [ $# -lt 2 ] && { error "--s-path requires PATTERN"; exit 1; }
+            search_path_pattern="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-ipath)
+            [ $# -lt 2 ] && { error "--s-ipath requires PATTERN"; exit 1; }
+            search_ipath_pattern="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-not-path)
+            [ $# -lt 2 ] && { error "--s-not-path requires PATTERN"; exit 1; }
+            search_not_path_list=$(append_list "$search_not_path_list" "$2")
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-regex)
+            [ $# -lt 2 ] && { error "--s-regex requires PATTERN"; exit 1; }
+            search_regex="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-iregex)
+            [ $# -lt 2 ] && { error "--s-iregex requires PATTERN"; exit 1; }
+            search_iregex="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-ext)
+            [ $# -lt 2 ] && { error "--s-ext requires EXT"; exit 1; }
+            search_ext="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-not-ext)
+            [ $# -lt 2 ] && { error "--s-not-ext requires EXT"; exit 1; }
+            search_not_ext="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-starts)
+            [ $# -lt 2 ] && { error "--s-starts requires PREFIX"; exit 1; }
+            search_starts="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-ends)
+            [ $# -lt 2 ] && { error "--s-ends requires SUFFIX"; exit 1; }
+            search_ends="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-contains)
+            [ $# -lt 2 ] && { error "--s-contains requires TEXT"; exit 1; }
+            search_contains="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-istarts)
+            [ $# -lt 2 ] && { error "--s-istarts requires PREFIX"; exit 1; }
+            search_istarts="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-iends)
+            [ $# -lt 2 ] && { error "--s-iends requires SUFFIX"; exit 1; }
+            search_iends="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-icontains)
+            [ $# -lt 2 ] && { error "--s-icontains requires TEXT"; exit 1; }
+            search_icontains="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-prune)
+            [ $# -lt 2 ] && { error "--s-prune requires PATH"; exit 1; }
+            search_prune_list=$(append_list "$search_prune_list" "$2")
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-owner)
+            [ $# -lt 2 ] && { error "--s-owner requires OWNER"; exit 1; }
+            search_owner="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-group)
+            [ $# -lt 2 ] && { error "--s-group requires GROUP"; exit 1; }
+            search_group="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-uid)
+            [ $# -lt 2 ] && { error "--s-uid requires UID"; exit 1; }
+            search_uid="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-gid)
+            [ $# -lt 2 ] && { error "--s-gid requires GID"; exit 1; }
+            search_gid="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-when)
+            [ $# -lt 3 ] && { error "--s-when requires MIN_DATE and MAX_DATE"; exit 1; }
+            search_when_min="$2"
+            search_when_max="$3"
+            search_filters_used=1
+            shift 3
+            ;;
+        -s-newer)
+            [ $# -lt 2 ] && { error "--s-newer requires FILE"; exit 1; }
+            search_newer="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-older)
+            [ $# -lt 2 ] && { error "--s-older requires FILE"; exit 1; }
+            search_older="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-maxdepth)
+            [ $# -lt 2 ] && { error "--s-maxdepth requires N"; exit 1; }
+            search_maxdepth="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-mindepth)
+            [ $# -lt 2 ] && { error "--s-mindepth requires N"; exit 1; }
+            search_mindepth="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-size)
+            [ $# -lt 2 ] && { error "--s-size requires SIZE"; exit 1; }
+            search_size="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-mtime)
+            [ $# -lt 2 ] && { error "--s-mtime requires DAYS"; exit 1; }
+            search_mtime="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-atime)
+            [ $# -lt 2 ] && { error "--s-atime requires DAYS"; exit 1; }
+            search_atime="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-ctime)
+            [ $# -lt 2 ] && { error "--s-ctime requires DAYS"; exit 1; }
+            search_ctime="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-links)
+            [ $# -lt 2 ] && { error "--s-links requires N"; exit 1; }
+            search_links="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-perm)
+            [ $# -lt 2 ] && { error "--s-perm requires MODE"; exit 1; }
+            search_perm="$2"
+            search_filters_used=1
+            shift 2
+            ;;
+        -s-empty)
+            search_empty=1
+            search_filters_used=1
+            shift
+            ;;
+        -s-hidden)
+            search_hidden=1
+            search_filters_used=1
+            shift
+            ;;
+        -s-nohidden)
+            search_nohidden=1
+            search_filters_used=1
+            shift
+            ;;
+        -s-readable)
+            search_readable=1
+            search_filters_used=1
+            shift
+            ;;
+        -s-writable)
+            search_writable=1
+            search_filters_used=1
+            shift
+            ;;
+        -s-executable)
+            search_executable=1
+            search_filters_used=1
+            shift
+            ;;
+        -s-follow)
+            search_follow=1
+            search_filters_used=1
+            shift
+            ;;
+        -s-xdev)
+            search_xdev=1
+            search_filters_used=1
+            shift
+            ;;
+        -s-depth)
+            search_depth=1
+            search_filters_used=1
+            shift
+            ;;
+        -h)
+            if [ $# -gt 1 ] && is_uint "$2"; then
+                head_count="$2"
+                shift 2
+            else
+                show_help
+                exit 0
+            fi
+            ;;
+        --help)
+            show_help
+            exit 0
+            ;;
+        --)
+            shift
+            break
+            ;;
+        -*)
+            error "Unknown option: $1"
+            exit 1
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+if [ "$search_filters_used" -eq 1 ] && [ "$search_enabled" -eq 0 ]; then
+    error "Search filters require --search PATH"
+    exit 1
+fi
+
+# Command required
+if [ $# -lt 1 ]; then
+    show_help
+    exit 1
+fi
+
+command="$1"
+shift
+
+# Validate exclusive selection
+selection_count=0
+[ -n "$head_count" ] && selection_count=$((selection_count + 1))
+[ -n "$tail_count" ] && selection_count=$((selection_count + 1))
+[ -n "$range_first" ] && selection_count=$((selection_count + 1))
+
+if [ "$selection_count" -gt 1 ]; then
+    error "Use only one of --head, --tail, or --range"
+    exit 1
+fi
+
+# Prepare input list
+input_file=$(mktemp_safe)
+: > "$input_file" || { error "Cannot write temp file"; exit 1; }
+
+cleanup() {
+    [ -n "$input_file" ] && rm -f "$input_file"
+    [ -n "$select_file" ] && [ "$select_file" != "$input_file" ] && rm -f "$select_file"
+    [ -n "$date_min_file" ] && rm -f "$date_min_file"
+    [ -n "$date_max_file" ] && rm -f "$date_max_file"
+}
+trap cleanup EXIT INT TERM
+
+if [ "$search_enabled" -eq 1 ]; then
+    if [ -n "$search_when_min" ] && [ "$search_when_min" = "-" ]; then
+        search_when_min=""
+    fi
+    if [ -n "$search_when_max" ] && [ "$search_when_max" = "-" ]; then
+        search_when_max=""
+    fi
+    if [ -z "$search_path" ]; then
+        error "--search requires PATH"
+        exit 1
+    fi
+    if [ "$search_hidden" -eq 1 ] && [ "$search_nohidden" -eq 1 ]; then
+        error "Use only one of --s-hidden or --s-nohidden"
+        exit 1
+    fi
+    if [ -n "$search_maxdepth" ]; then
+        is_uint "$search_maxdepth" || { error "--s-maxdepth N must be a non-negative integer"; exit 1; }
+    fi
+    if [ -n "$search_mindepth" ]; then
+        is_uint "$search_mindepth" || { error "--s-mindepth N must be a non-negative integer"; exit 1; }
+    fi
+    if [ -n "$search_maxdepth" ] && [ -n "$search_mindepth" ]; then
+        if [ "$search_mindepth" -gt "$search_maxdepth" ]; then
+            error "--s-mindepth cannot exceed --s-maxdepth"
+            exit 1
+        fi
+    fi
+    if [ -n "$search_links" ]; then
+        is_uint "$search_links" || { error "--s-links N must be a non-negative integer"; exit 1; }
+    fi
+    if [ $# -gt 0 ]; then
+        error "ARRAY arguments are not allowed with --search"
+        exit 1
+    fi
+    if ! [ -t 0 ]; then
+        error "stdin input is not allowed with --search"
+        exit 1
+    fi
+    build_search_list
+else
+    if [ $# -gt 0 ]; then
+        # Use remaining args as the array
+        printf '%s\n' "$@" > "$input_file"
+    else
+        if [ -t 0 ]; then
+            error "No input provided. Supply ARRAY args or pipe input."
+            exit 1
+        fi
+        cat > "$input_file"
+    fi
+fi
+
+# Count total elements
+if [ ! -s "$input_file" ]; then
+    [ "$verbose" -eq 1 ] && printf "No elements to process.\n" >&2
+    exit 0
+fi
+
+total_count=$(wc -l < "$input_file" | tr -d ' ')
+
+# Validate numeric options
+if [ -n "$head_count" ]; then
+    is_uint "$head_count" || { error "--head COUNT must be a positive integer"; exit 1; }
+    [ "$head_count" -ge 1 ] || { error "--head COUNT must be >= 1"; exit 1; }
+    [ "$head_count" -le "$total_count" ] || { error "--head COUNT out of range (1-$total_count)"; exit 1; }
+fi
+
+if [ -n "$tail_count" ]; then
+    is_uint "$tail_count" || { error "--tail COUNT must be a positive integer"; exit 1; }
+    [ "$tail_count" -ge 1 ] || { error "--tail COUNT must be >= 1"; exit 1; }
+    [ "$tail_count" -le "$total_count" ] || { error "--tail COUNT out of range (1-$total_count)"; exit 1; }
+fi
+
+if [ -n "$range_first" ]; then
+    is_uint "$range_first" || { error "--range FIRST must be a positive integer"; exit 1; }
+    is_uint "$range_last" || { error "--range LAST must be a positive integer"; exit 1; }
+    [ "$range_first" -ge 1 ] || { error "--range FIRST must be >= 1"; exit 1; }
+    [ "$range_last" -ge "$range_first" ] || { error "--range LAST must be >= FIRST"; exit 1; }
+    [ "$range_last" -le "$total_count" ] || { error "--range LAST out of range (1-$total_count)"; exit 1; }
+fi
+
+# Apply selection
+select_file="$input_file"
+if [ -n "$head_count" ]; then
+    select_file=$(mktemp_safe)
+    sed -n "1,${head_count}p" "$input_file" > "$select_file"
+elif [ -n "$tail_count" ]; then
+    select_file=$(mktemp_safe)
+    tail -n "$tail_count" "$input_file" > "$select_file"
+elif [ -n "$range_first" ]; then
+    select_file=$(mktemp_safe)
+    sed -n "${range_first},${range_last}p" "$input_file" > "$select_file"
+fi
+
+# Iterate
+idx=0
+last_status=0
+
+while IFS= read -r _THIS_ || [ -n "$_THIS_" ]; do
+    idx=$((idx + 1))
+    _THIS_I="$idx"
+    export _THIS_ _THIS_I
+
+    if [ "$verbose" -eq 1 ]; then
+        printf "[%s] %s\n" "$_THIS_I" "$_THIS_" >&2
+    fi
+
+    sh -c "$command"
+    status=$?
+
+    if [ "$status" -ne 0 ]; then
+        last_status=$status
+        if [ "$fail_fast" -eq 1 ]; then
+            exit "$status"
+        fi
+    fi
+done < "$select_file"
+
+exit "$last_status"

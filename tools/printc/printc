@@ -1,0 +1,140 @@
+#!/bin/sh
+
+# printc - A portable shell script to simplify colored terminal output
+# Usage: printc [-n|--newline] COLOR "text" [COLOR "text" ...]
+
+# --- Helper Functions ---
+
+show_help() {
+    echo "Usage: $(basename "$0") [FLAGS] [COLOR \"text\" ...]"
+    echo ""
+    echo "Description:"
+    echo "  Prints text in specified colors to the terminal. Supports multiple"
+    echo "  color/text pairs in a single command. Resets color automatically."
+    echo ""
+    echo "Flags:"
+    echo "  -n, --newline  Append a newline character at the end of the output."
+    echo "  -c, --colors   List all available color names."
+    echo "  -h, --help     Show this help message."
+    echo ""
+    echo "Examples:"
+    echo "  $(basename "$0") Red \"Error: \" White \"File not found.\""
+    echo "  $(basename "$0") -n Green \"Success! \" Blue \"Operation completed.\""
+}
+
+show_colors() {
+    echo "Available Colors (Case insensitive):"
+    echo ""
+    # We use the script itself to demo the colors!
+    "$0" -n \
+        Black "Black " DarkGray "DarkGray " \
+        Red "Red " LightRed "LightRed " \
+        Green "Green " LightGreen "LightGreen " \
+        Yellow "Yellow " LightYellow "LightYellow " \
+        Blue "Blue " LightBlue "LightBlue " \
+        Magenta "Magenta " LightMagenta "LightMagenta " \
+        Cyan "Cyan " LightCyan "LightCyan " \
+        LightGray "LightGray " White "White"
+}
+
+get_ansi_code() {
+    # Convert input to lowercase using tr for portability
+    # (Bash 4.0 has ${var,,} but sh does not)
+    key=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+
+    case "$key" in
+        # Standard Colors (30-37)
+        black)       echo "30" ;;
+        red)         echo "31" ;;
+        green)       echo "32" ;;
+        yellow)      echo "33" ;;
+        blue)        echo "34" ;;
+        magenta)     echo "35" ;;
+        cyan)        echo "36" ;;
+        lightgray)   echo "37" ;;
+        
+        # High Intensity / Bright Colors (90-97)
+        darkgray)    echo "90" ;;
+        lightred)    echo "91" ;;
+        lightgreen)  echo "92" ;;
+        lightyellow) echo "93" ;;
+        lightblue)   echo "94" ;;
+        lightmagenta)echo "95" ;;
+        lightcyan)   echo "96" ;;
+        white)       echo "97" ;;
+        
+        # Default / Reset if unknown
+        default|reset|none) echo "0" ;;
+        *) echo "invalid" ;;
+    esac
+}
+
+# --- Main Logic ---
+
+use_newline=0
+
+# Handle initial flags
+while :; do
+    case "$1" in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        -c|--colors)
+            show_colors
+            exit 0
+            ;;
+        -n|--newline)
+            use_newline=1
+            shift
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+# Check if we have arguments left
+if [ $# -eq 0 ]; then
+    # No arguments provided, do nothing or show help? 
+    # Standard unix behavior is silent exit on empty input, 
+    # but we will just exit cleanly.
+    exit 0
+fi
+
+# Loop through pairs
+while [ $# -gt 0 ]; do
+    color_name="$1"
+    text_content="$2"
+
+    # Validate we have a pair (Color + Text)
+    if [ -z "$text_content" ] && [ $# -eq 1 ]; then
+        # Use stderr for system errors
+        printf "\033[31mError: Missing text argument for color '%s'\033[0m\n" "$color_name" >&2
+        exit 1
+    fi
+
+    ansi_code=$(get_ansi_code "$color_name")
+
+    if [ "$ansi_code" = "invalid" ]; then
+        # If color is invalid, print raw text but warn on stderr (optional)
+        # Here we just treat the color name as uncolored text to be safe, 
+        # or we could error out. Let's error out to be helpful.
+        printf "\033[31mError: Invalid color name '%s'\033[0m\n" "$color_name" >&2
+        exit 1
+    fi
+
+    # Print the sequence: Escape [ Code m Text
+    printf "\033[%sm%s" "$ansi_code" "$text_content"
+
+    # Shift past the pair
+    shift 2
+done
+
+# Always reset colors at the end
+printf "\033[0m"
+
+# Print newline if requested
+if [ "$use_newline" -eq 1 ]; then
+    printf "\n"
+fi
