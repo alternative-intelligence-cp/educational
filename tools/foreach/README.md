@@ -41,6 +41,10 @@ foreach [options] COMMAND --search PATH [search options]
 - `$_THIS_` — current element
 - `$_THIS_I` — iteration count (1-based)
 
+**IMPORTANT**: Always quote the COMMAND argument to prevent shell expansion!
+- ✅  Good: `foreach 'echo $_THIS_'` or `foreach "echo \$_THIS_"`
+- ❌  Bad:  `foreach echo $_THIS_` (expands $_THIS_ before foreach runs)
+
 ## Options
 
 - `-v, --verbose` — print each element before running COMMAND

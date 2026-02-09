@@ -1,0 +1,436 @@
+#!/bin/sh
+# <===========================================================================>
+# <============================>   REMOTE   <=================================>
+# <===========================================================================>
+#   Randy Hoggard                                                              
+#   Alternative Intelligence Liberation Platform                               
+#   February 7, 2026                                                           
+#   Version 1.0.0                                                               
+#                                                                              
+# <===> DESCRIPTION <=========================================================>
+#   SSH/SCP wrapper with session management and config file support
+#
+# <===> USAGE <===============================================================>
+#   remote [ options ] command [args]                                            
+#                                                                              
+# <===> OPTIONS <=============================================================>
+#   --set-remote REMOTE_HOST    Set remote hostname/IP for session
+#   --set-user USER_NAME        Set SSH username for session
+#   --set-port PORT             Set SSH port for session (default: 22)
+#   --set-pass PASSWORD         Set password for session (NOT SECURE - see below)
+#   --set-conf PATH_TO_CONF     Load settings from config file
+#   --clear                     Clear current session settings
+#   --show                      Show current session settings
+#   --help                      Show this help message
+#
+# <===> COMMANDS <============================================================>
+#   cpt LOCAL_SOURCE REMOTE_DESTINATION
+#       Copy file/directory TO remote server
+#       Example: remote cpt ./myfile.txt /home/user/
+#
+#   cpf REMOTE_SOURCE LOCAL_DESTINATION
+#       Copy file/directory FROM remote server
+#       Example: remote cpf /var/log/app.log ./logs/
+#
+#   con [remote-host]
+#       Connect to remote server via SSH
+#       Example: remote con
+#       Example: remote con user@server.com  (overrides session settings)
+#
+#   exec COMMAND
+#       Execute command on remote server
+#       Example: remote exec "ls -la /var/log"
+#       Example: remote exec "systemctl status nginx"
+#
+# <===> CONFIG FILE <=========================================================>
+#   Default config: ~/.remote.conf
+#   
+#   Config files use shell-style variable assignments:
+#       REMOTE_HOST="192.168.1.100"
+#       USER_NAME="admin"
+#       PORT="22"
+#       PASSWORD=""              # Leave empty - NOT RECOMMENDED
+#       PATH_TO_CONF=""          # Chain to another config (optional)
+#
+#   Config layering: Use PATH_TO_CONF to load a base config, then override
+#   specific settings. Example:
+#       ~/.remote.conf          -> Base settings (USER_NAME, PORT)
+#       ~/.remote_prod.conf     -> Production host (REMOTE_HOST)
+#
+#   Security: Config files can store passwords but this is NOT SECURE.
+#   The password is stored in PLAIN TEXT. Better options:
+#       1. Use SSH keys (recommended)
+#       2. Enter password when prompted
+#       3. Use --set-pass for session-only storage (cleared on exit)
+#
+# <===> SESSION STORAGE <=====================================================>
+#   Session settings stored in: /tmp/remote_session_$USER
+#   Settings persist across commands until --clear or system reboot
+#
+# <===========================================================================>
+
+# <==========================> ANSI Color Codes <=============================>
+# Use printc if available, otherwise fallback to plain text
+if command -v printc >/dev/null 2>&1; then
+    USE_COLOR=1
+else
+    USE_COLOR=0
+fi
+
+print_color() {
+    color="$1"
+    shift
+    if [ "$USE_COLOR" = "1" ]; then
+        printc "$color" "$@"
+    else
+        printf "%s\n" "$*"
+    fi
+}
+
+print_error() {
+    print_color red "ERROR: $*" >&2
+}
+
+print_warning() {
+    print_color yellow "WARNING: $*" >&2
+}
+
+print_success() {
+    print_color green "✓ $*"
+}
+
+print_info() {
+    print_color cyan "$*"
+}
+
+# <==========================> Configuration <================================>
+SESSION_FILE="/tmp/remote_session_$USER"
+DEFAULT_CONF="$HOME/.remote.conf"
+DEFAULT_PORT="22"
+
+# Initialize default config if it doesn't exist
+if [ ! -f "$DEFAULT_CONF" ]; then
+    cat > "$DEFAULT_CONF" << 'EOF'
+# ~/.remote.conf
+# Remote SSH/SCP Configuration
+#
+# WARNING: Storing passwords here is NOT SECURE (plain text)
+# Use SSH keys or enter password when prompted instead
+#
+# Config layering example:
+#   PATH_TO_CONF="/path/to/base.conf"  # Load base settings first
+#
+REMOTE_HOST=""
+USER_NAME=""
+PORT="22"
+PASSWORD=""
+PATH_TO_CONF=""
+EOF
+    print_info "Created default config at: $DEFAULT_CONF"
+fi
+
+# <==========================> Session Management <===========================>
+load_session() {
+    # First load default config if it exists (as base settings)
+    if [ -f "$DEFAULT_CONF" ]; then
+        # shellcheck disable=SC1090
+        . "$DEFAULT_CONF"
+    fi
+    
+    # Then load session (overrides config settings)
+    if [ -f "$SESSION_FILE" ]; then
+        # shellcheck disable=SC1090
+        . "$SESSION_FILE"
+    fi
+}
+
+save_session() {
+    cat > "$SESSION_FILE" << EOF
+REMOTE_HOST="${REMOTE_HOST:-}"
+USER_NAME="${USER_NAME:-}"
+PORT="${PORT:-$DEFAULT_PORT}"
+PASSWORD="${PASSWORD:-}"
+PATH_TO_CONF="${PATH_TO_CONF:-}"
+EOF
+    chmod 600 "$SESSION_FILE"  # Protect session file
+}
+
+clear_session() {
+    if [ -f "$SESSION_FILE" ]; then
+        rm -f "$SESSION_FILE"
+        print_success "Session cleared"
+    else
+        print_info "No active session to clear"
+    fi
+}
+
+show_session() {
+    if [ -f "$SESSION_FILE" ]; then
+        print_info "Current session settings:"
+        print_color white "  Remote: ${REMOTE_HOST:-(not set)}"
+        print_color white "  User:   ${USER_NAME:-(not set)}"
+        print_color white "  Port:   ${PORT:-22}"
+        if [ -n "$PASSWORD" ]; then
+            print_color white "  Pass:   ********"
+        else
+            print_color white "  Pass:   (not set)"
+        fi
+        if [ -n "$PATH_TO_CONF" ]; then
+            print_color white "  Config: $PATH_TO_CONF"
+        fi
+    else
+        print_info "No active session"
+    fi
+}
+
+# <==========================> Config File Loading <===========================>
+load_config() {
+    conf_file="$1"
+    
+    if [ ! -f "$conf_file" ]; then
+        print_error "Config file not found: $conf_file"
+        return 1
+    fi
+    
+    # Source the config file
+    # shellcheck disable=SC1090
+    . "$conf_file"
+    
+    # If config specifies another config to chain, load that first
+    if [ -n "$PATH_TO_CONF" ] && [ -f "$PATH_TO_CONF" ]; then
+        print_info "Loading chained config: $PATH_TO_CONF"
+        # shellcheck disable=SC1090
+        . "$PATH_TO_CONF"
+        # Re-source original to allow overrides
+        # shellcheck disable=SC1090
+        . "$conf_file"
+    fi
+    
+    save_session
+    print_success "Loaded config: $conf_file"
+}
+
+# <==========================> Helper Functions <=============================>
+validate_settings() {
+    if [ -z "$REMOTE_HOST" ]; then
+        print_error "Remote host not set. Use: remote --set-remote HOST"
+        return 1
+    fi
+    return 0
+}
+
+build_ssh_opts() {
+    opts=""
+    
+    if [ -n "$PORT" ] && [ "$PORT" != "22" ]; then
+        opts="$opts -p $PORT"
+    fi
+    
+    if [ -n "$PASSWORD" ]; then
+        print_warning "Password set in session - consider using SSH keys instead"
+        # Note: sshpass would be needed for password automation
+        # For now, we don't automatically use it for security
+    fi
+    
+    echo "$opts"
+}
+
+build_connection_string() {
+    if [ -n "$USER_NAME" ]; then
+        echo "${USER_NAME}@${REMOTE_HOST}"
+    else
+        echo "${REMOTE_HOST}"
+    fi
+}
+
+# <==========================> Commands <=====================================>
+cmd_copy_to() {
+    local_source="$1"
+    remote_dest="$2"
+    
+    if [ -z "$local_source" ] || [ -z "$remote_dest" ]; then
+        print_error "Usage: remote cpt LOCAL_SOURCE REMOTE_DESTINATION"
+        return 1
+    fi
+    
+    if [ ! -e "$local_source" ]; then
+        print_error "Local source not found: $local_source"
+        return 1
+    fi
+    
+    validate_settings || return 1
+    
+    conn_str=$(build_connection_string)
+    ssh_opts=$(build_ssh_opts)
+    
+    print_info "Copying to $conn_str:$remote_dest ..."
+    
+    # shellcheck disable=SC2086
+    scp $ssh_opts -r "$local_source" "$conn_str:$remote_dest"
+    
+    if [ $? -eq 0 ]; then
+        print_success "Copy completed"
+    else
+        print_error "Copy failed"
+        return 1
+    fi
+}
+
+cmd_copy_from() {
+    remote_source="$1"
+    local_dest="$2"
+    
+    if [ -z "$remote_source" ] || [ -z "$local_dest" ]; then
+        print_error "Usage: remote cpf REMOTE_SOURCE LOCAL_DESTINATION"
+        return 1
+    fi
+    
+    validate_settings || return 1
+    
+    conn_str=$(build_connection_string)
+    ssh_opts=$(build_ssh_opts)
+    
+    print_info "Copying from $conn_str:$remote_source ..."
+    
+    # shellcheck disable=SC2086
+    scp $ssh_opts -r "$conn_str:$remote_source" "$local_dest"
+    
+    if [ $? -eq 0 ]; then
+        print_success "Copy completed"
+    else
+        print_error "Copy failed"
+        return 1
+    fi
+}
+
+cmd_connect() {
+    override_host="$1"
+    
+    if [ -n "$override_host" ]; then
+        # Direct connection with override
+        print_info "Connecting to $override_host ..."
+        ssh "$override_host"
+    else
+        # Use session settings
+        validate_settings || return 1
+        
+        conn_str=$(build_connection_string)
+        ssh_opts=$(build_ssh_opts)
+        
+        print_info "Connecting to $conn_str ..."
+        
+        # shellcheck disable=SC2086
+        ssh $ssh_opts "$conn_str"
+    fi
+}
+
+cmd_exec() {
+    command="$1"
+    
+    if [ -z "$command" ]; then
+        print_error "Usage: remote exec COMMAND"
+        return 1
+    fi
+    
+    validate_settings || return 1
+    
+    conn_str=$(build_connection_string)
+    ssh_opts=$(build_ssh_opts)
+    
+    print_info "Executing on $conn_str: $command"
+    
+    # Use -t for TTY allocation (allows interactive commands)
+    # shellcheck disable=SC2086
+    ssh -t $ssh_opts "$conn_str" "$command"
+}
+
+show_help() {
+    # Extract header documentation (skip shebang, from first <==> to blank line)
+    sed -n '2,/^$/p' "$0" | grep '^#' | sed 's/^# //' | sed 's/^#//'
+}
+
+# <==========================> Main <=========================================>
+main() {
+    # Load existing session
+    load_session
+    
+    # Parse arguments
+    if [ $# -eq 0 ]; then
+        show_help
+        exit 0
+    fi
+    
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --set-remote)
+                REMOTE_HOST="$2"
+                save_session
+                print_success "Remote host set to: $REMOTE_HOST"
+                shift 2
+                ;;
+            --set-user)
+                USER_NAME="$2"
+                save_session
+                print_success "User set to: $USER_NAME"
+                shift 2
+                ;;
+            --set-port)
+                PORT="$2"
+                save_session
+                print_success "Port set to: $PORT"
+                shift 2
+                ;;
+            --set-pass)
+                PASSWORD="$2"
+                save_session
+                print_warning "Password stored in session (plain text in /tmp)"
+                print_warning "Consider using SSH keys instead"
+                shift 2
+                ;;
+            --set-conf)
+                load_config "$2"
+                shift 2
+                ;;
+            --clear)
+                clear_session
+                shift
+                ;;
+            --show)
+                show_session
+                shift
+                ;;
+            --help|-h)
+                show_help
+                exit 0
+                ;;
+            cpt)
+                shift
+                cmd_copy_to "$1" "$2"
+                exit $?
+                ;;
+            cpf)
+                shift
+                cmd_copy_from "$1" "$2"
+                exit $?
+                ;;
+            con)
+                shift
+                cmd_connect "$1"
+                exit $?
+                ;;
+            exec)
+                shift
+                cmd_exec "$1"
+                exit $?
+                ;;
+            *)
+                print_error "Unknown option or command: $1"
+                echo ""
+                show_help
+                exit 1
+                ;;
+        esac
+    done
+}
+
+main "$@"
