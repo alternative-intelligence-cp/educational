@@ -1,0 +1,30 @@
+<html>
+    <head>
+        <title>Shaggy's & EventSystem Module</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="Randy Hoggard"/>
+        <meta name="version" content="1.0.0"/>
+        <meta name="date" content="February 10,2026"/>
+        <meta name="copyright" content="Randy Hoggard 2026"/>
+        <link rel="stylesheet" href="index.css"/>
+    </head>
+    <body>
+        <h1>Shaggy's & EventSystem Module</h1>
+        <!----- CONTENT CONTAINER --------------------------------------------->
+        <div id="output">
+
+        </div>
+        <!----- SCRIPT CONTAINER ---------------------------------------------->
+        <footer id="script_container">
+            <script type="module">
+                window.addEventListener('DOMContentLoaded',()=>{
+                    let scr= document.createElement("script");
+                    scr.type="module";
+                    scr.src="main.js";
+                    document.body.appendChild(scr);
+                });
+            </script>
+        </footer>
+    </body>
+</html>

@@ -1,0 +1,20 @@
+html {
+    margin:0px;
+    padding:0px;
+    background-color:black;
+    color:green;
+}
+
+body {
+    box-sizing:border-box;
+    position:absolute;
+    width:100vw;
+    height:100vh;
+    text-align:center;
+}
+
+.red_data {
+    color:red;
+}
+
+
