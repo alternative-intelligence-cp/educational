@@ -99,6 +99,83 @@ make test
 
 ---
 
+### 🌀 **Quantum Types POC** - Modeling Uncertainty with Quantum Numbers
+**Location:** [`quantum-types-poc/`](./quantum-types-poc/)
+
+A working JavaScript proof-of-concept demonstrating **Q3 and Q9 quantum number types** from the ARIA programming language. Quantum types maintain TWO hypotheses simultaneously with a confidence metric, modeling uncertainty and gradual evidence accumulation—perfect for robotics, AI decision-making, and sensor fusion.
+
+**What You'll Learn:**
+- Superposition: Maintaining multiple hypotheses simultaneously
+- Evidence accumulation: Building confidence gradually from observations
+- Crystallization: Collapsing quantum state to single value when confident
+- Q-functions: Conditional operations based on hypothesis states
+- Gradient thinking vs binary thinking (embrace uncertainty!)
+- Real-world sensor fusion (GPS + Barometer example)
+- Graceful degradation when sensors fail
+
+**Features:**
+- ✅ Complete Q3 (3-state) and Q9 (9-state) quantum number implementation
+- ✅ 8 demonstration examples showing all features
+- ✅ Real-world drone altitude estimation (sensor fusion)
+- ✅ Binary vs Quantum comparison with statistics
+- ✅ All arithmetic operations (add, sub, mul, div, mod, sqrt)
+- ✅ 7 Q-functions (qor, qand, qxor, qnor, qnand, qconf, qnconf)
+- ✅ Complete API documentation
+- ✅ 1,281 lines of code + documentation
+
+**Philosophy:**
+> "Binary thinking forces premature decisions. Quantum types embrace uncertainty until evidence resolves it."
+
+Real systems don't have instant perfect knowledge:
+- Scientists don't force measurements to one value immediately
+- AI doesn't commit to one path without evidence  
+- Humans don't make binary choices instantly
+
+Quantum types model **how real intelligence works**: gradual confidence building from evidence.
+
+**Quick Start:**
+```bash
+cd quantum-types-poc
+
+# Run 8 demonstration examples
+node quantum_demo.js
+
+# Run sensor fusion simulation (GPS + Barometer)
+node sensor_fusion_example.js
+```
+
+**Example - Sensor Fusion:**
+```javascript
+// Two thermometers disagree: 20.5°C vs 21.3°C
+const temp = new QuantumNumber(9, 20.5, 21.3, 0);  // Unknown which is correct
+
+// Evidence 1: Reading 21.1°C (closer to B)
+temp.qif(evidence_favors_b, 0, 0, 1);
+
+// Evidence 2: Reading 21.2°C (still favoring B)  
+temp.qif(evidence_favors_b, 0, 0, 1);
+
+// Confidence built! Crystallize to single value
+const finalTemp = temp.crystallize();  // Returns 21.3 (sensor B won)
+```
+
+**Use Cases:**
+- 🤖 Robotics: Conflicting sensor readings, graceful failure handling
+- 🧠 AI: Multiple hypotheses, evidence-based decisions
+- 🔬 Science: Measurement uncertainty, precision tracking
+- 💭 Cognitive modeling: How humans actually think (not binary!)
+- ⚡ Graceful degradation: System continues when sensors fail
+
+**Documentation:**
+- 📖 [Complete README](./quantum-types-poc/README.md) - Full API reference
+- ✅ [Completion Summary](./quantum-types-poc/QUANTUM_POC_COMPLETE.md) - What was built
+- 📁 [File Manifest](./quantum-types-poc/FILES.md) - Quick reference
+
+**Why This Matters:**
+This POC demonstrates quantum types in JavaScript (familiar language) before the full ARIA language is complete. You won't find this anywhere else—it's a unique approach to modeling uncertainty that matches how real-world systems actually work!
+
+---
+
 ## 💝 Support AILP Education
 
 Help us create more free educational content! See [DONATIONS.md](DONATIONS.md) for ways to support this work.
