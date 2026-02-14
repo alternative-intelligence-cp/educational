@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shapp Quantum Types Demo</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>Shapp Framework - Quantum Types</h1>
+    <div id="output"></div>
+
+    <!-- Load shapp framework first -->
+    <script src="shapp.js"></script>
+    
+    <!-- Load quantum module -->
+    <script src="quantum.js"></script>
+    
+    <!-- Demo application -->
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(message) {
+            const p = document.createElement('p');
+            p.textContent = message;
+            output.appendChild(p);
+        }
+        
+        // Get quantum module from shapp
+        const quantum = shapp.get('quantum');
+        
+        if(!quantum) {
+            log('ERROR: Quantum module not found!');
+        } else {
+            log('✓ Quantum module loaded successfully!');
+            log(`Version: ${quantum.version}`);
+            log('');
+            
+            // Create Q9 quantum number
+            log('Creating Q9 quantum number (GPS vs Barometer)...');
+            const altitude = new quantum.QuantumNumber(9, 100, 102, 0);  // Unknown which is correct
+            
+            log(`Initial state: A=${altitude.getA()}, B=${altitude.getB()}, C=${altitude.getC()}`);
+            log('');
+            
+            // Accumulate evidence
+            log('Evidence 1: Reading closer to B...');
+            altitude.qif(true, 0, 0, 1);
+            log(`After evidence: C=${altitude.getC()}`);
+            
+            log('Evidence 2: More evidence for B...');
+            altitude.qif(true, 0, 0, 1);
+            log(`After evidence: C=${altitude.getC()}`);
+            
+            // Crystallize
+            const result = altitude.crystallize();
+            log('');
+            log(`✓ Crystallized value: ${result} (Hypothesis B won!)`);
+            log('');
+            
+            // Arithmetic example
+            log('Arithmetic Example: Q3 with uncertainty');
+            const uncertain = new quantum.QuantumNumber(3, 8, 12, 0);
+            log(`Before: A=${uncertain.getA()}, B=${uncertain.getB()}`);
+            
+            uncertain.add(3).mul(2).div(4);
+            log(`After ((x+3)*2)/4: A=${uncertain.getA()}, B=${uncertain.getB()}`);
+            log('Both hypotheses evolved through same operations!');
+            log('');
+            
+            // Q-function example
+            log('Q-Function Example: qor (conditional operation)');
+            const qfunc = new quantum.QuantumNumber(9, -5, 15, 1);
+            log(`Before: A=${qfunc.getA()}, B=${qfunc.getB()}`);
+            
+            qfunc.qor(
+                v => v > 0,  // Condition: is positive?
+                q => {       // Callback if EITHER is positive
+                    q.a *= 2;
+                    q.b *= 2;
+                    log('qor executed: at least one was positive, doubled both');
+                }
+            );
+            log(`After qor: A=${qfunc.getA()}, B=${qfunc.getB()}`);
+            log('');
+            
+            log('✓ Shapp quantum types working perfectly!');
+            
+            // Cleanup
+            altitude.destroy();
+            uncertain.destroy();
+            qfunc.destroy();
+        }
+    </script>
+</body>
+</html>
