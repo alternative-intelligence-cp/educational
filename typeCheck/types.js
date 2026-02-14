@@ -147,7 +147,129 @@
     }
 
     /**
-     * Validates an object against a schema.
+     * Validates an object against a schema with detailed failure reporting.
+     * Supports recursion and array validation.
+     * 
+     * @param {Object} schema - The definition of expected types.
+     * @param {Object} target - The object to validate.
+     * @param {string} [path='root'] - The current path for error reporting.
+     * @returns {Object} - { isValid: boolean, failures: Array<{path, field, reason}> }
+     */
+    exports.validateDetailed = function validateDetailed(schema, target, path) {
+        path = path || 'root';
+        const failures = [];
+
+        if (!exports.isObject(target)) {
+            failures.push({
+                path: path,
+                field: path,
+                reason: 'Target is not an object'
+            });
+            return { isValid: false, failures };
+        }
+
+        function addFailure(fieldPath, reason) {
+            failures.push({
+                path: path,
+                field: fieldPath,
+                reason: reason
+            });
+        }
+
+        for (const key in schema) {
+            if (Object.prototype.hasOwnProperty.call(schema, key)) {
+                const rule = schema[key];
+                const value = target[key];
+                const currentPath = path + '.' + key;
+
+                // 1. Recursive Object Validation
+                if (exports.isPlainObject(rule) && !rule.type) {
+                    if (!exports.isObject(value)) {
+                        addFailure(currentPath, 'Expected object');
+                        continue;
+                    }
+                    const nested = validateDetailed(rule, value, currentPath);
+                    if (!nested.isValid) {
+                        failures.push(...nested.failures);
+                    }
+                    continue;
+                }
+
+                // 2. Normalize rule to object format
+                const ruleObj = exports.isString(rule) ? { type: rule } : rule;
+
+                // 3. Handle 'required' (default is true unless optional: true)
+                if (value === undefined) {
+                    if (ruleObj.optional) continue;
+                    addFailure(currentPath, 'Missing required property');
+                    continue;
+                }
+
+                // 4. Type Check
+                const expectedType = ruleObj.type;
+
+                // Array Validation Strategy
+                if (expectedType === 'array') {
+                    if (!exports.isArray(value)) {
+                        addFailure(currentPath, 'Expected array');
+                        continue;
+                    }
+                    if (ruleObj.items) {
+                        const isSchema = exports.isPlainObject(ruleObj.items);
+
+                        for (let i = 0; i < value.length; i++) {
+                            const item = value[i];
+                            const itemPath = `${currentPath}[${i}]`;
+
+                            if (isSchema) {
+                                const itemResult = validateDetailed(ruleObj.items, item, itemPath);
+                                if (!itemResult.isValid) {
+                                    failures.push(...itemResult.failures);
+                                }
+                            } else {
+                                const checkFn = exports['is' + capitalize(ruleObj.items)];
+                                if (checkFn && !checkFn(item)) {
+                                    addFailure(itemPath, `Expected ${ruleObj.items}, got ${getTag(item)}`);
+                                }
+                            }
+                        }
+                    }
+                }
+                // Standard Type Check
+                else if (expectedType) {
+                    const checkFn = exports['is' + capitalize(expectedType)];
+                    if (!checkFn) {
+                        addFailure(currentPath, `Unknown type '${expectedType}' in schema`);
+                        continue;
+                    }
+                    if (!checkFn(value)) {
+                        addFailure(currentPath, `Expected ${expectedType}, got ${getTag(value)}`);
+                        continue;
+                    }
+                }
+
+                // 5. Custom Validator (Duck Typing)
+                if (ruleObj.validator && typeof ruleObj.validator === 'function') {
+                    const validatorResult = ruleObj.validator(value);
+                    
+                    // Support both boolean and detailed validator responses
+                    if (typeof validatorResult === 'object' && validatorResult.isValid === false) {
+                        addFailure(currentPath, validatorResult.reason || 'Custom validation failed');
+                    } else if (!validatorResult) {
+                        addFailure(currentPath, 'Custom validation failed');
+                    }
+                }
+            }
+        }
+        
+        return {
+            isValid: failures.length === 0,
+            failures: failures
+        };
+    };
+
+    /**
+     * Validates an object against a schema (backward compatible boolean version).
      * Supports recursion and array validation.
      * 
      * @param {Object} schema - The definition of expected types.
@@ -242,9 +364,136 @@
                         console.warn(`TypeCheck: Custom validation failed at '${currentPath}'`);
                         return false;
                     }
-                }
+    /**
+     * Validates an object against a schema (backward compatible boolean version).
+     * Supports recursion and array validation.
+     * 
+     * @param {Object} schema - The definition of expected types.
+     * @param {Object} target - The object to validate.
+     * @param {string} [path='root'] - The current path for error reporting.
+     * @returns {boolean} - True if valid, false otherwise.
+     */
+    exports.validate = function validate(schema, target, path) {
+        const result = exports.validateDetailed(schema, target, path);
+        
+        // Log failures for backward compatibility with console.warn behavior
+        if (!result.isValid) {
+            result.failures.forEach(failure => {
+                console.warn(`TypeCheck: ${failure.reason} at '${failure.field}'`);
+            });
+        }
+        
+        return result.isValid;
+    };
+
+    /**
+     * Type registry for custom type definitions.
+     * Allows registration of domain-specific types with validation logic.
+     */
+    const _typeRegistry = {};
+
+    /**
+     * Register a custom type definition.
+     * 
+     * @param {string} name - The name of the type (e.g., 'email', 'username').
+     * @param {Object} definition - Type definition with properties:
+     *   - raw_type: Base JavaScript type (e.g., 'string', 'number')
+     *   - required: Whether the value is required (default: true)
+     *   - check: Custom validation function (value) => boolean or { isValid, reason }
+     * 
+     * @example
+     * TypeCheck.registerType('email', {
+     *     raw_type: 'string',
+     *     required: true,
+     *     check: (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)
+     * });
+     */
+    exports.registerType = function registerType(name, definition) {
+        _typeRegistry[name] = definition;
+    };
+
+    /**
+     * Check if a value matches a registered custom type.
+     * 
+     * @param {*} value - The value to validate.
+     * @param {string} typeName - The name of the registered type.
+     * @returns {Object} - { isValid: boolean, failures: Array<{field, reason}> }
+     * 
+     * @example
+     * const result = TypeCheck.checkType('bob@example.com', 'email');
+     * if (!result.isValid) {
+     *     result.failures.forEach(f => console.error(f.reason));
+     * }
+     */
+    exports.checkType = function checkType(value, typeName) {
+        const typeDef = _typeRegistry[typeName];
+        
+        if (!typeDef) {
+            return {
+                isValid: false,
+                failures: [{ field: typeName, reason: `Unknown type '${typeName}'` }]
+            };
+        }
+
+        const failures = [];
+
+        // Check 'required' property
+        if (value === undefined || value === null) {
+            if (typeDef.required !== false) {
+                failures.push({
+                    field: typeName,
+                    reason: 'Value is required but missing'
+                });
+            }
+            return { isValid: failures.length === 0, failures };
+        }
+
+        // Check raw_type
+        if (typeDef.raw_type) {
+            const checkFn = exports['is' + capitalize(typeDef.raw_type)];
+            if (checkFn && !checkFn(value)) {
+                failures.push({
+                    field: typeName,
+                    reason: `Expected ${typeDef.raw_type}, got ${getTag(value)}`
+                });
+                return { isValid: false, failures };
             }
         }
-        return true;
+
+        // Run custom check function
+        if (typeDef.check && typeof typeDef.check === 'function') {
+            const checkResult = typeDef.check(value);
+            
+            // Support both boolean and detailed responses
+            if (typeof checkResult === 'object') {
+                if (checkResult.isValid === false) {
+                    failures.push({
+                        field: typeName,
+                        reason: checkResult.reason || 'Custom validation failed'
+                    });
+                }
+            } else if (!checkResult) {
+                failures.push({
+                    field: typeName,
+                    reason: 'Custom validation failed'
+                });
+            }
+        }
+
+        return {
+            isValid: failures.length === 0,
+            failures: failures
+        };
+    };
+
+    /**
+     * Simple boolean check for backward compatibility.
+     * 
+     * @param {*} value - The value to validate.
+     * @param {string} typeName - The name of the registered type.
+     * @returns {boolean} - True if valid, false otherwise.
+     */
+    exports.isValidType = function isValidType(value, typeName) {
+        return exports.checkType(value, typeName).isValid;
     };
 });

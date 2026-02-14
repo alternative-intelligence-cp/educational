@@ -8,6 +8,8 @@ A robust, environment-agnostic type checking library for JavaScript that works i
 - ✅ **Exhaustive Type Checks** - Primitives, objects, arrays, and more
 - ✅ **Binary Data Support** - TypedArrays, ArrayBuffers, DataView
 - ✅ **Schema Validation** - Recursive object validation with custom rules
+- ✅ **Detailed Failure Reporting** - Know exactly what failed and why (NEW!)
+- ✅ **Custom Type Registry** - Register domain-specific types (email, username, etc.) (NEW!)
 - ✅ **Modern JavaScript** - Supports BigInt, Symbols, Promises, Generators, Async functions
 - ✅ **Zero Dependencies** - Pure JavaScript, no external libraries needed
 
@@ -466,6 +468,200 @@ TypeCheck.isArray([])              // true ✅
 
 new Date('invalid') instanceof Date // true (but date is invalid!)
 TypeCheck.isDate(new Date('invalid')) // false ✅
+```
+
+## Detailed Validation with Failure Reporting (NEW!)
+
+Instead of just getting a boolean, you can now get detailed information about **what** failed and **why**:
+
+### validateDetailed()
+
+Returns an object with `isValid` boolean and `failures` array:
+
+```javascript
+const schema = {
+  email: 'string',
+  age: 'number',
+  username: 'string'
+};
+
+const badData = {
+  email: 123,           // Wrong type
+  age: 'twenty-five',   // Wrong type
+  // username missing
+};
+
+const result = TypeCheck.validateDetailed(schema, badData);
+
+console.log(result.isValid);  // false
+console.log(result.failures);
+// [
+//   { path: 'root', field: 'root.email', reason: 'Expected string, got Number' },
+//   { path: 'root', field: 'root.age', reason: 'Expected number, got String' },
+//   { path: 'root', field: 'root.username', reason: 'Missing required property' }
+// ]
+```
+
+### Clean Function Design
+
+This makes your functions **dramatically cleaner**:
+
+```javascript
+// OLD WAY - validation obscures business logic
+function sendEmail(address, content) {
+  if (typeof address !== 'string') {
+    console.error("Address must be a string");
+    return ERROR;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address)) {
+    console.error("Invalid email format");
+    return ERROR;
+  }
+  // Finally do actual work...
+  return actualEmailSending(address, content);
+}
+
+// NEW WAY - validation is one line, intent is clear
+function sendEmail(address, content) {
+  const validated = TypeCheck.checkType(address, "email");
+  
+  if (!validated.isValid) {
+    return {
+      success: false,
+      errors: validated.failures.map(f => f.reason)
+    };
+  }
+  
+  return actualEmailSending(address, content);
+}
+```
+
+## Custom Type Registry (NEW!)
+
+Register **domain-specific types** that you can reuse throughout your application:
+
+### registerType()
+
+```javascript
+// Register an email type
+TypeCheck.registerType('email', {
+  raw_type: 'string',           // Must be a string
+  required: true,               // Cannot be null/undefined
+  check: (val) => {             // Custom validation logic
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+  }
+});
+
+// Register a username type
+TypeCheck.registerType('username', {
+  raw_type: 'string',
+  required: true,
+  check: (val) => {
+    if (val.length < 3) {
+      return { isValid: false, reason: 'Username must be at least 3 characters' };
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(val)) {
+      return { isValid: false, reason: 'Username can only contain letters, numbers, and underscores' };
+    }
+    return true;
+  }
+});
+
+// Register a positive integer type
+TypeCheck.registerType('positive_int', {
+  raw_type: 'number',
+  required: true,
+  check: (val) => Number.isInteger(val) && val > 0
+});
+
+// Register an optional phone number
+TypeCheck.registerType('phone', {
+  raw_type: 'string',
+  required: false,  // Optional field
+  check: (val) => /^\d{3}-\d{3}-\d{4}$/.test(val)
+});
+```
+
+### checkType()
+
+```javascript
+// Validate against custom types
+const emailResult = TypeCheck.checkType('bob@example.com', 'email');
+console.log(emailResult.isValid);  // true
+
+const badEmail = TypeCheck.checkType('not-an-email', 'email');
+console.log(badEmail.isValid);     // false
+console.log(badEmail.failures);
+// [{ field: 'email', reason: 'Custom validation failed' }]
+
+const badUsername = TypeCheck.checkType('ab', 'username');
+console.log(badUsername.failures);
+// [{ field: 'username', reason: 'Username must be at least 3 characters' }]
+```
+
+### isValidType() - Boolean Convenience
+
+```javascript
+if (TypeCheck.isValidType(userInput, 'email')) {
+  sendEmail(userInput);
+}
+```
+
+## Real-World Example
+
+```javascript
+// Register your application's types once
+TypeCheck.registerType('email', {
+  raw_type: 'string',
+  required: true,
+  check: (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)
+});
+
+TypeCheck.registerType('password', {
+  raw_type: 'string',
+  required: true,
+  check: (val) => {
+    if (val.length < 8) {
+      return { isValid: false, reason: 'Password must be at least 8 characters' };
+    }
+    if (!/[A-Z]/.test(val)) {
+      return { isValid: false, reason: 'Password must contain uppercase letter' };
+    }
+    if (!/[0-9]/.test(val)) {
+      return { isValid: false, reason: 'Password must contain number' };
+    }
+    return true;
+  }
+});
+
+// Use throughout your application
+function registerUser(email, password) {
+  const emailCheck = TypeCheck.checkType(email, 'email');
+  const passwordCheck = TypeCheck.checkType(password, 'password');
+  
+  const allFailures = [...emailCheck.failures, ...passwordCheck.failures];
+  
+  if (allFailures.length > 0) {
+    return {
+      success: false,
+      errors: allFailures.map(f => f.reason)
+    };
+  }
+  
+  // All validation passed - do the actual work
+  return createUserAccount(email, password);
+}
+
+// Usage
+const result = registerUser('bad-email', 'weak');
+console.log(result);
+// {
+//   success: false,
+//   errors: [
+//     'Custom validation failed',  // email
+//     'Password must be at least 8 characters'
+//   ]
+// }
 ```
 
 ## Testing
