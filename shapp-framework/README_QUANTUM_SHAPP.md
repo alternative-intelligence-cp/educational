@@ -2,6 +2,22 @@
 
 Complete Q3/Q9 quantum number implementation integrated with the Shapp framework.
 
+## 🎓 Educational Purpose
+
+**This is for LEARNING, not production.**
+
+This integration shows you:
+- How to adapt modules to different framework patterns
+- How closures provide true privacy (better than class `#private`)
+- How to share state across instances (impossible with class syntax)
+- **How frameworks actually work** - no magic, just patterns
+
+**Explore. Experiment. Understand the fundamentals.**
+
+Don't blindly reach for a package. Understand what it's doing for you first.
+
+---
+
 ## Quick Start
 
 ```html

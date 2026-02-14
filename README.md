@@ -3,6 +3,25 @@
 
 ---
 
+## 🎓 Educational Philosophy
+
+**These projects are for LEARNING, not production.**
+
+The goal is simple: **Turn the black box transparent.**
+
+- Want to understand what React does? Build a mini version yourself.
+- Want to know how frameworks work? Study SJS or Shapp internals.
+- Want to learn quantum types? See them work in JavaScript first.
+- Want to understand defensive programming? See real bugs from production.
+
+**We teach fundamentals. We show you what's happening under the hood.**
+
+You don't need to install a package for `isEven`. You don't need a framework for every project. But you SHOULD understand what those tools are doing for you when you DO use them.
+
+**Learn by building. Understand by experimenting. Master by seeing through the abstraction.**
+
+---
+
 ## 📚 Featured Projects
 
 ### 🚀 **SJS Framework** - Modern JavaScript Application System

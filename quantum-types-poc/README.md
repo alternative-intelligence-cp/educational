@@ -2,6 +2,19 @@
 
 **A Proof-of-Concept Implementation of ARIA's Q3 and Q9 Quantum Number Types**
 
+## 🎓 Educational Purpose
+
+**This is for LEARNING, not production.**
+
+This POC demonstrates quantum types in JavaScript so you can:
+- ✅ Understand the concept before the full language exists
+- ✅ See how superposition and confidence tracking work
+- ✅ **Turn the black box transparent** - see every implementation detail
+- ✅ Learn functional JavaScript patterns (closures, prototypes, no class syntax!)
+- ✅ Experiment with gradient thinking vs binary thinking
+
+**Don't just use quantum types - understand HOW they work.**
+
 This is an educational demonstration showing how quantum types work before the full ARIA language is complete. Quantum types model **uncertainty** and **gradual confidence building**, making them ideal for:
 
 - **Sensor fusion** (conflicting readings from multiple sensors)

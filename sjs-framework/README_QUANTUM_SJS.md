@@ -2,6 +2,22 @@
 
 Complete Q3/Q9 quantum number implementation integrated with the SJS framework.
 
+## 🎓 Educational Purpose
+
+**This is for LEARNING, not production.**
+
+This integration demonstrates:
+- How modules integrate with pub/sub systems
+- How optional dependencies work
+- How to build framework-aware modules
+- **What production frameworks are doing behind the scenes**
+
+**Turn the black box transparent.** See how event systems, logging, and module management actually work. Then decide if you need a giant framework or if you can build something simpler and more focused.
+
+**You don't need a package for everything.** Sometimes understanding > convenience.
+
+---
+
 ## Quick Start
 
 ### Option 1: Via Manifest
