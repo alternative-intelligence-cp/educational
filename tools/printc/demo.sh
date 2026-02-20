@@ -44,8 +44,15 @@ echo ""
 $PRINTC -n LightGray "Tests: " Green "3 passed" LightGray ", " Red "1 failed" LightGray ", 4 total"
 echo ""
 
+# Numeric color shortcuts (v2.0 feature)
+echo "6. Numeric Color Shortcuts (faster for scripting):"
+$PRINTC -n 11 "[✓] " 8 "Using numbers instead of names"
+$PRINTC -n 2 "[✗] " 16 "Error: File not found"
+$PRINTC -n 12 "[!] " 8 "Warning: 0=reset, 1-8=standard, 9-16=bright"
+echo ""
+
 # Complex multi-color line
-echo "6. Multi-Color Output:"
+echo "7. Multi-Color Output:"
 $PRINTC -n Cyan "[" Yellow "2026-02-07 14:23:45" Cyan "] " \
              Blue "INFO" LightGray " - " \
              White "Request from " Magenta "192.168.1.100" White " processed in " \
@@ -53,7 +60,7 @@ $PRINTC -n Cyan "[" Yellow "2026-02-07 14:23:45" Cyan "] " \
 echo ""
 
 # Color mixing
-echo "7. Syntax Highlighting Simulation:"
+echo "8. Syntax Highlighting Simulation:"
 $PRINTC -n Blue "func " Cyan "main" White "() " Yellow "int32 " White "{"
 $PRINTC -n White "    " Magenta "return " LightYellow "0" White ";"
 $PRINTC -n White "}"

@@ -59,6 +59,22 @@ printc [FLAGS] [COLOR "text" ...]
 
 Colors are **case insensitive**: `red`, `Red`, `RED` all work the same.
 
+**Numeric Shortcuts (v2.0):**
+
+For faster scripting, you can use numbers instead of color names:
+
+- `0` = Default/Reset
+- `1` = Black, `2` = Red, `3` = Green, `4` = Yellow
+- `5` = Blue, `6` = Magenta, `7` = Cyan, `8` = LightGray
+- `9` = DarkGray, `10` = LightRed, `11` = LightGreen, `12` = LightYellow
+- `13` = LightBlue, `14` = LightMagenta, `15` = LightCyan, `16` = White
+
+```bash
+# These two are equivalent:
+printc LightGreen "[OK]" LightGray " Test passed"
+printc 11 "[OK]" 8 " Test passed"  # Much faster to type!
+```
+
 ## Examples
 
 ### Basic Usage

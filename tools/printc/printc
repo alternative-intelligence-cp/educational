@@ -4,7 +4,6 @@
 # Usage: printc [-n|--newline] COLOR "text" [COLOR "text" ...]
 
 # --- Helper Functions ---
-
 show_help() {
     echo "Usage: $(basename "$0") [FLAGS] [COLOR \"text\" ...]"
     echo ""
@@ -12,29 +11,45 @@ show_help() {
     echo "  Prints text in specified colors to the terminal. Supports multiple"
     echo "  color/text pairs in a single command. Resets color automatically."
     echo ""
+    echo "  Colors can be specified by name or number (0-16)."
+    echo ""
     echo "Flags:"
     echo "  -n, --newline  Append a newline character at the end of the output."
-    echo "  -c, --colors   List all available color names."
+    echo "  -c, --colors   List all available color names and numbers."
     echo "  -h, --help     Show this help message."
     echo ""
     echo "Examples:"
     echo "  $(basename "$0") Red \"Error: \" White \"File not found.\""
     echo "  $(basename "$0") -n Green \"Success! \" Blue \"Operation completed.\""
+    echo "  $(basename "$0") 2 \"Error: \" 16 \"File not found.\"  # Same as first example"
+    echo "  $(basename "$0") -n 11 \"[OK]\" 8 \" Test passed\"  # Numbers for brevity"
 }
 
 show_colors() {
     echo "Available Colors (Case insensitive):"
     echo ""
+    echo "Numeric Shortcuts:"
+    echo "  0  = Default/Reset"
+    echo "  1  = Black          9  = DarkGray"
+    echo "  2  = Red            10 = LightRed"
+    echo "  3  = Green          11 = LightGreen"
+    echo "  4  = Yellow         12 = LightYellow"
+    echo "  5  = Blue           13 = LightBlue"
+    echo "  6  = Magenta        14 = LightMagenta"
+    echo "  7  = Cyan           15 = LightCyan"
+    echo "  8  = LightGray      16 = White"
+    echo ""
+    echo "Color Preview:"
     # We use the script itself to demo the colors!
     "$0" -n \
-        Black "Black " DarkGray "DarkGray " \
-        Red "Red " LightRed "LightRed " \
-        Green "Green " LightGreen "LightGreen " \
-        Yellow "Yellow " LightYellow "LightYellow " \
-        Blue "Blue " LightBlue "LightBlue " \
-        Magenta "Magenta " LightMagenta "LightMagenta " \
-        Cyan "Cyan " LightCyan "LightCyan " \
-        LightGray "LightGray " White "White"
+        1 "Black " 9 "DarkGray " \
+        2 "Red " 10 "LightRed " \
+        3 "Green " 11 "LightGreen " \
+        4 "Yellow " 12 "LightYellow " \
+        5 "Blue " 13 "LightBlue " \
+        6 "Magenta " 14 "LightMagenta " \
+        7 "Cyan " 15 "LightCyan " \
+        8 "LightGray " 16 "White"
 }
 
 get_ansi_code() {
@@ -43,6 +58,25 @@ get_ansi_code() {
     key=$(echo "$1" | tr '[:upper:]' '[:lower:]')
 
     case "$key" in
+        # Numeric shortcuts (0-17)
+        0)  echo "0" ;;   # reset/default
+        1)  echo "30" ;;  # black
+        2)  echo "31" ;;  # red
+        3)  echo "32" ;;  # green
+        4)  echo "33" ;;  # yellow
+        5)  echo "34" ;;  # blue
+        6)  echo "35" ;;  # magenta
+        7)  echo "36" ;;  # cyan
+        8)  echo "37" ;;  # lightgray
+        9)  echo "90" ;;  # darkgray
+        10) echo "91" ;;  # lightred
+        11) echo "92" ;;  # lightgreen
+        12) echo "93" ;;  # lightyellow
+        13) echo "94" ;;  # lightblue
+        14) echo "95" ;;  # lightmagenta
+        15) echo "96" ;;  # lightcyan
+        16) echo "97" ;;  # white
+        
         # Standard Colors (30-37)
         black)       echo "30" ;;
         red)         echo "31" ;;
