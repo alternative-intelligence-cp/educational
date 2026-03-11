@@ -1,0 +1,77 @@
+/**
+ * Error Handling - Aria
+ *
+ * Safe integer division that may fail (divide by zero), chained across two ops.
+ *
+ * Category: Safety — error propagation models
+ *
+ * Build:
+ *   ariac divide.aria -o divide && ./divide
+ *
+ * Honest status of Aria's error model (as of development phase):
+ *
+ *   Aria automatically wraps every user-defined function's return value in
+ *   Result<T> at the ABI level — so a function returning int32 actually
+ *   returns {int32, error_ptr, is_error} at the LLVM level.
+ *
+ *   HOWEVER: user code currently has no syntax to produce a Result::Err.
+ *   Only pass(value) exists, which always produces Result::Ok(value).
+ *
+ *   The ? operator (written as `result ? default`) unwraps Ok, or uses the
+ *   default if Err. This is useful when calling stdlib functions (like
+ *   string_index_of) whose runtime implementations can return actual errors.
+ *
+ *   For now, user-level error signaling uses sentinel values — the same
+ *   pattern as C. A fail() keyword / Err syntax is planned.
+ *
+ * Notice:
+ *   - The sentinel -1 works fine for this demo (inputs are all positive)
+ *     but a real library would need a struct { bool ok; int32 value; }
+ *   - divide_chain manually checks for -1 and re-propagates — same verbosity
+ *     as the C version with output pointers
+ *   - show() builds the label string with string_concat at each step
+ */
+
+use "stdlib/string_convert.aria".*;
+
+func:failsafe = NIL(int32:err_code) { pass(NIL); };
+
+// Sentinel: -1 means "error — division by zero"
+// (Safe only for positive inputs; a struct return would be more general)
+func:divide = int32(int32:a, int32:b) {
+    if (b == 0i32) { pass(0i32 - 1i32); }
+    pass(a / b);
+};
+
+// Chain: (a / b) / c — re-propagates -1 at each step (C-style sentinel pattern)
+func:divide_chain = int32(int32:a, int32:b, int32:c) {
+    int32:mid = divide(a, b) ? (0i32 - 1i32);
+    if (mid == 0i32 - 1i32) { pass(0i32 - 1i32); }
+    int32:result = divide(mid, c) ? (0i32 - 1i32);
+    pass(result);
+};
+
+func:show = NIL(int32:a, int32:b, int32:c) {
+    string:label = string_concat("(", int32_toString(a));
+    label = string_concat(label, " / ");
+    label = string_concat(label, int32_toString(b));
+    label = string_concat(label, ") / ");
+    label = string_concat(label, int32_toString(c));
+
+    int32:neg1 = 0i32 - 1i32;
+    int32:result = divide_chain(a, b, c) ? neg1;
+
+    if (result == neg1) {
+        drop(println(string_concat(label, "  =  ERROR: division by zero")));
+    } else {
+        drop(println(string_concat(label, string_concat("  =  ", int32_toString(result)))));
+    }
+    pass(NIL);
+};
+
+func:main = int32() {
+    drop(show(100i32, 5i32, 4i32));   // ok:  (100/5)/4 = 5
+    drop(show(100i32, 0i32, 4i32));   // err: 100/0 fails first
+    drop(show(100i32, 5i32, 0i32));   // err: 20/0 fails second
+    pass(0i32);
+};

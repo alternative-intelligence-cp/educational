@@ -1,0 +1,35 @@
+/**
+ * FizzBuzz - Aria
+ *
+ * Classic: count 1-30, print Fizz (÷3), Buzz (÷5), FizzBuzz (÷15), else number.
+ *
+ * Build:
+ *   ariac fizzbuzz.aria -o fizzbuzz && ./fizzbuzz
+ *
+ * Notice:
+ *   - All user-defined functions returning a value are wrapped in Result<T>
+ *     at the ABI level; drop() discards that wrapper when the return is unneeded
+ *   - No for-loop syntax yet; while + counter is the current idiom
+ *   - Integer literals require an explicit type suffix: 1i32, not just 1
+ *   - Boolean flags replace else-if chains because nested else requires braces;
+ *     the flag pattern is arguably more honest about what's being tested anyway
+ *   - Type inference handles bool:fizz = (expr) without annotation needed
+ */
+
+use "stdlib/string_convert.aria".*;
+
+func:failsafe = NIL(int32:err_code) { pass(NIL); };
+
+func:main = int32() {
+    int32:i = 1i32;
+    while (i <= 30i32) {
+        bool:fizz = (i % 3i32 == 0i32);
+        bool:buzz = (i % 5i32 == 0i32);
+        if (fizz && buzz)  { drop(println("FizzBuzz")); }
+        if (fizz && !buzz) { drop(println("Fizz")); }
+        if (!fizz && buzz) { drop(println("Buzz")); }
+        if (!fizz && !buzz){ drop(println(int32_toString(i))); }
+        i = i + 1i32;
+    }
+    pass(0i32);
+};

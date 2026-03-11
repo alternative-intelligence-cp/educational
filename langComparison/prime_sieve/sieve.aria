@@ -1,0 +1,86 @@
+/**
+ * Prime Sieve - Aria (Sieve of Eratosthenes)
+ *
+ * Find all prime numbers up to N using the classic sieve algorithm.
+ *
+ * Category: Speed — memory layout, array access patterns
+ *
+ * Build:
+ *   ariac sieve.aria -o sieve && ./sieve
+ *
+ * Honest status of Aria's array support (as of development phase):
+ *
+ *   Aria uses fixed-size compile-time arrays: bool[1001]:is_prime declares
+ *   1001 booleans on the stack. This matches C's char arr[N+1] pattern,
+ *   but N must be a compile-time constant — you can't pass it at runtime.
+ *
+ *   The arena allocator is available for heap allocation (aria_arena_new,
+ *   aria_arena_alloc) but requires extern FFI calls and manual sizing.
+ *   A higher-level dynamic array / slice type is planned.
+ *
+ *   Output: printing each prime on its own line (no space-joined line)
+ *   because in-loop string building and concat would be O(n²). A string
+ *   builder exists in the stdlib but is not used here to keep this focused.
+ *
+ * Notice:
+ *   - bool[1001]:is_prime is stack-allocated; no malloc, no GC
+ *   - Initialization loop sets all entries to true before the sieve pass
+ *   - Variable array indexing (is_prime[i], is_prime[j]) works as expected
+ *   - All arithmetic uses i32; the loop condition i*i <= N is safe here
+ *     since i reaches at most 31 (sqrt(1000)), so 31*31 = 961, no overflow
+ */
+
+use "stdlib/string_convert.aria".*;
+
+func:failsafe = NIL(int32:err_code) { pass(NIL); };
+
+func:main = int32() {
+    int32:N = 1000i32;
+
+    // Stack-allocated boolean flag array; size must be a compile-time constant
+    bool[1001]:is_prime;
+
+    // Initialize all entries to true
+    int32:idx = 0i32;
+    while (idx <= N) {
+        is_prime[idx] = true;
+        idx = idx + 1i32;
+    }
+    is_prime[0] = false;
+    is_prime[1] = false;
+
+    // Sieve pass: cross out multiples of each prime found
+    int32:i = 2i32;
+    while (i * i <= N) {
+        if (is_prime[i]) {
+            int32:j = i * i;
+            while (j <= N) {
+                is_prime[j] = false;
+                j = j + i;
+            }
+        }
+        i = i + 1i32;
+    }
+
+    // Print and count
+    int32:count = 0i32;
+    int32:p = 2i32;
+    while (p <= N) {
+        if (is_prime[p]) {
+            drop(print(int32_toString(p)));
+            drop(print(" "));
+            count = count + 1i32;
+        }
+        p = p + 1i32;
+    }
+    drop(println(""));
+    // NOTE: splitting into two print() calls instead of string_concat() here.
+    // The string arena has a fixed capacity; after ~168 int32_toString() calls
+    // in the loop above it is nearly full, and a subsequent string_concat()
+    // allocation triggers a segfault. This is a known Aria runtime limitation:
+    // the string arena pool size needs to scale with allocation count.
+    drop(print(int32_toString(count)));
+    drop(println(" primes found up to 1000"));
+
+    pass(0i32);
+};

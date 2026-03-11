@@ -1,0 +1,64 @@
+/**
+ * Integer Overflow - Aria
+ *
+ * What happens when a signed 32-bit integer exceeds its maximum value?
+ *
+ * Category: Safety — arithmetic behavior at type limits
+ *
+ * Build:
+ *   ariac overflow.aria -o overflow && ./overflow
+ *
+ * Honest status:
+ *   Aria compiles to LLVM IR. LLVM's default for signed integer arithmetic
+ *   uses the `nsw` (no signed wrap) flag, which declares overflow to be
+ *   undefined behavior — the same as C.
+ *
+ *   In practice on x86-64 and aarch64, the hardware wraps: INT32_MAX + 1
+ *   becomes INT32_MIN (= -2147483648). But this is not guaranteed.
+ *   The LLVM optimizer is permitted to assume overflow never occurs and
+ *   may generate incorrect code if it does.
+ *
+ *   Planned: safe arithmetic options (checked_add, wrapping_add, etc.)
+ *   similar to Rust's explicit overflow methods.
+ *
+ * Notice:
+ *   - 2147483647i32 is the largest i32 literal; +1 overflows
+ *   - Aria currently has no run-time overflow check or safe arithmetic API
+ *   - The behavior matches C at the LLVM level
+ */
+
+use "stdlib/string_convert.aria".*;
+
+func:failsafe = NIL(int32:err_code) { pass(NIL); };
+
+func:main = int32() {
+    int32:max_val = 2147483647i32;   // INT32_MAX
+
+    drop(print("INT32_MAX         = "));
+    drop(println(int32_toString(max_val)));
+
+    // Overflow — undefined behavior at the LLVM level
+    // LLVM emits `add nsw i32 %max_val, 1` — the `nsw` flag tells the optimizer
+    // that signed overflow WILL NOT happen. When it does anyway, the optimizer
+    // is free to do anything. In this build it keeps the original value (elides
+    // the +1); in a C build at -O0 the hardware wraps to -2147483648.
+    // Both behaviors are legal under UB. Neither is guaranteed.
+    int32:wrapped = max_val + 1i32;
+    drop(print("INT32_MAX + 1     = "));
+    drop(println(int32_toString(wrapped)));
+    drop(println("                    (UB — LLVM elided the +1; C -O0 wraps to -2147483648)"));
+    drop(println("                    (This is undefined behavior — the optimizer changed the result)"));
+
+    // Unsigned: cast uint32 to int64 for display (no uint32_toString in stdlib yet)
+    // uint32::MAX = 4294967295; adding 1 wraps to 0 — DEFINED behavior (not UB)
+    uint32:umax = 4294967295u32;
+    int64:umax_display = 4294967295i64;   // same value as a printable i64
+    drop(print("UINT32_MAX        = "));
+    drop(println(int64_toString(umax_display)));
+    uint32:uwrapped = umax + 1u32;
+    drop(print("UINT32_MAX + 1    = "));
+    drop(println(int64_toString(@cast<int64>(uwrapped))));
+    drop(println("                    (defined: wraps to 0 — unsigned overflow is not UB)"));
+
+    pass(0i32);
+};
