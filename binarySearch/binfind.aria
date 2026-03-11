@@ -1,0 +1,111 @@
+/**
+ * Binary Search - Aria Implementation
+ *
+ * Binary search works on a sorted list by repeatedly halving the search space:
+ *   1. Check the middle element
+ *   2. If it matches, done
+ *   3. If the target is larger, discard the left half
+ *   4. If the target is smaller, discard the right half
+ *   5. Repeat until found or the search space is empty
+ *
+ * Time complexity:  O(log n)  — each step cuts the problem in half
+ * Space complexity: O(1)      — iterative, no extra memory needed
+ *
+ * This implementation serves as a real-world test of Aria's string utilities
+ * and demonstrates clean iterative code in a systems language under development.
+ *
+ * Compile:
+ *   ariac binfind.aria -o binfind
+ *
+ * Run:
+ *   ./binfind
+ */
+
+use "stdlib/string_convert.aria".*;
+use "stdlib/print_utils.aria".*;
+
+func:failsafe = NIL(int32:err_code) { pass(NIL); };
+
+// ── Helper: build "key=value" string ─────────────────────────────────────────
+
+func:kv32 = string(string:key, int32:val) {
+    pass(string_concat(key, int32_toString(val)));
+};
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+
+func:main = int32() {
+
+    // Demo list — must be sorted for binary search to work
+    int32[16]:list = [
+        1i32,   3i32,   6i32,   8i32,   9i32,   10i32,  11i32,  23i32,
+        25i32,  31i32,  65i32,  73i32,  105i32, 205i32, 569i32, 1024i32
+    ];
+    int32:n      = 16i32;
+    int32:target = 31i32;
+
+    // ── Header ────────────────────────────────────────────────────────────────
+    printSeparator(60);
+    printlnString("  Binary Search  (Aria)");
+    printSeparator(60);
+    printStringLabeled("  Target", int32_toString(target));
+    printStringLabeled("  Length", int32_toString(n));
+    printSeparator(60);
+    printNewline();
+
+    // ── Binary search ─────────────────────────────────────────────────────────
+    int32:lo        = 0i32;
+    int32:hi        = n - 1i32;
+    int32:found_idx = -1i32;
+    int32:step      = 0i32;
+
+    while (lo <= hi) {
+        // Midpoint — lo + (hi - lo) / 2 avoids integer overflow
+        int32:mid   = lo + (hi - lo) / 2i32;
+        int32:probe = list[mid];
+        step = step + 1i32;
+
+        // Build step description: "  Step N:  lo=A  mid=B  hi=C  probe=X"
+        string:line = string_concat("  Step ", int32_toString(step));
+        line = string_concat(line, string_concat(":  lo=", int32_toString(lo)));
+        line = string_concat(line, string_concat("  mid=", int32_toString(mid)));
+        line = string_concat(line, string_concat("  hi=",  int32_toString(hi)));
+        line = string_concat(line, string_concat("  probe=", int32_toString(probe)));
+
+        // Compare and narrow the search range
+        if (probe == target) {
+            found_idx = mid;
+            line = string_concat(line, "  [FOUND]");
+            drop(println(line));
+            lo = hi + 1i32;     // force loop exit (Aria has no break)
+        }
+        if (probe < target) {
+            lo = mid + 1i32;
+            line = string_concat(line, "  -> go right");
+            drop(println(line));
+        }
+        if (probe > target) {
+            hi = mid - 1i32;
+            line = string_concat(line, "  -> go left");
+            drop(println(line));
+        }
+    }
+
+    // ── Result ────────────────────────────────────────────────────────────────
+    printNewline();
+    printSeparator(60);
+
+    if (found_idx >= 0i32) {
+        string:msg = string_concat("  Found!  value=", int32_toString(target));
+        msg = string_concat(msg, string_concat("  index=", int32_toString(found_idx)));
+        msg = string_concat(msg, string_concat("  position=", int32_toString(found_idx + 1i32)));
+        drop(println(msg));
+    }
+    if (found_idx < 0i32) {
+        drop(println(string_concat("  Not found: ", int32_toString(target))));
+    }
+    printStringLabeled("  Steps taken", int32_toString(step));
+    printSeparator(60);
+
+    pass(0i32);
+};
