@@ -40,22 +40,47 @@ confidence scores, enabling five output tokens:
 
 Inspired by Q-type quantum confidence modeling from the Aria project.
 
+### DecisionGradientT (time-axis extension, Python only)
+
+Extends `DecisionGradient` with a snapshot history and temporal analysis tools.
+Every mutation is recorded as a `Snapshot(step, trigger, pbc, pbm, a, b, decision)`.
+
+| Method | Description |
+|--------|-------------|
+| `snapshot_now(trigger)` | Manual checkpoint without mutation |
+| `observe(lean, tilt, trigger)` | Compound lean+tilt, one snapshot |
+| `trajectory()` | List of decision tokens over time |
+| `delta(index, axis)` | Signed change in metric between steps |
+| `find_triggers(threshold, axis)` | Steps with large metric jumps |
+| `find_decision_changes()` | Boundary-crossing events |
+| `peak_confidence(axis)` | Highest ever A or B score |
+| `stability_report()` | Decision token → step count |
+
+History depth is configurable: `DecisionGradientT(history_depth=N)` caps the
+deque to N snapshots; `history_depth=None` (default) keeps all.
+
+See `python/decision_gradient_t_demo.py` for four worked scenarios:
+sensor drift detection, evidence trigger identification, stability analysis,
+and lean-vs-tilt forensics.
+
 ---
 
 ## Languages
 
 ```
 js/
-  slidingWindow.js       — zero-sum window (JS IIFE module)
-  decisionGradient.js    — gradient construct (JS constructor)
+  slidingWindow.js           — zero-sum window (JS IIFE module)
+  decisionGradient.js        — gradient construct (JS constructor)
 
 python/
-  sliding_window.py      — zero-sum window (Python class)
-  decision_gradient.py   — gradient construct (Python class)
+  sliding_window.py          — zero-sum window (Python class)
+  decision_gradient.py       — gradient construct (Python class)
+  decision_gradient_t.py     — time-axis extension (Python class, subclasses DG)
+  decision_gradient_t_demo.py — 4 demo scenarios for DecisionGradientT
 
 cpp/
-  sliding_window.hpp     — zero-sum window (C++ header-only)
-  decision_gradient.hpp  — gradient construct (C++ header-only)
+  sliding_window.hpp         — zero-sum window (C++ header-only)
+  decision_gradient.hpp      — gradient construct (C++ header-only)
 ```
 
 ---
