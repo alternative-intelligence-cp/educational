@@ -195,9 +195,3 @@ This POC demonstrates quantum types in JavaScript (familiar language) before the
 
 ---
 
-## 💝 Support AILP Education
-
-Help us create more free educational content! See [DONATIONS.md](DONATIONS.md) for ways to support this work.
-
----
-
