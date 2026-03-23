@@ -1,0 +1,11 @@
+# Compiled files
+*.o
+*.out
+
+# Binaries
+test_class
+test_functions
+test_if
+test_switch
+test_while
+comprehensive
