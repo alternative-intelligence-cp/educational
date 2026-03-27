@@ -195,3 +195,56 @@ This POC demonstrates quantum types in JavaScript (familiar language) before the
 
 ---
 
+### 🔀 **Any Type POC** - Type-Erased Containers from First Principles
+**Location:** [`any-type-poc/`](./any-type-poc/)
+
+A JavaScript proof-of-concept demonstrating **ARIA's `any` type** — a type-erased container that stores raw bytes and lets you reinterpret them through different type lenses. Write as `u32`, read as `i8`, see two's complement in action. Same memory, different interpretation.
+
+**What You'll Learn:**
+- Type punning: same bytes, different values under different interpretations
+- Memory representation: integers, floats, signedness — all through one 8-byte buffer
+- Fat pointers: how `{ptr, size}` enables type-erased storage
+- Consuming semantics: why `resolve()` makes the container unusable (move safety)
+- Two's complement: store 511, read as `i8`, get -1 — see WHY
+- BigInt for 64-bit precision: why JavaScript Numbers fail above 2^53
+
+**Features:**
+- ✅ 12 numeric type views (i8–u64, f32, f64) plus obj/str/arr composites
+- ✅ Type punning via shared ArrayBuffer (same memory, different DataView)
+- ✅ Consuming semantics (`resolve()` freezes the box)
+- ✅ Raw hex dump to inspect actual bytes in memory
+- ✅ Proper error handling with descriptive messages
+- ✅ 8 interactive demonstration sections
+- ✅ Direct mapping to ARIA compiler internals (LLVM IR examples)
+- ✅ Zero dependencies — just Node.js
+
+**Quick Start:**
+```bash
+cd any-type-poc
+node any_demo.js
+```
+
+**Example — Type Punning:**
+```javascript
+const box = new Any('u32', 511);
+box.get();              // 511
+box.rawHex();           // "ff 01 00 00 00 00 00 00"
+
+box.setType('u8');
+box.get();              // 255  (only the low byte: 0xFF)
+
+box.setType('i8');
+box.get();              // -1   (two's complement of 0xFF)
+
+box.setType('u32');
+box.get();              // 511  (nothing changed in memory!)
+```
+
+**Documentation:**
+- 📖 [Complete README](./any-type-poc/README.md) - API reference, ARIA mapping, experiments
+
+**Why This Matters:**
+This POC shows how type-erased containers work at the byte level — the same mechanism behind C's `void*`, Rust's `Box<dyn Any>`, and ARIA's `any` type. Understanding this in JavaScript first makes the compiler's LLVM IR implementation intuitive.
+
+---
+
