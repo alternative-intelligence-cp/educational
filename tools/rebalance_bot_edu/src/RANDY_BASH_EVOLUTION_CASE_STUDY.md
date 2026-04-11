@@ -515,7 +515,7 @@ Randy's foundation: "Schools teach syntax, but production teaches survival."
 - Pain teaches what matters, books teach what's documented
 
 #### 1. **Fundamentals First**
-Randy's philosophy: "If you can't draw on a javascript canvas you sure as hell can't draw to a video ram buffer."
+Randy's philosophy: "If you can't draw on a javascript canvas you sure can't draw to a video ram buffer."
 
 **Applied to Bash:**
 - Learn direct terminal manipulation before ncurses

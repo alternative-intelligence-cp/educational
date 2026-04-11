@@ -165,7 +165,7 @@ Every piece of Randy's educational content carries Granddaddy's electric fence w
 
 ## The Collective Learning Phenomenon
 
-**Randy's Family Wood Stove Story**: Great grandparents kept saying "quit playing around that wood stove, you're gonna get burned." Sure enough, one cousin fell right on the damn thing - it wasn't glowing but starting to change color ever so slightly, so she was cooking. **Long story short, not only did he never play by the woodstove again but neither did any of the other children who were present.**
+**Randy's Family Wood Stove Story**: Great grandparents kept saying "quit playing around that wood stove, you're gonna get burned." Sure enough, one cousin fell right on the thing - it wasn't glowing but starting to change color ever so slightly, so she was cooking. **Long story short, not only did he never play by the woodstove again but neither did any of the other children who were present.**
 
 ### Exponential Wisdom Transfer
 
@@ -296,7 +296,7 @@ Every piece of Randy's educational content carries Granddaddy's electric fence w
 - Concrete reality
 - Impossible to dismiss
 - Visual proof of danger
-- "Holy shit, that's real"
+- "Wow, that's real"
 
 **Randy's Insight**: Real footage of local accidents creates the **industrial-strength version** of wood stove education.
 
@@ -359,7 +359,7 @@ Real Rich: Disciplined schedule, hard work, treat people well
 
 ### The Trust Test: Randy's $100 Lesson
 
-**Randy's Experience**: "I'll say this, I think Tim and Bob trusted me working inside their VERY nice homes when nobody was there during the day more than anyone else. I knew they tested me the first couple times I ever worked for them. It was too obvious. $100 bill laying on the dresser in the room I'm supposed to be working in, you know. If I had fucked with that I would have lost no telling how much future work over a fucking single Benjamin."
+**Randy's Experience**: "I'll say this, I think Tim and Bob trusted me working inside their VERY nice homes when nobody was there during the day more than anyone else. I knew they tested me the first couple times I ever worked for them. It was too obvious. $100 bill laying on the dresser in the room I'm supposed to be working in, you know. If I had messed with that I would have lost no telling how much future work over a single Benjamin."
 
 ### The Integrity Check System
 
@@ -375,7 +375,7 @@ Touch the $100 = Lose thousands in future work
 Leave the $100 = Gain years of trusted contractor status
 ```
 
-**Randy's Calculation**: "No telling how much future work over a fucking single Benjamin"
+**Randy's Calculation**: "No telling how much future work over a single Benjamin"
 
 ### Why This Test Works So Well
 
@@ -1139,7 +1139,7 @@ PEOPLE VOLUNTARILY PAY FOR EDUCATION
 **Richard Feynman's Teaching Legacy**:
 - **Nobel Prize physicist** who made **complex physics accessible**
 - **"Surely You're Joking, Mr. Feynman!"** - science through playfulness
-- **Bongo drums, strip clubs, and quantum mechanics** - all part of life
+- **Bongo drums, adventurous social life, and quantum mechanics** - all part of life
 - **"What I cannot create, I do not understand"** - hands-on learning
 
 ### The Feynman Formula We Ignored
@@ -1153,7 +1153,7 @@ LEGENDARY TEACHING
 **Feynman's Examples**:
 - **Plate spinning** led to **Nobel Prize physics**
 - **Picking locks** while thinking about **quantum mechanics**  
-- **Drawing nude models** to understand **visual perception**
+- **Sketching life models** to understand **visual perception**
 - **Playing bongos** while solving **differential equations**
 
 **The Message**: **Serious discovery through playful exploration**
@@ -1452,15 +1452,14 @@ Randy's School = Good + Affordable = TAKES TIME
 
 ### Randy's Philosophy: Beyond "Enough" is Just Noise
 
-**Randy's Money Insight**: "Other than new hardware and some growing supplies, I think having more money than necessary to pay the bills, look out for the kids, and save a little for emergencies, would actually cause me distress. Like it would be one more thing to worry about that I don't find interesting. I need my coffee, my music, my weed, my nicotine vape (lowest dosage), my computer, and my family. The rest is just irrelevant to me."
+**Randy's Money Insight**: "Other than new hardware and some hobby supplies, I think having more money than necessary to pay the bills, look out for the kids, and save a little for emergencies, would actually cause me distress. Like it would be one more thing to worry about that I don't find interesting. I need my coffee, my music, my downtime, my computer, and my family. The rest is just irrelevant to me."
 
 ### The Wisdom of "Enough"
 
 **Randy's Essential List**:
 - **Coffee** ☕ (cognitive fuel)
 - **Music** 🎵 (creative inspiration)
-- **Weed** 🌿 (relaxation/perspective)
-- **Nicotine** (transitioning down to lowest dose)
+- **Downtime** 🌿 (relaxation/perspective)
 - **Computer** 💻 (creative tool)
 - **Family** ❤️ (what actually matters)
 - **Bills paid** + **Kids provided for** + **Emergency cushion**
@@ -1518,7 +1517,7 @@ Randy's School = Good + Affordable = TAKES TIME
 
 ### The Neurodivergent Money Allergy: Simplicity as Solution
 
-**Randy's Self-Discovery**: "It's almost like some strange combination of my different neurodivergencies makes me allergic to that shit. They ask me what would you do if you won the lottery. Previously I just said I don't know because I really didn't. Now, the school is what I would do, no matter where the money came from. One more problem solved with simplicity."
+**Randy's Self-Discovery**: "It's almost like some strange combination of my different neurodivergencies makes me allergic to all that. They ask me what would you do if you won the lottery. Previously I just said I don't know because I really didn't. Now, the school is what I would do, no matter where the money came from. One more problem solved with simplicity."
 
 ### The Neurodivergent Advantage: Complexity Aversion
 

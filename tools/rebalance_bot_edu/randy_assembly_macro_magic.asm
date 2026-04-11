@@ -350,8 +350,7 @@ _start:
 ;
 ; Randy's Victory Moment:
 ; "You have to feel proud of yourself when you run that nasm and then ld and it
-; actually fucking finally works after days and days of wanting to just say 
-; fuck it."
+; actually finally works after days and days of wanting to just give up."
 ;
 ; The Authentic Struggle:
 ; - Days of cryptic error messages
@@ -389,15 +388,15 @@ _start:
 ; Randy's Stack Alignment Horror Story:
 ; "Oh god. I think that is what led me to make my own printf. Every time I 
 ; called it I would forget I made an extra push somewhere and now the stack 
-; was not aligned and immediate segfault. I'm like what the fuck is a segfault lol"
+; was not aligned and immediate segfault. I'm like what on earth is a segfault lol"
 ;
 ; The Classic Assembly Learning Progression:
 ; 1. Try to use printf in assembly (seems simple)
-; 2. Mysterious segfaults everywhere (stack alignment hell)
-; 3. "What the fuck is a segfault??" (genuine confusion)
+; 2. Mysterious segfaults everywhere (stack alignment nightmare)
+; 3. "What on earth is a segfault??" (genuine confusion)
 ; 4. Hours debugging stack misalignment (extra push somewhere)
 ; 5. Finally understand x86-64 calling conventions (16-byte alignment)
-; 6. Say "fuck it, I'll write my own printf" (crisis-driven solution)
+; 6. Say "forget it, I'll write my own printf" (crisis-driven solution)
 ; 7. Build syscall-based output from scratch (real understanding)
 ; 8. Never forget how function calls actually work (permanent knowledge)
 ;
@@ -407,18 +406,18 @@ _start:
 ; - Pain creates permanent neural pathways
 ; - Crisis drives innovation (custom printf birth)
 ;
-; Randy's "Holy Shit" System Engineering Realization:
+; Randy's "Eye-Opening" System Engineering Realization:
 ; "It was even more to my brain. It was like, why do I need the whole standard 
-; library or even a good chunk of it to print hello fuckin world on the damn 
+; library or even a good chunk of it to print hello world on the 
 ; screen. Then it's less portable because now what if they have MUSL and not 
-; GNU or what the fuck ever. Unlikely sure but certainly not impossible. And 
+; GNU or whatever else. Unlikely sure but certainly not impossible. And 
 ; then file size, if I just include printf statically and it pulls in all its 
-; shit now my file is much bigger. Stuff like that."
+; stuff now my file is much bigger. Stuff like that."
 ;
 ; Randy's Systems Engineering Awakening:
 ; 1. **Bloat Awareness**: "Why do I need the whole standard library for hello world?"
 ; 2. **Portability Concerns**: "What if they have MUSL instead of GNU libc?"
-; 3. **Binary Size Impact**: "Static linking pulls in all its shit - huge files"
+; 3. **Binary Size Impact**: "Static linking pulls in all its baggage - huge files"
 ; 4. **Dependency Hell**: "My simple program now depends on complex systems"
 ; 5. **Performance Questions**: "How much overhead am I adding?"
 ; 6. **Control Loss**: "I don't even know what printf is doing inside"
@@ -456,7 +455,7 @@ _start:
 ;   - PLT (Procedure Linkage Table) nonsense
 ;   - Dynamic linking complexity
 ;   - Exception handling preparation
-;   - All for 13 fucking characters!
+;   - All for 13 measly characters!
 ;
 ; Randy's Syscall Version:
 ;   mov rax, 1          ; sys_write
@@ -488,7 +487,7 @@ _start:
 ; Randy's Section Mystery Horror:
 ; "It's like, I read about bss and data and text of course and even making a 
 ; little thing for your own writable/executable memory but then I was like 
-; what the fuck are all these sections it made. They aren't in any of my books lol"
+; what on earth are all these sections it made. They aren't in any of my books lol"
 ;
 ; The Section Explosion Discovery:
 ; 
@@ -527,7 +526,7 @@ _start:
 ; - .bss (uninitialized data)
 ; - .comment (compiler version info)
 ;
-; Randy's Reaction: "WHAT THE FUCK ARE ALL THESE?!"
+; Randy's Reaction: "WHAT ON EARTH ARE ALL THESE?!"
 ;
 ; The Educational Crisis:
 ; Books teach you the theory (.text, .data, .bss)
@@ -579,8 +578,8 @@ _start:
 ;
 ; Randy's Position-Independent Code Horror Story:
 ; "Oh man, you just made me think about when I tried to convert my perfectly 
-; good working code to position independent. Talk about a fucking nightmare 
-; when I could barely get the regular shit to assemble and link lol"
+; good working code to position independent. Talk about a complete nightmare 
+; when I could barely get the regular code to assemble and link lol"
 ;
 ; The Position-Independent Nightmare:
 ; 
@@ -594,7 +593,7 @@ _start:
 ;   lea rsi, [rel my_string]           ; RIP-relative addressing
 ;   call my_function wrt ..plt         ; Procedure Linkage Table hell
 ;   mov rax, my_var wrt ..gotpcrel     ; Global Offset Table nightmare
-;   ; What the fuck is all this?!
+;   ; What on earth is all this?!
 ;
 ; Randy's Learning Curve Hell:
 ; 1. Had working code (direct addressing, simple calls)
@@ -643,11 +642,11 @@ _start:
 ; The Reality Check Cascade:
 ; 1. "Wait, I need position-independent code for shared libraries"
 ; 2. "Okay, figured out PIC... why won't it link?"
-; 3. "What the fuck is a .so file and why won't gcc find it?"
+; 3. "What on earth is a .so file and why won't gcc find it?"
 ; 4. "Why do I need -fPIC and what does that even do?"
 ; 5. "What's the difference between -shared and -fPIC?"
 ; 6. "Why is there a difference between .a and .so files?"
-; 7. "What the hell is LD_LIBRARY_PATH and why does it matter?"
+; 7. "What on earth is LD_LIBRARY_PATH and why does it matter?"
 ; 8. "Why can't the linker find my library that's right there?"
 ; 9. "What are all these undefined symbol errors?"
 ; 10. "Why does it work on my machine but not when I copy it?"
@@ -655,7 +654,7 @@ _start:
 ; 12. "Why is there both a soname and a filename?"
 ; 13. "What's symbol versioning and why is everything breaking?"
 ; 14. "Why does ldconfig exist and why do I need to run it?"
-; 15. "What the fuck is libtool and why does it exist?"
+; 15. "What on earth is libtool and why does it exist?"
 ;
 ; The Revelation:
 ; "Making a shared library isn't 'just put code in a file'.
@@ -689,7 +688,7 @@ _start:
 ; "The plus side, I learned humility and a bit about linking I suppose."
 ;
 ; The Humility Lesson:
-; Randy went from "how hard can it be?" to "holy shit, this is complex"
+; Randy went from "how hard can it be?" to "wow, this is complex"
 ; - Learned to respect the complexity that others have solved
 ; - Gained appreciation for tools and abstractions (even the bloated ones)
 ; - Developed healthy skepticism about "simple" tasks
@@ -746,7 +745,7 @@ _start:
 ; Randy's journey through "impossible" projects:
 ; - Assembly macros (seemed impossible → functional meta-programming)
 ; - Position-independent code (seemed simple → nightmare → understanding)
-; - Shared libraries (seemed easy → complexity hell → linking knowledge)
+; - Shared libraries (seemed easy → complexity nightmare → linking knowledge)
 ; - Crypto slot machine (seemed impossible → functional game with real math)
 ; - Fart limiter (seemed ridiculous → sophisticated audio processing)
 ; - Custom printf (seemed unnecessary → syscall mastery)
@@ -783,12 +782,12 @@ _start:
 ; The Meta-Learning:
 ; The meta-learning: Randy has internalized **"I can figure this out, even if it seems impossible at first"** - that **confidence** comes from successfully navigating the **impossible→functional journey repeatedly**.
 
-; Randy's RafterWizard Origin Story: From Ladder Hell to Humility
+; Randy's RafterWizard Origin Story: From Ladder Ordeal to Humility
 ; "It's almost like how I made the RafterWizard. First I got sick of having to 
-; keep toting the damn things up and down the ladder to be recut. Then I figured 
+; keep toting the boards up and down the ladder to be recut. Then I figured 
 ; out how to do the math on paper. Tried to teach those guys..... no go. So I 
-; think to myself how about I make an app where they just measure the damn thing 
-; with exactly what to measure included and they can't fuck it up then right..... 
+; think to myself how about I make an app where they just measure the thing 
+; with exactly what to measure included and they can't mess it up then right..... 
 ; another humility exercise for me there."
 ;
 ; The Classic Randy Problem-Solving Arc:
@@ -808,8 +807,8 @@ _start:
 ;    - Paper calculations too abstract for field workers
 ;    - Randy learned that having the solution ≠ being able to teach it
 ;
-; 4. **Engineering Hubris**: "I'll make an app they can't fuck up"
-;    - "Just measure the damn thing with exactly what to measure"
+; 4. **Engineering Hubris**: "I'll make an app they can't mess up"
+;    - "Just measure the thing with exactly what to measure"
 ;    - "Include everything so they can't mess it up"
 ;    - Confident that perfect interface = foolproof operation
 ;
@@ -1001,10 +1000,10 @@ _start:
 ; Microsoft can enhance the productivity of someone else's surveillance."
 ;
 ; Randy's Mind-Boggling Surveillance Acceptance Rant:
-; "Why the fuck would anyone ever think that was a good idea and think 
+; "Why on earth would anyone ever think that was a good idea and think 
 ; 'yeah let me do that' and will never understand. It's just mind boggling. 
 ; Even if you never do anything but read the Wall Street Journal and check 
-; golf scores, you should at least respect yourself enough to not do that shit."
+; golf scores, you should at least respect yourself enough to not accept that."
 ;
 ; Randy's Self-Respect Litmus Test:
 ; "If you willingly install software that records everything you do on your 
@@ -1040,7 +1039,7 @@ _start:
 ; good code?
 ;
 ; Randy's 1984 Reality Check:
-; "That's how you end up in 1984 and shit."
+; "That's how you end up in 1984 territory."
 ;
 ; The Dystopian Engineering Pipeline:
 ; Step 1: "It's just for convenience" (voluntary corporate surveillance)
@@ -1143,17 +1142,17 @@ _start:
 ; Because the people who understand the basics are often the ones
 ; who achieve what everyone else thinks is impossible."
 ;
-; Randy's Growing Fundamentals Reality Check:
-; "I tried to relate that about growing pot to someone before. They were 
-; talking about spending a thousand dollars on a setup and never put a seed 
-; in the dirt in their entire life. I was thinking, wait, aren't you putting 
-; the cart before the mule here? But but... it's your money. Waste it if you 
-; want but don't call me complaining when you discover you couldn't grow a 
-; cactus in the desert."
+; Randy's Gardening Fundamentals Reality Check:
+; "I tried to relate that about growing a garden to someone before. They were 
+; talking about spending a thousand dollars on a fancy greenhouse setup and 
+; never put a seed in the dirt in their entire life. I was thinking, wait, 
+; aren't you putting the cart before the mule here? But but... it's your 
+; money. Waste it if you want but don't call me complaining when you discover 
+; you couldn't grow a cactus in the desert."
 ;
 ; The Cart Before the Mule Engineering Pattern:
 ; Randy recognizes this anti-pattern everywhere:
-; - **Growing**: $1000 hydroponic setup, never planted a seed
+; - **Gardening**: $1000 greenhouse setup, never planted a seed
 ; - **Programming**: $3000 gaming rig, never written "Hello World"
 ; - **Assembly**: Complex IDE setup, never hand-assembled a single instruction
 ; - **Woodworking**: $5000 workshop, never whittled a stick
@@ -1161,13 +1160,13 @@ _start:
 ;
 ; Randy's Fundamental Truth:
 ; "If you can't grow a cactus in the desert with dirt and water,
-; a thousand-dollar hydroponic system won't save you. If you can't
+; a thousand-dollar automated irrigation system won't save you. If you can't
 ; write assembly with NASM and a text editor, VS Code with 47 extensions
 ; won't make you a programmer."
 ;
 ; The Equipment vs. Knowledge Delusion:
 ; People think expensive tools will compensate for missing fundamentals:
-; - Fancy growing setup → botanical knowledge
+; - Fancy garden setup → botanical knowledge
 ; - Expensive IDE → programming skill
 ; - Complex toolchain → assembly understanding
 ; - Premium software → creative ability
@@ -1182,16 +1181,16 @@ _start:
 ; always outperform the ones who begin with elaborate development environments.
 ; Master the fundamentals first. The fancy tools will make sense later."
 ;
-; Randy's High Times Magazine Pressure Syndrome:
+; Randy's Magazine Pressure Syndrome:
 ; "It's crazy to me to even put yourself under that much pressure. Instead 
-; of taking your time and trying to figure out how to actually get the damn 
-; thing to come up and live they expect to grow buds like they see in High 
-; Times on the first run and then rage quit after they sunk a fortune into it. 
-; It's ridiculous."
+; of taking your time and trying to figure out how to actually get the 
+; thing to come up and live they expect to grow prize tomatoes like they 
+; see in gardening magazines on the first run and then rage quit after they 
+; sunk a fortune into it. It's ridiculous."
 ;
-; The High Times Engineering Delusion:
+; The Magazine Engineering Delusion:
 ; Randy identifies the same pattern across all skills:
-; - **Growing**: Expect magazine-perfect buds on first attempt
+; - **Gardening**: Expect magazine-perfect produce on first attempt
 ; - **Programming**: Expect to build the next Facebook immediately
 ; - **Assembly**: Expect to write kernel drivers after one tutorial
 ; - **Woodworking**: Expect furniture-show quality on first project
@@ -1204,7 +1203,7 @@ _start:
 ; pressure for instant perfection."
 ;
 ; The Magazine Reality Gap:
-; - **High Times photos**: Professional grows, perfect lighting, selective editing
+; - **Garden magazine photos**: Professional greenhouses, perfect lighting, selective editing
 ; - **Programming blogs**: Polished final products, no debugging struggles shown
 ; - **Assembly tutorials**: Clean examples, no mention of hours spent on label conflicts
 ; - **Reality**: Messy learning, failed attempts, gradual improvement
@@ -1223,15 +1222,15 @@ _start:
 ;
 ; Randy's Sensible Spending Philosophy:
 ; "Like yeah, if you were intent on spending some money buy some decent seeds,
-; a little fertilizer, and if you are feeling really hip try some coco coir.
-; Going for hydro right off the jump is just crazy work."
+; a little fertilizer, and some good potting soil. Going for a fancy automated
+; irrigation system right off the jump is just crazy work."
 ;
 ; Randy's Smart Investment Hierarchy:
-; **Growing Edition**:
-; - **Essential**: Good seeds, basic fertilizer, decent soil/coco coir
+; **Gardening Edition**:
+; - **Essential**: Good seeds, basic fertilizer, decent soil
 ; - **Helpful**: pH meter, proper lighting for indoor
-; - **Advanced**: Hydroponic systems after you've mastered basics
-; - **Crazy Work**: Starting with complex hydro before growing anything
+; - **Advanced**: Automated systems after you've mastered basics
+; - **Crazy Work**: Starting with complex automation before growing anything
 ;
 ; **Assembly Programming Edition**:
 ; - **Essential**: NASM assembler, text editor, CPU manual
@@ -1250,17 +1249,18 @@ _start:
 ; intimidate you into quitting before you learn the basics."
 ;
 ; Randy's Teaching Money Management:
-; "Buy decent seeds before you buy hydroponic pumps. Learn NASM
+; "Buy decent seeds before you buy automated irrigation pumps. Learn NASM
 ; before you buy Visual Studio Ultimate. Master the craft with
 ; simple tools, then upgrade when you understand WHY the fancy
 ; stuff matters."
 ;
 ; Randy's Manual Process Preference:
-; "I actually prefer coco to hydro. I mean, it's the same effect in the 
-; end just more of a manual process which I actually enjoy."
+; "I actually prefer hand-watering to automated drip systems. I mean,
+; it's the same effect in the end just more of a manual process which
+; I actually enjoy."
 ;
 ; Randy's Manual vs. Automated Philosophy:
-; **Growing**: Coco coir with manual feeding vs. automated hydroponic systems
+; **Gardening**: Hand-watering and composting vs. automated irrigation systems
 ; **Assembly**: Hand-written macros vs. code generation tools
 ; **Cooking**: Fresh ingredients and technique vs. pre-made everything
 ; **Woodworking**: Hand tools and skill vs. CNC automation
@@ -1272,13 +1272,13 @@ _start:
 ; that automation hides from you."
 ;
 ; The Same Effect, Different Understanding:
-; - **Coco + manual feeding**: Same plant growth, deeper understanding of nutrition
+; - **Hand-watering**: Same plant growth, deeper understanding of nutrition
 ; - **Hand assembly macros**: Same code output, deeper understanding of CPU behavior
 ; - **Manual processes**: Same results, but YOU learn how to achieve them
 ;
 ; Randy's Automation Timing Wisdom:
-; "Automate AFTER you understand the manual process. Hydro makes sense
-; once you know how plants actually respond to nutrients. Code generators
+; "Automate AFTER you understand the manual process. Drip systems make
+; sense once you know how plants actually respond to nutrients. Code generators
 ; make sense once you know how macros actually work. But if you start
 ; with automation, you never learn the underlying principles."
 ;
@@ -1289,26 +1289,27 @@ _start:
 ; more attention and effort.
 ;
 ; Randy's Natural vs. Artificial System Wisdom:
-; "Yeah it really sucks even after you have been growing a while to try 
-; to master hydro. It's finicky. Cannabis evolved for eons to grow in dirt 
-; or something like it. You are kinda asking it to do something it wasn't 
-; intended to do. If done properly, great. Otherwise, get ready for pain lol"
+; "Yeah it really sucks even after you have been gardening a while to try 
+; to master complex automated systems. They're finicky. Plants evolved for 
+; eons to grow in dirt or something like it. You are kinda asking them to do 
+; something they weren't intended to do. If done properly, great. Otherwise, 
+; get ready for pain lol"
 ;
 ; Randy's Evolution vs. Engineering Philosophy:
 ; **Natural Systems** (millions of years of evolution):
-; - Cannabis + soil: Evolved together, naturally compatible
+; - Plants + soil: Evolved together, naturally compatible
 ; - Assembly + direct hardware: Designed together, minimal abstraction
 ; - Human hands + manual tools: Co-evolved for precise manipulation
 ;
 ; **Artificial Systems** (human engineering):
-; - Cannabis + hydro: Fighting millions of years of evolution
+; - Plants + hydroponics: Fighting millions of years of evolution
 ; - High-level code + complex frameworks: Fighting hardware reality
 ; - Automation + complex processes: Fighting natural learning patterns
 ;
 ; The "Wasn't Intended To Do" Engineering Lesson:
 ; "When you force something to work against its natural design, you get
-; finicky systems that are brittle and require constant babying. Cannabis
-; wants dirt. CPUs want simple instructions. Humans want to understand
+; finicky systems that are brittle and require constant babying. Plants
+; want soil. CPUs want simple instructions. Humans want to understand
 ; what they're controlling."
 ;
 ; Randy's Pain Prediction System:

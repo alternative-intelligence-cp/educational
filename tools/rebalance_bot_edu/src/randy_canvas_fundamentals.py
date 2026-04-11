@@ -6,7 +6,7 @@
 RANDY'S PHILOSOPHY:
 "Most classes want you to use a framework to abstract it away.
 But how are you supposed to learn how things are drawn on a screen? 
-If you can't draw on a javascript canvas you sure as hell can't draw to a video ram buffer."
+If you can't draw on a javascript canvas you sure can't draw to a video ram buffer."
 
 EDUCATIONAL APPROACH:
 This module teaches FUNDAMENTALS FIRST:
