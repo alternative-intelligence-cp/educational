@@ -101,6 +101,55 @@ Lightweight shell script for colored terminal output without bash-specific featu
 - Error handling with helpful messages
 - Zero dependencies
 
+### 5. 🧵 C Strings Lesson (Safe + Educational)
+**Location**: `/c-strings/`
+
+Refactored educational string library based on a hands-on family lesson, now packaged for broader learning use.
+
+```bash
+cd c-strings/
+make
+```
+
+**What it covers**:
+- Heap-managed `String` type with clear ownership
+- Bounds-checked operations (`slice`, `patch`, `splice`, `get/set`)
+- String search/compare/contains helpers
+- Case transforms and reversal
+- Dynamic `StringBuilder` growth with safety checks
+
+**Included files**:
+- `lesson_string.h` / `lesson_string.c`
+- `lesson_demo.c`
+- `Makefile`
+- `README.md`
+
+### 6. ⚙️ C Macros: Function Generation & Binding
+**Location**: `/c-macros-funcgen/`
+
+A header-only macro library exploring how the C preprocessor can generate functions,
+bind context into them, and emulate OOP method dispatch — all in plain C11.
+
+```bash
+cd c-macros-funcgen/
+make          # build + run demo
+make test     # run test suite
+```
+
+**What it covers**:
+- Function-pointer typedef helpers (`MAKE_FTYPE`)
+- Context-bound function pairs via `MAKE_BASE_N` / `MAKE_FUNC_N` (arity 0–10 + variadic)
+- Per-instance method binding with `FNWRPR` and `__COUNTER__`
+- Why GCC nested functions use trampolines (executable stack note)
+- How to inspect macro output with `gcc -E`
+
+**Included files**:
+- `macro_funcgen.h` — the macro library with detailed comments
+- `macro_funcgen_demo.c` — step-by-step walkthrough
+- `tests/test_macro_funcgen.c` — assertion-based test suite
+- `Makefile`
+- `README.md`
+
 ## 🎯 Randy's Philosophy in Action
 
 Each tool demonstrates core principles:
