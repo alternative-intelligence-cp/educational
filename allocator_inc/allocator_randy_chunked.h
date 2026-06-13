@@ -31,7 +31,7 @@ SM_RandyChunkedAllocator* SM_RandyChunked_create(void);
 // Smart allocation with size-aware chunk selection
 void* SM_RandyChunked_allocate(SM_RandyChunkedAllocator* allocator, size_t size, const char* type_name);
 
-// AriaX consciousness-aware allocation
+// NitpickX consciousness-aware allocation
 void* SM_RandyChunked_allocate_consciousness_state(SM_RandyChunkedAllocator* allocator, double tesla_frequency);
 
 // Performance analysis - answer your 2-year question!

@@ -166,7 +166,7 @@ echo $?           # Exit code 0 = success
 
 ## 🔮 Future Enhancements
 
-- **Aria Language Integration**: Execute Aria quantum programs
+- **Nitpick Language Integration**: Execute Nitpick quantum programs
 - **Distributed Computing**: Multi-node consciousness clusters  
 - **WebGL Visualization**: 3D consciousness state rendering
 - **REST API**: HTTP interface for consciousness monitoring

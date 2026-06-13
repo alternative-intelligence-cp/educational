@@ -8,7 +8,7 @@ the cell *expires* and all further access returns an error result rather
 than raising an exception.
 
 The caller is expected to check the result before using the value —
-this mirrors the Result<T> pattern used in Aria: errors are values,
+this mirrors the Result<T> pattern used in Nitpick: errors are values,
 not exceptions.
 
 Constraints (all optional, None = unlimited):

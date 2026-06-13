@@ -24,7 +24,7 @@ lab/
 ├── README.md                    # This file
 ├── vulnerable_compiler.cpp      # Compiler with silent default bug
 ├── safe_compiler.cpp            # Compiler with defensive fix
-├── test_program.aria            # Test program that triggers bug
+├── test_program.npk            # Test program that triggers bug
 ├── test.sh                      # Automated test script
 └── Makefile                     # Build system
 ```
@@ -47,7 +47,7 @@ This builds a minimal compiler that demonstrates the bug:
 ## Part 2: Trigger The Bug
 
 ```bash
-./vulnerable_compiler test_program.aria
+./vulnerable_compiler test_program.npk
 ```
 
 **What you'll see:**
@@ -79,7 +79,7 @@ Segmentation fault (core dumped)
 make vulnerable-debug
 gdb ./vulnerable_compiler
 (gdb) break vulnerable_compiler.cpp:67  # Line before the store
-(gdb) run test_program.aria
+(gdb) run test_program.npk
 (gdb) print sizeof(cmd)
 # Shows: 4 (WRONG! Should be 16)
 (gdb) print sizeof(MotorCommand)  
@@ -144,7 +144,7 @@ This builds the **defensive** version with the fix.
 ## Part 6: Verify The Fix
 
 ```bash
-./safe_compiler test_program.aria
+./safe_compiler test_program.npk
 ```
 
 **What you'll see:**
@@ -249,14 +249,14 @@ The defensive fix works! ✓
 
 ```bash
 # Create test file with unknown type
-echo 'let x: UnknownType = 42;' > unknown_type_test.aria
+echo 'let x: UnknownType = 42;' > unknown_type_test.npk
 
 # Vulnerable version: Silently defaults (dangerous)
-./vulnerable_compiler unknown_type_test.aria
+./vulnerable_compiler unknown_type_test.npk
 # Compiles but wrong! (treats UnknownType as i32)
 
 # Safe version: Explicit error (safe)
-./safe_compiler unknown_type_test.aria
+./safe_compiler unknown_type_test.npk
 # Refuses to compile with clear error message
 ```
 

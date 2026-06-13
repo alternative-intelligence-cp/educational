@@ -1,0 +1,9 @@
+Welcome to Nitpick-Agent (Ollama Harness)
+Model: devstral-small-2:24b
+Type ctrl-c to quit.
+
+User> [Vector Memory Recalled]
+Agent> Thinking...
+"Let's explore space together!"
+
+User> 

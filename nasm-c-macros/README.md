@@ -225,16 +225,16 @@ Assembly is often taught as "just push bytes around." But with macros, you can b
 
 This isn't about replacing C. It's about understanding **what C becomes** when compiled, and proving you can build those abstractions yourself.
 
-## Connection to Aria Language
+## Connection to Nitpick Language
 
-This project is foundational research for the [Aria programming language](https://github.com/alternative-intelligence-cp/aria-lang) - exploring how to combine:
+This project is foundational research for the [Nitpick programming language](https://github.com/alternative-intelligence-cp/nitpick-lang) - exploring how to combine:
 
 - **Compile-time metaprogramming** (Zig's `comptime` + NASM context stack)
 - **Memory safety** (Rust-style borrow checking)
 - **Explicit opt-in to unsafe** (TOS keywords - "Throw Off Safety")
 - **Zero-cost abstractions** (for both compiler internals and user code)
 
-NASM's context stack demonstrates compile-time scoping mechanisms that can be adapted for Aria's comptime features, while maintaining the performance characteristics needed for systems programming.
+NASM's context stack demonstrates compile-time scoping mechanisms that can be adapted for Nitpick's comptime features, while maintaining the performance characteristics needed for systems programming.
 
 ## License
 

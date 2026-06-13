@@ -1,6 +1,6 @@
 # Binary Search
 
-A Rosetta Stone–style collection of binary search implementations in four languages: **JavaScript**, **Python**, **C**, and **Aria**. Each version is standalone, produces the same output format, and includes step-by-step terminal visualization.
+A Rosetta Stone–style collection of binary search implementations in four languages: **JavaScript**, **Python**, **C**, and **Nitpick**. Each version is standalone, produces the same output format, and includes step-by-step terminal visualization.
 
 ---
 
@@ -86,14 +86,14 @@ Portable C99 with no dependencies beyond libc. Max list length: 256 items (`MAX_
 
 ---
 
-### Aria
+### Nitpick
 
 ```
-ariac binfind.aria -o binfind_aria
-./binfind_aria
+nitpickc binfind.npk -o binfind_nitpick
+./binfind_nitpick
 ```
 
-A hardcoded demo using the default list and `target = 31`. Aria is a systems language under active development — this file serves as a real-world test of its string utilities (`string_convert`, `print_utils`) and demonstrates clean iterative code including:
+A hardcoded demo using the default list and `target = 31`. Nitpick is a systems language under active development — this file serves as a real-world test of its string utilities (`string_convert`, `print_utils`) and demonstrates clean iterative code including:
 
 - Fixed-size arrays (`int32[16]`)
 - `while` loops with variable array indexing (`list[mid]`)

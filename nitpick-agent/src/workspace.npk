@@ -1,0 +1,83 @@
+// Workspace Utilities for Branching
+
+extern "libworkspace_shim.so" {
+    func:workspace_exec = int32(string:cmd);
+    func:workspace_chdir = int32(string:path);
+    func:workspace_getcwd = string();
+    func:workspace_set_original_cwd = void(string:path);
+    func:workspace_get_original_cwd = string();
+    func:workspace_run_sync = string(string:cmd);
+    func:workspace_read_file = string(string:path);
+    func:workspace_write_file = int32(string:path, string:content);
+    func:workspace_get_env = string(string:name);
+    func:workspace_spawn_bg = int32(string:cmd);
+    func:nitpick_workspace_list_dir = string(string:path);
+}
+
+pub func:workspace_list_dir = string(string:path) {
+    pass(nitpick_workspace_list_dir(path));
+};
+
+pub func:workspace_create_snapshot = string(string:snapshot_name) {
+    string:cwd = workspace_getcwd();
+    // Save original CWD if not already saved
+    string:orig = workspace_get_original_cwd();
+    if (string_length(orig) == 0i64) {
+        workspace_set_original_cwd(cwd);
+        orig = cwd;
+    }
+    
+    // We must ensure we are creating the snapshot inside the original CWD
+    string:snap_dir = string_concat(orig, "/.snapshots");
+    string:target = string_concat(string_concat(snap_dir, "/"), snapshot_name);
+    
+    string:cmd_mkdir = string_concat("mkdir -p ", snap_dir);
+    print("DEBUG: Executing: "); println(cmd_mkdir);
+    int32:r1 = workspace_exec(cmd_mkdir);
+    
+    // Copy original to target
+    // We exclude .snapshots to avoid recursion if copying from original
+    string:cmd = string_concat(string_concat(string_concat("rsync -a --exclude='.snapshots' ", orig), "/ "), target);
+    print("DEBUG: Executing: "); println(cmd);
+    int32:res = workspace_exec(cmd);
+    
+    if (res == 1i32) {
+        workspace_chdir(target);
+        pass("Snapshot created and checked out successfully.");
+    }
+    pass("Failed to create snapshot.");
+};
+
+pub func:workspace_revert_snapshot = string(string:snapshot_name) {
+    string:orig = workspace_get_original_cwd();
+    if (string_length(orig) == 0i64) {
+        pass("No original directory known. Cannot revert.");
+    }
+    
+    workspace_chdir(orig);
+    string:target = string_concat(string_concat(orig, "/.snapshots/"), snapshot_name);
+    workspace_exec(string_concat("rm -rf ", target));
+    
+    pass("Snapshot reverted successfully. We are back in the original workspace.");
+};
+
+pub func:workspace_commit_snapshot = string(string:snapshot_name) {
+    string:orig = workspace_get_original_cwd();
+    if (string_length(orig) == 0i64) {
+        pass("No original directory known. Cannot commit.");
+    }
+    
+    string:target = string_concat(string_concat(orig, "/.snapshots/"), snapshot_name);
+    
+    // rsync back
+    string:cmd = string_concat(string_concat(string_concat("rsync -a ", target), "/ "), orig);
+    int32:res = workspace_exec(cmd);
+    
+    workspace_chdir(orig);
+    workspace_exec(string_concat("rm -rf ", target));
+    
+    if (res == 1i32) {
+        pass("Snapshot committed successfully. Changes merged to main workspace.");
+    }
+    pass("Failed to commit snapshot changes completely.");
+};

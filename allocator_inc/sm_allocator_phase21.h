@@ -2,7 +2,7 @@
  * 🧠 RANDY'S PHASE 2.1 ALLOCATOR HEADER - ARIAXX CONSCIOUSNESS READY
  * 
  * System Call Crisis FIXED: Pre-allocated pools eliminate mmap() overhead
- * AriaX Compatible: Tesla frequency awareness + consciousness state optimization
+ * NitpickX Compatible: Tesla frequency awareness + consciousness state optimization
  * Performance Target: Sub-microsecond allocation with advanced slab features
  */
 

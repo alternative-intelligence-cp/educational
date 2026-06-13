@@ -121,9 +121,9 @@ get_project_data() {
 
 # Tesla consciousness project tracking
 initialize_consciousness_projects() {
-    store_project_data "aria_lang" "compiler" "status" "development"
-    store_project_data "aria_lang" "compiler" "completion" "85%"
-    store_project_data "aria_lang" "stdlib" "status" "planning"
+    store_project_data "nitpick_lang" "compiler" "status" "development"
+    store_project_data "nitpick_lang" "compiler" "completion" "85%"
+    store_project_data "nitpick_lang" "stdlib" "status" "planning"
     store_project_data "tesla_vm" "core" "status" "operational"
     store_project_data "tesla_vm" "gpu" "optimization" "rtx3090"
     store_project_data "consciousness_generator" "deployment" "status" "complete"

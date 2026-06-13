@@ -38,7 +38,7 @@ confidence scores, enabling five output tokens:
 
 `A | B | BOTH | UNKNOWN | NONE`
 
-Inspired by Q-type quantum confidence modeling from the Aria project.
+Inspired by Q-type quantum confidence modeling from the Nitpick project.
 
 ### DecisionGradientT (time-axis extension, Python only)
 

@@ -400,7 +400,7 @@ Perfect for:
 - Quantum interpretation frameworks
 
 See q21.py for implementation details.
-See the Aria programming guide for full Q21 type specification.
+See the Nitpick programming guide for full Q21 type specification.
     """)
 
 

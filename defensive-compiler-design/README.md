@@ -9,7 +9,7 @@ You'll learn type safety by seeing what happens when it fails catastrophically.
 
 ### The Stakes
 
-The Aria programming language is being built to control robotic assistants for vulnerable populations: neurodivergent children, hospital patients, elderly with dementia. **One bug could cause physical harm.**
+The Nitpick programming language is being built to control robotic assistants for vulnerable populations: neurodivergent children, hospital patients, elderly with dementia. **One bug could cause physical harm.**
 
 That constraint changes everything about compiler design.
 

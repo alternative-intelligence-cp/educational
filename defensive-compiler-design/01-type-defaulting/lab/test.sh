@@ -27,7 +27,7 @@ if [ -f ./vulnerable_compiler ]; then
     
     # This should crash
     set +e  # Don't exit on error
-    ./vulnerable_compiler test_program.aria
+    ./vulnerable_compiler test_program.npk
     VULN_EXIT=$?
     set -e
     
@@ -61,7 +61,7 @@ if [ -f ./safe_compiler ]; then
     
     # This should fail cleanly with error message
     set +e  # Don't exit on error
-    ./safe_compiler test_program.aria
+    ./safe_compiler test_program.npk
     SAFE_EXIT=$?
     set -e
     

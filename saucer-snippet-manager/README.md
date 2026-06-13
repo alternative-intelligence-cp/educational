@@ -36,7 +36,7 @@ An experiment to learn [Saucer](https://github.com/saucer/saucer) by building so
 
 1. Understand saucer's C++ ↔ JS bridge
 2. Learn resource embedding
-3. Practice FFI patterns (useful for Aria later)
+3. Practice FFI patterns (useful for Nitpick later)
 4. Explore cross-platform desktop development
 5. Test saucer's performance and limitations
 
@@ -68,9 +68,9 @@ saucer-snippet-manager/
 ## Why This Project?
 
 **Educational Value:**
-- Hands-on with saucer before potentially using it for Aria tools
+- Hands-on with saucer before potentially using it for Nitpick tools
 - Learn webview patterns for future debugger/REPL UIs
-- Practice C++ FFI design (directly applicable to Aria)
+- Practice C++ FFI design (directly applicable to Nitpick)
 - Small enough to complete in a session, useful enough to keep
 
 **Practical Value:**
@@ -82,10 +82,10 @@ saucer-snippet-manager/
 ## Next Steps
 
 After this works, we could:
-1. Add Aria syntax highlighting (dogfooding!)
-2. Use it as a test case for Aria's FFI
-3. Build Aria language bindings for saucer
-4. Use similar patterns for Aria debugger UI
+1. Add Nitpick syntax highlighting (dogfooding!)
+2. Use it as a test case for Nitpick's FFI
+3. Build Nitpick language bindings for saucer
+4. Use similar patterns for Nitpick debugger UI
 
 ---
 

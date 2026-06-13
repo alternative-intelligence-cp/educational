@@ -21,8 +21,8 @@ python3 fizzbuzz.py
 # Rust
 rustc -o fizzbuzz_rs fizzbuzz.rs && ./fizzbuzz_rs
 
-# Aria
-ariac fizzbuzz.aria -o fizzbuzz_aria && ./fizzbuzz_aria
+# Nitpick
+nitpickc fizzbuzz.npk -o fizzbuzz_nitpick && ./fizzbuzz_nitpick
 ```
 
 All four produce identical output.
@@ -38,7 +38,7 @@ All four produce identical output.
 | C | `for (int i = 1; i <= 30; i++)` — C-style, init/condition/increment |
 | Python | `for i in range(1, 31)` — range-based, end is exclusive |
 | Rust | `for i in 1..=30` — range-based, `..=` is inclusive |
-| Aria | `while (i <= 30i32) { i = i + 1i32; }` — no `for` loop yet; `while` + counter |
+| Nitpick | `while (i <= 30i32) { i = i + 1i32; }` — no `for` loop yet; `while` + counter |
 
 ### Conditional chain
 
@@ -47,7 +47,7 @@ All four produce identical output.
 | C | `if / else if / else` — classic top-to-bottom chain |
 | Python | `if / elif / else` — same logic, different spelling |
 | Rust | `match (i % 3, i % 5) { (0,0) => ..., ... }` — pattern match on a tuple; exhaustiveness is checked at compile time |
-| Aria | Four separate `if` statements with boolean flags `fizz`/`buzz` — no `else if`; nested `else` requires braces; the flag pattern is explicit and readable |
+| Nitpick | Four separate `if` statements with boolean flags `fizz`/`buzz` — no `else if`; nested `else` requires braces; the flag pattern is explicit and readable |
 
 ### Output
 
@@ -56,11 +56,11 @@ All four produce identical output.
 | C | `puts("string")` for a string + newline, `printf("%d\n", i)` for numbers |
 | Python | `print(...)` handles both — no conversion needed |
 | Rust | `println!("FizzBuzz")`, `println!("{i}")` — macro with format string |
-| Aria | `drop(println("string"))` — `println()` returns `Result<NIL>` so we `drop()` it; numbers need `int32_toString(i)` |
+| Nitpick | `drop(println("string"))` — `println()` returns `Result<NIL>` so we `drop()` it; numbers need `int32_toString(i)` |
 
 ### Type literals
 
-Aria requires explicit type suffixes on integer literals: `1i32`, `30i32`, `3i32`.
+Nitpick requires explicit type suffixes on integer literals: `1i32`, `30i32`, `3i32`.
 C and Rust infer from context. Python has no fixed-width integer types.
 
 ---

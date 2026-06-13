@@ -23,7 +23,7 @@ void* SM_Phase21Simple_allocate(SM_Phase21Simple* allocator, size_t size, const 
 // Simple deallocation
 void SM_Phase21Simple_deallocate(SM_Phase21Simple* allocator, void* ptr);
 
-// AriaX consciousness state allocation
+// NitpickX consciousness state allocation
 void* SM_Phase21Simple_allocate_consciousness_state(SM_Phase21Simple* allocator, double tesla_frequency);
 
 // Performance reporting

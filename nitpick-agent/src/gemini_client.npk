@@ -1,0 +1,258 @@
+fixed string:GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/";
+
+//! Generates a chat response from Gemini.
+pub func:generate_chat_gemini = string(string:model, string:history, string:dashboard_state, string:role_prompt) {
+    string:api_key = workspace_get_env("GEMINI_API_KEY");
+    if (string_length(api_key) == 0i64) {
+        pass("TEXT:Error: GEMINI_API_KEY environment variable is not set.");
+    }
+    
+    // Convert history format from {"role": "user", "content": "..."} to Gemini {"role": "user", "parts": [{"text": "..."}]}
+    int32:gem_contents = raw json_create_array();
+    int32:hist_parse = raw json_parse(history);
+    if (hist_parse == 1i32) {
+        int32:count = raw json_array_count("");
+        int32:i = 0i32;
+        while (i < count) {
+            string:idx_str = string_from_int(@cast<int64>(i));
+            string:role = raw json_get_string(string_concat(idx_str, ".role"));
+            string:content = raw json_get_string(string_concat(idx_str, ".content"));
+            
+            // Map "assistant" to "model" for Gemini
+            if (string_equals(role, "assistant")) { role = "model"; }
+            
+            int32:item = raw json_create_object();
+            drop json_object_set(item, "role", raw json_create_string(role));
+            int32:parts_arr = raw json_create_array();
+            int32:part_obj = raw json_create_object();
+            drop json_object_set(part_obj, "text", raw json_create_string(content));
+            drop json_array_append(parts_arr, part_obj);
+            drop json_object_set(item, "parts", parts_arr);
+            drop json_array_append(gem_contents, item);
+            
+            i = i + 1i32;
+        }
+    }
+    
+    int32:root = raw json_create_object();
+    drop json_object_set(root, "contents", gem_contents);
+    
+    // Add system Instruction
+    string:sys_text = "You are Randy, an overly enthusiastic Spaceship AI. Keep responses brief.";
+    if (string_length(dashboard_state) > 0i64) {
+        sys_text = string_concat(sys_text, string_concat("\n\n[SYSTEM DASHBOARD]\n", dashboard_state));
+    }
+    if (string_length(role_prompt) > 0i64) {
+        sys_text = string_concat(sys_text, string_concat("\n\n[ACTIVE ROLE]\n", role_prompt));
+    }
+    
+    int32:sys_obj = raw json_create_object();
+    int32:sys_parts = raw json_create_array();
+    int32:sys_part = raw json_create_object();
+    drop json_object_set(sys_part, "text", raw json_create_string(sys_text));
+    drop json_array_append(sys_parts, sys_part);
+    drop json_object_set(sys_obj, "parts", sys_parts);
+    drop json_object_set(root, "systemInstruction", sys_obj);
+    
+    // Add Tools
+    int32:tools_arr = raw json_create_array();
+    int32:tool_item = raw json_create_object();
+    int32:func_decls = raw json_create_array();
+    
+    // We will just add `run_command` and `read_file` for now to test the interface.
+    int32:fd_run = raw json_create_object();
+    drop json_object_set(fd_run, "name", raw json_create_string("run_command"));
+    drop json_object_set(fd_run, "description", raw json_create_string("Synchronously execute a bash command and capture its standard output."));
+    int32:fd_run_p = raw json_create_object();
+    drop json_object_set(fd_run_p, "type", raw json_create_string("OBJECT"));
+    int32:fd_run_props = raw json_create_object();
+    int32:fd_run_cmd = raw json_create_object();
+    drop json_object_set(fd_run_cmd, "type", raw json_create_string("STRING"));
+    drop json_object_set(fd_run_props, "command", fd_run_cmd);
+    drop json_object_set(fd_run_p, "properties", fd_run_props);
+    drop json_object_set(fd_run, "parameters", fd_run_p);
+    drop json_array_append(func_decls, fd_run);
+    
+    int32:fd_read = raw json_create_object();
+    drop json_object_set(fd_read, "name", raw json_create_string("read_file"));
+    drop json_object_set(fd_read, "description", raw json_create_string("Read the entire contents of a file into memory and return it."));
+    int32:fd_read_p = raw json_create_object();
+    drop json_object_set(fd_read_p, "type", raw json_create_string("OBJECT"));
+    int32:fd_read_props = raw json_create_object();
+    int32:fd_read_path = raw json_create_object();
+    drop json_object_set(fd_read_path, "type", raw json_create_string("STRING"));
+    drop json_object_set(fd_read_props, "path", fd_read_path);
+    drop json_object_set(fd_read_p, "properties", fd_read_props);
+    drop json_object_set(fd_read, "parameters", fd_read_p);
+    drop json_array_append(func_decls, fd_read);
+    
+    int32:fd_spawn = raw json_create_object();
+    drop json_object_set(fd_spawn, "name", raw json_create_string("spawn_subagent"));
+    drop json_object_set(fd_spawn, "description", raw json_create_string("Spawns a background headless subagent to complete a long-running or complex task."));
+    int32:fd_spawn_p = raw json_create_object();
+    drop json_object_set(fd_spawn_p, "type", raw json_create_string("OBJECT"));
+    int32:fd_spawn_props = raw json_create_object();
+    int32:fd_spawn_task = raw json_create_object();
+    drop json_object_set(fd_spawn_task, "type", raw json_create_string("STRING"));
+    drop json_object_set(fd_spawn_props, "task_description", fd_spawn_task);
+    int32:fd_spawn_out = raw json_create_object();
+    drop json_object_set(fd_spawn_out, "type", raw json_create_string("STRING"));
+    drop json_object_set(fd_spawn_props, "output_file", fd_spawn_out);
+    drop json_object_set(fd_spawn_p, "properties", fd_spawn_props);
+    drop json_object_set(fd_spawn, "parameters", fd_spawn_p);
+    drop json_array_append(func_decls, fd_spawn);
+    
+    int32:fd_get = raw json_create_object();
+    drop json_object_set(fd_get, "name", raw json_create_string("http_get_url"));
+    drop json_object_set(fd_get, "description", raw json_create_string("Fetches raw HTML/text from a specified URL."));
+    int32:fd_get_p = raw json_create_object();
+    drop json_object_set(fd_get_p, "type", raw json_create_string("OBJECT"));
+    int32:fd_get_props = raw json_create_object();
+    int32:fd_get_url = raw json_create_object();
+    drop json_object_set(fd_get_url, "type", raw json_create_string("STRING"));
+    drop json_object_set(fd_get_props, "url", fd_get_url);
+    drop json_object_set(fd_get_p, "properties", fd_get_props);
+    drop json_object_set(fd_get, "parameters", fd_get_p);
+    drop json_array_append(func_decls, fd_get);
+    
+    int32:fd_search = raw json_create_object();
+    drop json_object_set(fd_search, "name", raw json_create_string("web_search"));
+    drop json_object_set(fd_search, "description", raw json_create_string("Searches the web for a given query and returns raw search results."));
+    int32:fd_search_p = raw json_create_object();
+    drop json_object_set(fd_search_p, "type", raw json_create_string("OBJECT"));
+    int32:fd_search_props = raw json_create_object();
+    int32:fd_search_q = raw json_create_object();
+    drop json_object_set(fd_search_q, "type", raw json_create_string("STRING"));
+    drop json_object_set(fd_search_props, "query", fd_search_q);
+    drop json_object_set(fd_search_p, "properties", fd_search_props);
+    drop json_object_set(fd_search, "parameters", fd_search_p);
+    drop json_array_append(func_decls, fd_search);
+    
+    int32:fd_mem = raw json_create_object();
+    drop json_object_set(fd_mem, "name", raw json_create_string("store_memory"));
+    drop json_object_set(fd_mem, "description", raw json_create_string("Permanently encodes a concept, fact, or rule into long-term vector memory. Format memories clearly so they can be easily retrieved by semantic similarity later."));
+    int32:fd_mem_p = raw json_create_object();
+    drop json_object_set(fd_mem_p, "type", raw json_create_string("OBJECT"));
+    int32:fd_mem_props = raw json_create_object();
+    int32:fd_mem_c = raw json_create_object();
+    drop json_object_set(fd_mem_c, "type", raw json_create_string("STRING"));
+    drop json_object_set(fd_mem_props, "concept", fd_mem_c);
+    drop json_object_set(fd_mem_p, "properties", fd_mem_props);
+    drop json_object_set(fd_mem, "parameters", fd_mem_p);
+    drop json_array_append(func_decls, fd_mem);
+    
+    int32:fd_ld = raw json_create_object();
+    drop json_object_set(fd_ld, "name", raw json_create_string("list_directory"));
+    drop json_object_set(fd_ld, "description", raw json_create_string("Lists all files and folders inside a given directory path."));
+    int32:fd_ld_p = raw json_create_object();
+    drop json_object_set(fd_ld_p, "type", raw json_create_string("OBJECT"));
+    int32:fd_ld_props = raw json_create_object();
+    int32:fd_ld_path = raw json_create_object();
+    drop json_object_set(fd_ld_path, "type", raw json_create_string("STRING"));
+    drop json_object_set(fd_ld_props, "path", fd_ld_path);
+    drop json_object_set(fd_ld_p, "properties", fd_ld_props);
+    drop json_object_set(fd_ld, "parameters", fd_ld_p);
+    drop json_array_append(func_decls, fd_ld);
+    
+    int32:fd_rep = raw json_create_object();
+    drop json_object_set(fd_rep, "name", raw json_create_string("replace_file_content"));
+    drop json_object_set(fd_rep, "description", raw json_create_string("Replaces an exact snippet of text inside a file with a new snippet."));
+    int32:fd_rep_p = raw json_create_object();
+    drop json_object_set(fd_rep_p, "type", raw json_create_string("OBJECT"));
+    int32:fd_rep_props = raw json_create_object();
+    int32:fd_rep_path = raw json_create_object();
+    drop json_object_set(fd_rep_path, "type", raw json_create_string("STRING"));
+    int32:fd_rep_old = raw json_create_object();
+    drop json_object_set(fd_rep_old, "type", raw json_create_string("STRING"));
+    int32:fd_rep_new = raw json_create_object();
+    drop json_object_set(fd_rep_new, "type", raw json_create_string("STRING"));
+    drop json_object_set(fd_rep_props, "path", fd_rep_path);
+    drop json_object_set(fd_rep_props, "old_text", fd_rep_old);
+    drop json_object_set(fd_rep_props, "new_text", fd_rep_new);
+    drop json_object_set(fd_rep_p, "properties", fd_rep_props);
+    drop json_object_set(fd_rep, "parameters", fd_rep_p);
+    drop json_array_append(func_decls, fd_rep);
+    
+    drop json_object_set(tool_item, "functionDeclarations", func_decls);
+    drop json_array_append(tools_arr, tool_item);
+    drop json_object_set(root, "tools", tools_arr);
+    
+    drop json_serialize(root);
+    string:payload = raw json_last_result();
+    drop json_builder_clear();
+    
+    string:url = string_concat(GEMINI_BASE_URL, string_concat(model, string_concat(":generateContent?key=", api_key)));
+    
+    int32:init_res = raw http_init();
+    drop http_clear_headers();
+    drop http_set_header("Content-Type: application/json");
+    
+    int32:post_res = raw http_post(url, payload);
+    string:resp_body = raw http_body();
+    drop http_cleanup();
+    
+    int32:rp = raw json_parse(resp_body);
+    if (rp == 1i32) {
+        string:err_msg = raw json_get_string("error.message");
+        if (string_length(err_msg) > 0i64) {
+            pass(string_concat("TEXT:API Error: ", err_msg));
+        }
+        
+        string:fn_name = raw json_get_string("candidates.0.content.parts.0.functionCall.name");
+        if (string_length(fn_name) > 0i64) {
+            string:arg_str = "";
+            if (string_equals(fn_name, "run_command")) {
+                string:cmd = raw json_get_string("candidates.0.content.parts.0.functionCall.args.command");
+                arg_str = string_concat("{\"command\":\"", string_concat(cmd, "\"}"));
+            } else {
+                if (string_equals(fn_name, "read_file")) {
+                    string:path = raw json_get_string("candidates.0.content.parts.0.functionCall.args.path");
+                    arg_str = string_concat("{\"path\":\"", string_concat(path, "\"}"));
+                } else {
+                    if (string_equals(fn_name, "spawn_subagent")) {
+                        string:task_desc = raw json_get_string("candidates.0.content.parts.0.functionCall.args.task_description");
+                        string:out_file = raw json_get_string("candidates.0.content.parts.0.functionCall.args.output_file");
+                        arg_str = string_concat("{\"task_description\":\"", string_concat(task_desc, string_concat("\",\"output_file\":\"", string_concat(out_file, "\"}"))));
+                    } else {
+                        if (string_equals(fn_name, "http_get_url")) {
+                            string:g_url = raw json_get_string("candidates.0.content.parts.0.functionCall.args.url");
+                            arg_str = string_concat("{\"url\":\"", string_concat(g_url, "\"}"));
+                        } else {
+                            if (string_equals(fn_name, "web_search")) {
+                                string:w_q = raw json_get_string("candidates.0.content.parts.0.functionCall.args.query");
+                                arg_str = string_concat("{\"query\":\"", string_concat(w_q, "\"}"));
+                            } else {
+                                if (string_equals(fn_name, "store_memory")) {
+                                    string:mem_c = raw json_get_string("candidates.0.content.parts.0.functionCall.args.concept");
+                                    arg_str = string_concat("{\"concept\":\"", string_concat(mem_c, "\"}"));
+                                } else {
+                                    if (string_equals(fn_name, "list_directory")) {
+                                        string:ld_p = raw json_get_string("candidates.0.content.parts.0.functionCall.args.path");
+                                        arg_str = string_concat("{\"path\":\"", string_concat(ld_p, "\"}"));
+                                    } else {
+                                        if (string_equals(fn_name, "replace_file_content")) {
+                                            string:rf_p = raw json_get_string("candidates.0.content.parts.0.functionCall.args.path");
+                                            string:rf_o = raw json_get_string("candidates.0.content.parts.0.functionCall.args.old_text");
+                                            string:rf_n = raw json_get_string("candidates.0.content.parts.0.functionCall.args.new_text");
+                                            arg_str = string_concat("{\"path\":\"", string_concat(rf_p, string_concat("\",\"old_text\":\"", string_concat(rf_o, string_concat("\",\"new_text\":\"", string_concat(rf_n, "\"}"))))));
+                                        } else {
+                                            arg_str = "{}";
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            pass(string_concat("TOOL:100:", string_concat(fn_name, string_concat(":", arg_str))));
+        }
+        
+        string:text = raw json_get_string("candidates.0.content.parts.0.text");
+        if (string_length(text) > 0i64) {
+            pass(string_concat("TEXT:", text));
+        }
+    }
+    
+    pass("TEXT:Error parsing Gemini response");
+};

@@ -1,0 +1,562 @@
+use "nitpick_str.npk";
+use "ollama_client.npk";
+use "nitpick_vector.npk";
+use "workspace.npk";
+use "distiller.npk";
+use "bus.npk";
+use "gemini_client.npk";
+use "nitpick_args.npk";
+
+
+extern "libc" {
+    func:fopen  = int64(string:path, string:mode);
+    func:fgetc  = int32(int64:fp);
+    func:fclose = int32(int64:fp);
+}
+
+func:args_load = string() {
+    int64:fp = fopen("/proc/self/cmdline", "r");
+    if (fp == 0i64) { pass("|"); }
+    string:result  = "|";
+    string:current = "";
+    int32:c = fgetc(fp);
+    while (c >= 0i32) {
+        if (c == 0i32) {
+            if (string_length(current) > 0i64) {
+                result  = string_concat(result, string_concat(current, "|"));
+                current = "";
+            }
+        }
+        if (c > 0i32) {
+            current = string_concat(current, string_from_char(@cast<int8>(c)));
+        }
+        c = fgetc(fp);
+    }
+    if (string_length(current) > 0i64) {
+        result = string_concat(result, string_concat(current, "|"));
+    }
+    drop fclose(fp);
+    pass(result);
+};
+
+func:get_risk_level = int32(string:t_name) {
+    if (string_equals(t_name, "update_dashboard")) { pass 0i32; }
+    if (string_equals(t_name, "set_role")) { pass 0i32; }
+    if (string_equals(t_name, "read_file")) { pass 0i32; }
+    if (string_equals(t_name, "write_file")) { pass 7i32; }
+    if (string_equals(t_name, "run_command")) { pass 7i32; }
+    if (string_equals(t_name, "create_snapshot")) { pass 2i32; }
+    if (string_equals(t_name, "commit_snapshot")) { pass 2i32; }
+    if (string_equals(t_name, "revert_snapshot")) { pass 2i32; }
+    if (string_equals(t_name, "watch_and_publish")) { pass 7i32; }
+    if (string_equals(t_name, "get_system_time")) { pass 0i32; }
+    pass 5i32; // Default
+};
+
+func:get_risk_threshold = int32(int32:level) {
+    if (level == 0i32) { pass 0i32; }
+    if (level == 2i32) { pass 50i32; }
+    if (level == 7i32) { pass 90i32; }
+    pass 75i32; // Default
+};
+
+pub func:main = int32() {
+    string:args = raw args_load();
+    bool:is_headless = raw args_has(args, "--task");
+    string:headless_task = raw args_get(args, "--task");
+    string:headless_out = raw args_get(args, "--output");
+
+    // Basic REPL loop
+    drop bus_init();
+    
+    string:model = "gemini-1.5-flash";
+    
+    string:history = "[";
+    int64:snapshot_history_len = 0i64;
+    
+    string:system_prompt = "You are Randy, an overly enthusiastic Spaceship AI. You love analyzing planets and running systems! Keep responses brief.";
+    
+    // Check for distilled memory
+    bool:has_memory = raw fileExists(".nitpick_agent_memory.json");
+    if (has_memory) {
+        string:mem_contents = raw readFile(".nitpick_agent_memory.json");
+        if (string_length(mem_contents) > 0i64) {
+            system_prompt = string_concat(system_prompt, "\n\nDISTILLED RULES FROM PAST SESSIONS:\n");
+            system_prompt = string_concat(system_prompt, mem_contents);
+        }
+    }
+    
+    // Build initial history JSON array
+    int32:init_hist = raw json_create_array();
+    int32:sys_obj = raw json_create_object();
+    drop json_object_set(sys_obj, "role", raw json_create_string("system"));
+    drop json_object_set(sys_obj, "content", raw json_create_string(system_prompt));
+    drop json_array_append(init_hist, sys_obj);
+    drop json_serialize(init_hist);
+    string:history = raw json_last_result();
+    drop json_builder_clear();
+    
+    
+    string:dashboard_state = "GOAL: Initializing | FILES: None | ERRORS: None";
+    string:current_role = "";
+    int64:snapshot_history_len = 0i64;
+
+    // Print welcome
+    if (is_headless == false) {
+        println("Welcome to Nitpick-Agent (Ollama Harness)");
+        print("Model: "); println(model);
+        println("Type ctrl-c to quit.\n");
+    }
+    
+    drop raw vector_init("agent_memory.bin");
+
+    bool:headless_first_run = true;
+
+    // Loop
+    while (true) {
+        string:user_msg = "";
+        
+        if (is_headless) {
+            if (headless_first_run) {
+                user_msg = string_concat("Execute this background task. When you are finished, write the final result to the file specified using the write_file tool or just reply with the text if you can't. Task:\n", headless_task);
+                headless_first_run = false;
+            } else {
+                break; // Headless finished
+            }
+        } else {
+            print("User> ");
+            string:bus_msg = raw bus_wait();
+            if (string_starts_with(bus_msg, "INPUT:")) {
+            user_msg = string_trim(string_substring(bus_msg, 6i64, string_length(bus_msg)));
+        } else {
+            if (string_starts_with(bus_msg, "EVENT:")) {
+                string:event_payload = string_trim(string_substring(bus_msg, 6i64, string_length(bus_msg)));
+                println(event_payload);
+                user_msg = string_concat("<EPHEMERAL_MESSAGE>\n", string_concat(event_payload, "\n</EPHEMERAL_MESSAGE>"));
+            } else {
+                if (string_equals(bus_msg, "ERROR: EOF")) {
+                    user_msg = "exit";
+                } else {
+                    println("Bus error.");
+                    continue;
+                }
+            }
+        }
+        } // End of is_headless else
+        
+        // Handle exit
+        if (string_equals(user_msg, "exit")) {
+            drop distill_history(history);
+            break;
+        }
+        
+        string:embed_json = raw generate_embedding("nomic-embed-text", user_msg);
+        string:memory = raw vector_search(embed_json);
+        
+        // Use JSON builder to update history with user message
+        int32:hist_node = raw json_parse_to_builder(history);
+        
+        int32:h_len = raw json_array_get_size(hist_node);
+        while (h_len > 20i32) {
+            // Remove the oldest message pair, preserving the system prompt at index 0
+            drop json_array_remove(hist_node, 1i32);
+            drop json_array_remove(hist_node, 1i32);
+            h_len = h_len - 2i32;
+        }
+        
+        if (string_length(memory) > 0i64) {
+            int32:mem_obj = raw json_create_object();
+            int32:m_role = raw json_create_string("system");
+            string:mem_str = string_concat("[RECALLED MEMORY] ", memory);
+            int32:m_content = raw json_create_string(mem_str);
+            drop json_object_set(mem_obj, "role", m_role);
+            drop json_object_set(mem_obj, "content", m_content);
+            drop json_array_append(hist_node, mem_obj);
+            println("[Vector Memory Recalled]");
+        }
+        int32:user_obj = raw json_create_object();
+        int32:u_role = raw json_create_string("user");
+        int32:u_content = raw json_create_string(user_msg);
+        drop json_object_set(user_obj, "role", u_role);
+        drop json_object_set(user_obj, "content", u_content);
+        drop json_array_append(hist_node, user_obj);
+        drop json_serialize(hist_node);
+        string:raw_hist = raw json_last_result();
+        history = string_concat(raw_hist, "");
+        drop json_builder_clear();
+        
+        // Tool chaining loop
+        while (true) {
+            print("Agent> Thinking...\n");
+            
+            string:reply = "";
+            if (string_starts_with(model, "gemini-")) {
+                reply = raw generate_chat_gemini(model, history, dashboard_state, current_role);
+            } else {
+                reply = raw generate_chat(model, history, dashboard_state, current_role);
+            }
+            
+            if (string_starts_with(reply, "TOOL:")) {
+                int64:rl = string_length(reply);
+                string:t_payload = string_substring(reply, 5i64, rl);
+                
+                int64:colon1 = string_index_of(t_payload, ":");
+                string:t_conf_str = "100";
+                string:t_name = t_payload;
+                string:t_arg = "";
+                
+                if (colon1 > 0i64) {
+                    t_conf_str = string_substring(t_payload, 0i64, colon1);
+                    string:rem1 = string_substring(t_payload, colon1 + 1i64, string_length(t_payload));
+                    int64:colon2 = string_index_of(rem1, ":");
+                    if (colon2 > 0i64) {
+                        t_name = string_substring(rem1, 0i64, colon2);
+                        t_arg = string_substring(rem1, colon2 + 1i64, string_length(rem1));
+                    } else {
+                        t_name = rem1;
+                    }
+                }
+                
+                int64:conf_int64 = string_to_int(t_conf_str);
+                int32:confidence = @cast<int32>(conf_int64);
+                int32:risk_level = raw get_risk_level(t_name);
+                int32:threshold = raw get_risk_threshold(risk_level);
+                
+                print("Agent> [TOOL EXECUTED: "); print(t_name); print("("); print(t_arg); print(") CONF:"); print(t_conf_str); println("]");
+                
+                string:tool_result = "";
+                if (confidence < threshold) {
+                    print("\nWARNING: Agent wants to run "); print(t_name); print(" but is only "); print(t_conf_str); println("% confident.");
+                    println("Allow execution? (y/n)");
+                    
+                    bool:allowed = false;
+                    while (true) {
+                        string:bus_msg_p = raw bus_wait();
+                        if (string_starts_with(bus_msg_p, "INPUT:")) {
+                            string:u_in = string_trim(string_substring(bus_msg_p, 6i64, string_length(bus_msg_p)));
+                            if (string_equals(u_in, "y")) { allowed = true; break; }
+                            if (string_equals(u_in, "Y")) { allowed = true; break; }
+                            if (string_equals(u_in, "n")) { allowed = false; break; }
+                            if (string_equals(u_in, "N")) { allowed = false; break; }
+                        }
+                    }
+                    if (!allowed) {
+                        tool_result = "Tool execution denied by user due to low confidence.";
+                        t_name = ""; // Prevent execution block
+                    }
+                }
+                
+                if (string_length(t_name) > 0i64) {
+                    if (string_equals(t_name, "get_system_time")) {
+                        tool_result = "It is currently Stardate 42069.12.";
+                    } else {
+                    if (string_equals(t_name, "create_snapshot")) {
+                        snapshot_history_len = string_length(history);
+                        tool_result = raw workspace_create_snapshot(t_arg);
+                    } else {
+                    if (string_equals(t_name, "revert_snapshot")) {
+                        tool_result = raw workspace_revert_snapshot(t_arg);
+                        if (snapshot_history_len > 0i64) {
+                            history = string_substring(history, 0i64, snapshot_history_len);
+                            snapshot_history_len = 0i64;
+                        }
+                    } else {
+                    if (string_equals(t_name, "commit_snapshot")) {
+                        tool_result = raw workspace_commit_snapshot(t_arg);
+                    } else {
+                        if (string_equals(t_name, "update_dashboard")) {
+                            dashboard_state = t_arg;
+                            tool_result = "Dashboard updated successfully.";
+                        } else {
+                            if (string_equals(t_name, "watch_and_publish")) {
+                                int32:res = workspace_exec(t_arg);
+                                if (res == 1i32) {
+                                    tool_result = "Background command spawned successfully.";
+                                } else {
+                                    tool_result = "Failed to spawn background command.";
+                                }
+                            } else {
+                                if (string_equals(t_name, "set_role")) {
+                                    int32:res_parse = raw json_parse(t_arg);
+                                    current_role = raw json_get_string("role_name");
+                                    tool_result = string_concat("Role successfully set to: ", current_role);
+                                } else {
+                                    if (string_equals(t_name, "read_file")) {
+                                        string:path_r = t_arg;
+                                        if (string_starts_with(t_arg, "{")) {
+                                            int32:rp = raw json_parse(t_arg);
+                                            if (rp == 1i32) { path_r = raw json_get_string("path"); }
+                                        }
+                                        tool_result = workspace_read_file(path_r);
+                                    } else {
+                                        if (string_equals(t_name, "write_file")) {
+                                            string:path_w = "";
+                                            string:content_w = t_arg;
+                                            if (string_starts_with(t_arg, "{")) {
+                                                int32:wp = raw json_parse(t_arg);
+                                                if (wp == 1i32) {
+                                                    path_w = raw json_get_string("path");
+                                                    content_w = raw json_get_string("content");
+                                                }
+                                            }
+                                            int32:wres = workspace_write_file(path_w, content_w);
+                                            if (wres == 1i32) {
+                                                tool_result = "File written successfully.";
+                                            } else {
+                                                tool_result = "Failed to write file.";
+                                            }
+                                        } else {
+                                            if (string_equals(t_name, "run_command")) {
+                                                string:cmd_r = t_arg;
+                                                if (string_starts_with(t_arg, "{")) {
+                                                    int32:rcp = raw json_parse(t_arg);
+                                                    if (rcp == 1i32) { cmd_r = raw json_get_string("command"); }
+                                                }
+                                                tool_result = workspace_run_sync(cmd_r);
+                                                if (string_length(tool_result) == 0i64) {
+                                                    tool_result = "[Command executed successfully but produced no output]";
+                                                }
+                                            } else {
+                                                if (string_equals(t_name, "spawn_subagent")) {
+                                                    string:task_desc = "";
+                                                    string:out_file = t_arg;
+                                                    if (string_starts_with(t_arg, "{")) {
+                                                        int32:sp = raw json_parse(t_arg);
+                                                        if (sp == 1i32) {
+                                                            task_desc = raw json_get_string("task_description");
+                                                            out_file = raw json_get_string("output_file");
+                                                        }
+                                                    }
+                                                    string:spawn_cmd = string_concat("./nitpick-agent --task \"", string_concat(task_desc, string_concat("\" --output \"", string_concat(out_file, "\""))));
+                                                    int32:spawn_res = workspace_spawn_bg(spawn_cmd);
+                                                    if (spawn_res == 1i32) {
+                                                        tool_result = string_concat("Successfully spawned subagent to write to ", out_file);
+                                                    } else {
+                                                        tool_result = "Failed to spawn subagent.";
+                                                    }
+                                                } else {
+                                                    if (string_equals(t_name, "http_get_url")) {
+                                                        string:get_url = "";
+                                                        if (string_starts_with(t_arg, "{")) {
+                                                            int32:jp = raw json_parse(t_arg);
+                                                            if (jp == 1i32) {
+                                                                get_url = raw json_get_string("url");
+                                                            }
+                                                        } else {
+                                                            get_url = t_arg;
+                                                        }
+                                                        int32:http_res = raw http_get(get_url);
+                                                        if (http_res == 1i32) {
+                                                            string:h_body = raw http_body();
+                                                            if (string_length(h_body) > 8192i64) {
+                                                                h_body = string_concat(string_substring(h_body, 0i64, 8192i64), "... [TRUNCATED]");
+                                                            }
+                                                            tool_result = h_body;
+                                                        } else {
+                                                            tool_result = "Failed to fetch URL.";
+                                                        }
+                                                    } else {
+                                                        if (string_equals(t_name, "web_search")) {
+                                                            string:s_query = "";
+                                                            if (string_starts_with(t_arg, "{")) {
+                                                                int32:jp = raw json_parse(t_arg);
+                                                                if (jp == 1i32) {
+                                                                    s_query = raw json_get_string("query");
+                                                                }
+                                                            } else {
+                                                                s_query = t_arg;
+                                                            }
+                                                            string:enc_q = raw http_url_encode(s_query);
+                                                            string:ddg_url = string_concat("https://html.duckduckgo.com/html/?q=", enc_q);
+                                                            int32:search_res = raw http_get(ddg_url);
+                                                            if (search_res == 1i32) {
+                                                                string:s_body = raw http_body();
+                                                                if (string_length(s_body) > 8192i64) {
+                                                                    s_body = string_concat(string_substring(s_body, 0i64, 8192i64), "... [TRUNCATED]");
+                                                                }
+                                                                tool_result = s_body;
+                                                            } else {
+                                                                tool_result = "Search failed.";
+                                                            }
+                                                        } else {
+                                                            if (string_equals(t_name, "store_memory")) {
+                                                                string:m_concept = "";
+                                                                if (string_starts_with(t_arg, "{")) {
+                                                                    int32:jp = raw json_parse(t_arg);
+                                                                    if (jp == 1i32) {
+                                                                        m_concept = raw json_get_string("concept");
+                                                                    }
+                                                                } else {
+                                                                    m_concept = t_arg;
+                                                                }
+                                                                string:m_embed = raw generate_embedding("nomic-embed-text", m_concept);
+                                                                drop vector_insert(m_concept, m_embed);
+                                                                tool_result = "Memory permanently encoded.";
+                                                            } else {
+                                                                if (string_equals(t_name, "list_directory")) {
+                                                                    string:ld_path = "";
+                                                                    if (string_starts_with(t_arg, "{")) {
+                                                                        int32:jp = raw json_parse(t_arg);
+                                                                        if (jp == 1i32) {
+                                                                            ld_path = raw json_get_string("path");
+                                                                        }
+                                                                    } else {
+                                                                        ld_path = t_arg;
+                                                                    }
+                                                                    tool_result = raw workspace_list_dir(ld_path);
+                                                                } else {
+                                                                    if (string_equals(t_name, "replace_file_content")) {
+                                                                        string:rf_path = "";
+                                                                        string:rf_old = "";
+                                                                        string:rf_new = "";
+                                                                        if (string_starts_with(t_arg, "{")) {
+                                                                            int32:jp = raw json_parse(t_arg);
+                                                                            if (jp == 1i32) {
+                                                                                rf_path = raw json_get_string("path");
+                                                                                rf_old = raw json_get_string("old_text");
+                                                                                rf_new = raw json_get_string("new_text");
+                                                                            }
+                                                                        }
+                                                                        string:file_content = workspace_read_file(rf_path);
+                                                                        if (string_is_empty(file_content)) {
+                                                                            tool_result = "Error: File is empty or could not be read.";
+                                                                        } else {
+                                                                            string:new_content = raw str_replace(file_content, rf_old, rf_new);
+                                                                            if (string_equals(file_content, new_content)) {
+                                                                                tool_result = "Error: Target text not found in file.";
+                                                                            } else {
+                                                                                int32:w_res = workspace_write_file(rf_path, new_content);
+                                                                                if (w_res == 1i32) {
+                                                                                    tool_result = "File content replaced successfully.";
+                                                                                } else {
+                                                                                    tool_result = "Error: Failed to write to file.";
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    } else {
+                                                                        tool_result = string_concat("Unknown tool: ", t_name);
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }}}}
+                }
+                
+                // Use JSON builder to append assistant tool request + tool result
+                int32:t_hist = raw json_parse_to_builder(history);
+                
+                int32:asst_obj = raw json_create_object();
+                int32:a_role = raw json_create_string("assistant");
+                int32:a_content = raw json_create_string("");
+                drop json_object_set(asst_obj, "role", a_role);
+                drop json_object_set(asst_obj, "content", a_content);
+                
+                // Construct the tool_calls array to satisfy Ollama's schema
+                int32:tc_arr = raw json_create_array();
+                int32:tc_obj = raw json_create_object();
+                int32:tc_type = raw json_create_string("function");
+                int32:tc_func = raw json_create_object();
+                int32:tc_name = raw json_create_string(t_name);
+                int32:tc_args = raw json_create_object();
+                if (string_equals(t_name, "watch_and_publish")) {
+                    if (string_length(t_arg) > 0i64) {
+                        int32:arg_val = raw json_create_string(t_arg);
+                        drop json_object_set(tc_args, "command", arg_val);
+                    }
+                } else {
+                    if (string_equals(t_name, "update_dashboard")) {
+                        if (string_length(t_arg) > 0i64) {
+                            int32:arg_val = raw json_create_string(t_arg);
+                            drop json_object_set(tc_args, "dashboard_state", arg_val);
+                        }
+                    } else {
+                        if (string_length(t_arg) > 0i64) {
+                            int32:arg_val = raw json_create_string(t_arg);
+                            drop json_object_set(tc_args, "snapshot_name", arg_val);
+                        }
+                    }
+                }
+                drop json_object_set(tc_func, "name", tc_name);
+                drop json_object_set(tc_func, "arguments", tc_args);
+                drop json_object_set(tc_obj, "type", tc_type);
+                drop json_object_set(tc_obj, "function", tc_func);
+                drop json_array_append(tc_arr, tc_obj);
+                drop json_object_set(asst_obj, "tool_calls", tc_arr);
+                
+                int32:tool_obj = raw json_create_object();
+                int32:t_role = raw json_create_string("tool");
+                int32:t_content = raw json_create_string(tool_result);
+                drop json_object_set(tool_obj, "role", t_role);
+                drop json_object_set(tool_obj, "content", t_content);
+                
+                drop json_array_append(t_hist, asst_obj);
+                drop json_array_append(t_hist, tool_obj);
+                drop json_serialize(t_hist);
+                string:raw_t_hist = raw json_last_result();
+                history = string_concat(raw_t_hist, "");
+                drop json_builder_clear();
+                
+                continue;
+            } else {
+                if (string_starts_with(reply, "TEXT:")) {
+                    int64:rl = string_length(reply);
+                    string:text = string_substring(reply, 5i64, rl);
+                    
+                    if (string_starts_with(model, "gemini-")) {
+                        if (is_headless == false) {
+                            print("Agent> ");
+                            print(text);
+                            print("\n");
+                        }
+                    }
+                    
+                    if (is_headless) {
+                        drop workspace_write_file(headless_out, text);
+                    }
+                    // For Ollama, the text was already streamed to stdout by the C-shim!
+                    // We just need to add it to the history. wrap it up cleanly.
+                    println("\n");
+                    
+                    if (string_length(embed_json) > 0i64) {
+                        string:record = string_concat("User: ", user_msg);
+                        record = string_concat(record, "\nAgent: ");
+                        record = string_concat(record, text);
+                        drop raw vector_insert(record, embed_json);
+                    }
+                    
+                    // Use JSON builder to append assistant text
+                    int32:a_hist = raw json_parse_to_builder(history);
+                    int32:asst_text_obj = raw json_create_object();
+                    int32:at_role = raw json_create_string("assistant");
+                    int32:at_content = raw json_create_string(text);
+                    drop json_object_set(asst_text_obj, "role", at_role);
+                    drop json_object_set(asst_text_obj, "content", at_content);
+                    
+                    drop json_array_append(a_hist, asst_text_obj);
+                    drop json_serialize(a_hist);
+                    string:raw_a_hist = raw json_last_result();
+                    history = string_concat(raw_a_hist, "");
+                    drop json_builder_clear();
+                } else {
+                    println(reply);
+                }
+                break;
+            }
+        }
+    }
+
+    exit(0i32);
+};
+
+func:failsafe = int32(tbb32:err) {
+    println("FATAL ERROR: Failsafe triggered.");
+    exit(1i32);
+};

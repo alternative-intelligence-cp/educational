@@ -692,6 +692,6 @@ Three people died because a compiler said "this code is fine."
 
 **Return to:** [Module 0 - Why This Matters](../modules/00_why_this_matters.md)
 
-**Next Case Study:** [Ariane 5 Flight 501 - Integer Overflow Explosion](ariane5_technical.md)
+**Next Case Study:** [Nitpickne 5 Flight 501 - Integer Overflow Explosion](nitpickne5_technical.md)
 
 **Practice Exercises:** [Race Condition Detection Lab](../exercises/race_condition_detection.md)

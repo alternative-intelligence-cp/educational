@@ -1,0 +1,60 @@
+// src/distiller.npk
+
+pub func:distill_history = int32(string:history) {
+    print("Distilling session memory... ");
+    
+    string:distill_prompt = "Analyze the following interaction history. Extract concrete rules, gotchas, or codebase preferences learned during this session. Output ONLY a valid JSON array of strings. No markdown, no explanations. Example: [\"Always use Result<T> for C shims\", \"Prefer fast tools\"]";
+    
+    int32:root = raw json_create_object();
+    // Use the default standard model for the distillation pass
+    drop json_object_set(root, "model", raw json_create_string("devstral-small-2:24b"));
+    drop json_object_set(root, "stream", raw json_create_bool(0i32));
+    
+    int32:messages = raw json_create_array();
+    
+    int32:sys_msg = raw json_create_object();
+    drop json_object_set(sys_msg, "role", raw json_create_string("system"));
+    drop json_object_set(sys_msg, "content", raw json_create_string(distill_prompt));
+    drop json_array_append(messages, sys_msg);
+    
+    int32:hist_msg = raw json_create_object();
+    drop json_object_set(hist_msg, "role", raw json_create_string("user"));
+    drop json_object_set(hist_msg, "content", raw json_create_string(history));
+    drop json_array_append(messages, hist_msg);
+    
+    drop json_object_set(root, "messages", messages);
+    drop json_serialize(root);
+    string:json_payload = raw json_last_result();
+    drop json_builder_clear();
+    
+    drop http_init();
+    drop http_clear_headers();
+    drop http_set_header("Content-Type: application/json");
+    
+    int32:status = raw http_post("http://localhost:11434/api/chat", json_payload);
+    
+    if (status == 1i32) {
+        string:resp = raw http_body();
+        int32:p_root = raw json_parse(resp);
+        if (p_root == 1i32) {
+            if (raw json_has_key("message.content") == 1i32) {
+                string:extracted = raw json_get_string("message.content");
+                // Write to file
+                drop raw writeFile(".nitpick_agent_memory.json", extracted);
+                println("Done! Saved memory to .nitpick_agent_memory.json");
+            } else {
+                println("No message content found.");
+            }
+        } else {
+            println("JSON parsing failed on response.");
+        }
+    } else {
+        print("Failed to distill memory. Status: ");
+        // cast to string later, just print body for now
+        string:err_body = raw http_body();
+        println(err_body);
+    }
+    
+    drop http_cleanup();
+    pass(0i32);
+};

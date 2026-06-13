@@ -84,6 +84,6 @@ python3 wave_quantum.py     # Quantum mechanics
 
 ---
 
-**Tested by**: Aria Echo  
+**Tested by**: Nitpick Echo  
 **Platform**: Ubuntu Linux with Python 3.12  
 **All systems nominal** 🚀

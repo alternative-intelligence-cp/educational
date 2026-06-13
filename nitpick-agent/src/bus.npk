@@ -1,0 +1,21 @@
+// src/bus.npk
+
+extern "bus_shim" {
+    func:nitpick_bus_init    = int32();
+    func:nitpick_bus_wait    = string();
+    func:nitpick_bus_publish = void(string:topic, string:payload);
+    func:nitpick_atoi        = int32(string:s);
+}
+
+pub func:bus_init = int32() {
+    pass(nitpick_bus_init());
+};
+
+pub func:bus_wait = string() {
+    pass(nitpick_bus_wait());
+};
+
+pub func:bus_publish = NIL(string:topic, string:payload) {
+    nitpick_bus_publish(topic, payload);
+    pass(NIL);
+};

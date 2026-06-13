@@ -151,8 +151,8 @@ Players learn adversarial AI tactics and defenses by experiencing them firsthand
 
 ### Implementation Phases
 1. **Python Prototype** - Core mechanics, single-player
-2. **Aria Version** - When language complete, dogfood it
-3. **Web/Multiplayer** - Aria HTTP server, full PvP
+2. **Nitpick Version** - When language complete, dogfood it
+3. **Web/Multiplayer** - Nitpick HTTP server, full PvP
 
 ### Data Sources
 - Real jailbreak attempts from research

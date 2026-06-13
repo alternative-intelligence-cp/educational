@@ -1085,7 +1085,7 @@ The Toyota unintended acceleration defects killed **89 people** because:
 
 **Return to:** [Module 0 - Why This Matters](../modules/00_why_this_matters.md)
 
-**Previous:** [Ariane 5 Flight 501 Technical Analysis](ariane5_technical.md)
+**Previous:** [Nitpickne 5 Flight 501 Technical Analysis](nitpickne5_technical.md)
 
 **Next:** [Module 1 - Type System Fundamentals](../modules/01_type_system_fundamentals.md)
 

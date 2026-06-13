@@ -45,7 +45,7 @@ llvm::Value* codegenLiteral(LiteralExpr* expr) {
 
 **Scenario:** Teacher AI having 8-hour conversation with student
 
-```aria
+```nitpick
 // Simplified Teacher response generation
 func generate_encouragement() -> string {
     let options = [
@@ -310,15 +310,15 @@ You're building identical houses in a development. Each house needs:
 
 ```bash
 # Compile a program with 1000 "hello" literals
-echo 'let x = "hello"; let y = "hello"; ...' > test.aria
+echo 'let x = "hello"; let y = "hello"; ...' > test.npk
 
 # Without pooling:
-./vulnerable_compiler test.aria
+./vulnerable_compiler test.npk
 llvm-dis output.bc | grep "private.*str.*hello" | wc -l
 # Output: 1000 (one per literal!)
 
 # With pooling:
-./safe_compiler test.aria
+./safe_compiler test.npk
 llvm-dis output.bc | grep "private.*str.*hello" | wc -l
 # Output: 1 (reused for all!)
 ```

@@ -65,7 +65,7 @@ String: "1.000.000"  # Uses period as thousands separator!
 
 **Context:** Teacher AI system maintaining decision log for accountability
 
-```aria
+```nitpick
 // Log decision with timestamp and reasoning
 func log_decision(timestamp: int64, reason: string) {
     let log_entry = `Decision at {timestamp}: {reason}`;
@@ -152,10 +152,10 @@ You're building a house. You use a tape measure that:
 builder.CreateCall(sprintfFn, { bufferPtr, formatPtr, intVal });
 llvm::Value* length = builder.CreateCall(strlenFn, { bufferPtr });
 
-// AFTER: Using aria_int64_to_str (deterministic)
-llvm::Function* toStrFn = module->getFunction("aria_int64_to_str");
+// AFTER: Using nitpick_int64_to_str (deterministic)
+llvm::Function* toStrFn = module->getFunction("nitpick_int64_to_str");
 
-// Signature: int64_t aria_int64_to_str(int64_t value, char* buffer)
+// Signature: int64_t nitpick_int64_to_str(int64_t value, char* buffer)
 // Returns length directly, no strlen needed
 llvm::Value* length = builder.CreateCall(toStrFn, { intVal, bufferPtr });
 ```
@@ -163,9 +163,9 @@ llvm::Value* length = builder.CreateCall(toStrFn, { intVal, bufferPtr });
 **Runtime implementation (in C, but deterministic):**
 
 ```c
-// aria_int64_to_str - Deterministic integer to string conversion
+// nitpick_int64_to_str - Deterministic integer to string conversion
 // No locale dependencies. No sprintf. Just math.
-int64_t aria_int64_to_str(int64_t value, char* buffer) {
+int64_t nitpick_int64_to_str(int64_t value, char* buffer) {
     char temp[32];  // Enough for 64-bit int
     int pos = 0;
     int is_negative = 0;
@@ -235,7 +235,7 @@ Wait... `%lld` doesn't actually localize! So why is this a bug?
 
 **We got lucky that it works NOW. That's not good enough.**
 
-**Defensive version (aria_int64_to_str):**
+**Defensive version (nitpick_int64_to_str):**
 ```
 en_US: "1735689600"        → Hash: 0xDEADBEEF
 de_DE: "1735689600"        → Hash: 0xDEADBEEF
@@ -251,7 +251,7 @@ DETERMINISTIC ✅
 **Files in `lab/`:**
 
 - `vulnerable_convert.c` - Using sprintf
-- `safe_convert.c` - Using aria_int64_to_str
+- `safe_convert.c` - Using nitpick_int64_to_str
 - `test_locales.sh` - Script to test across locales
 - `verify_determinism.sh` - Hash outputs and compare
 - `Makefile` - Build both versions
@@ -325,7 +325,7 @@ Your level has a crack in the glass. It LOOKS straight, but you can't flip-test 
 **In this case:**
 
 **sprintf:** Can't verify determinism (depends on unknowable factors)  
-**aria_int64_to_str:** Can verify by inspection (just math)
+**nitpick_int64_to_str:** Can verify by inspection (just math)
 
 **Choose tools you can verify.**
 

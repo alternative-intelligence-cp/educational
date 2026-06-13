@@ -1,4 +1,4 @@
-# Ariane 5 Flight 501 - Technical Analysis
+# Nitpickne 5 Flight 501 - Technical Analysis
 
 **Incident Date:** June 4, 1996  
 **Location:** Kourou, French Guiana  
@@ -14,7 +14,7 @@
 
 ### The Payload
 
-Ariane 5's maiden flight carried:
+Nitpickne 5's maiden flight carried:
 - **Cluster satellites** (4 spacecraft worth $400 million)
 - **Scientific instruments** for studying Earth's magnetosphere
 - **European Space Agency prestige** - first launch of new heavy-lift rocket
@@ -24,7 +24,7 @@ Ariane 5's maiden flight carried:
 - **10 years of development**
 - **$7 billion program cost**
 - **Europe's answer to US/Russian heavy launchers**
-- **Debut of new technology** - larger, more powerful than Ariane 4
+- **Debut of new technology** - larger, more powerful than Nitpickne 4
 
 **Expectation:** Triumphant success, establishing Europe as space power  
 **Reality:** Spectacular failure, 37 seconds after launch
@@ -86,8 +86,8 @@ The IRS provides:
 ### The Vulnerable Code
 
 ```ada
--- Ariane 4 Inertial Reference System code
--- REUSED in Ariane 5 without modification
+-- Nitpickne 4 Inertial Reference System code
+-- REUSED in Nitpickne 5 without modification
 
 -- BDH: Horizontal bias (64-bit floating point)
 BDH : Float := Get_Horizontal_Velocity();
@@ -103,27 +103,27 @@ Horizontal_Bias : INTEGER_16 := INTEGER_16(BDH);
 2. **Convert to 16-bit integer** - For display purposes (operator console)
 3. **PRAGMA SUPPRESS** - "Don't check if conversion is safe"
 
-### The Assumptions (Ariane 4)
+### The Assumptions (Nitpickne 4)
 
 - **Maximum horizontal velocity:** ~32,000 units
 - **16-bit integer range:** -32,768 to +32,767
 - **Conclusion:** "Conversion will never overflow"
 
-**This assumption was true... for Ariane 4.**
+**This assumption was true... for Nitpickne 4.**
 
 ---
 
-## Why Ariane 5 Was Different
+## Why Nitpickne 5 Was Different
 
 ### Key Difference: Power
 
-|                     | Ariane 4  | Ariane 5  |
+|                     | Nitpickne 4  | Nitpickne 5  |
 |---------------------|-----------|-----------|
 | **Thrust**          | 2,400 kN  | 7,000 kN  |
 | **Acceleration**    | Slower    | Faster    |
 | **Max velocity**    | ~28,000   | **42,184**|
 
-**Ariane 5 flew faster** than Ariane 4 ever did.
+**Nitpickne 5 flew faster** than Nitpickne 4 ever did.
 
 ### The Fatal Moment
 
@@ -303,17 +303,17 @@ ALLOWED ALTERNATIVES:
 WARNING: Value range analysis shows potential overflow
 
 Variable: BDH (horizontal velocity)
-  Observed max (Ariane 4 flight data): 28,441
-  Theoretical max (Ariane 5 trajectory): 42,184 (COMPUTED)
+  Observed max (Nitpickne 4 flight data): 28,441
+  Theoretical max (Nitpickne 5 trajectory): 42,184 (COMPUTED)
   
 Target type: INTEGER_16
   Maximum value: 32,767
   
-RISK: Ariane 5 max velocity (42,184) exceeds INTEGER_16 range
+RISK: Nitpickne 5 max velocity (42,184) exceeds INTEGER_16 range
 
 RECOMMENDATION: Review assumptions
-  - Code reused from Ariane 4
-  - Ariane 5 trajectory differs from Ariane 4
+  - Code reused from Nitpickne 4
+  - Nitpickne 5 trajectory differs from Nitpickne 4
   - Range assumptions may no longer hold
   
 Severity: HIGH
@@ -325,9 +325,9 @@ Severity: HIGH
 
 ### Official Inquiry Board Findings
 
-From the Ariane 501 Inquiry Board Report:
+From the Nitpickne 501 Inquiry Board Report:
 
-> *"The failure of the Ariane 501 was caused by the complete loss of guidance and attitude information 37 seconds after start of the main engine ignition sequence (30 seconds after lift-off). This loss of information was due to specification and design errors in the software of the inertial reference system."*
+> *"The failure of the Nitpickne 501 was caused by the complete loss of guidance and attitude information 37 seconds after start of the main engine ignition sequence (30 seconds after lift-off). This loss of information was due to specification and design errors in the software of the inertial reference system."*
 
 ### Key Findings
 
@@ -337,7 +337,7 @@ From the Ariane 501 Inquiry Board Report:
 
 **Finding 2: Unnecessary Code**
 
-> *"This software exception occurred in a part of the code that was not needed for the Ariane 5 mission, but was left in the software for reasons of commonality with Ariane 4."*
+> *"This software exception occurred in a part of the code that was not needed for the Nitpickne 5 mission, but was left in the software for reasons of commonality with Nitpickne 4."*
 
 **The alignment calculation that crashed was only needed:**
 - **Before launch** (for calibration)
@@ -346,7 +346,7 @@ From the Ariane 501 Inquiry Board Report:
 **But it was still running** because:
 - "We might need it for future missions"
 - "Turning it off requires code changes"
-- "It worked fine on Ariane 4"
+- "It worked fine on Nitpickne 4"
 
 **Result:** Unnecessary code caused mission failure.
 
@@ -356,11 +356,11 @@ From the Ariane 501 Inquiry Board Report:
 
 **What was tested:**
 - Individual software modules
-- IRS behavior in Ariane 4 flight profile
+- IRS behavior in Nitpickne 4 flight profile
 - Functional requirements
 
 **What was NOT tested:**
-- IRS under Ariane 5 flight conditions
+- IRS under Nitpickne 5 flight conditions
 - Overflow scenarios
 - Range limits of data conversions
 
@@ -377,7 +377,7 @@ From the Ariane 501 Inquiry Board Report:
 ### Why Code Was Reused
 
 **Justifications:**
-1. "Ariane 4 IRS has 10 years of proven flight history"
+1. "Nitpickne 4 IRS has 10 years of proven flight history"
 2. "Reusing proven code reduces risk"
 3. "Development cost and time savings"
 4. "Code has been extensively tested"
@@ -390,12 +390,12 @@ From the Ariane 501 Inquiry Board Report:
 
 **Reality:** Code correctness depends on **operating environment**.
 
-**Ariane 4 environment:**
+**Nitpickne 4 environment:**
 - Lower thrust
 - Slower acceleration
 - Maximum velocity: ~28,000 units
 
-**Ariane 5 environment:**
+**Nitpickne 5 environment:**
 - Higher thrust
 - Faster acceleration  
 - Maximum velocity: **42,184 units**
@@ -411,24 +411,24 @@ From the Ariane 501 Inquiry Board Report:
 ```ada
 -- Compiler tracks value ranges based on context
 
--- Ariane 4 context
-package Ariane_4_Profile is
+-- Nitpickne 4 context
+package Nitpickne_4_Profile is
   Max_Horizontal_Velocity : constant := 28_500.0;
   
   type Horizontal_Velocity is new Float 
     range -Max_Horizontal_Velocity .. Max_Horizontal_Velocity;
-end Ariane_4_Profile;
+end Nitpickne_4_Profile;
 
--- Ariane 5 context  
-package Ariane_5_Profile is
+-- Nitpickne 5 context  
+package Nitpickne_5_Profile is
   Max_Horizontal_Velocity : constant := 43_000.0;  -- Higher!
   
   type Horizontal_Velocity is new Float
     range -Max_Horizontal_Velocity .. Max_Horizontal_Velocity;
-end Ariane_5_Profile;
+end Nitpickne_5_Profile;
 
 -- Conversion checked against ACTUAL context
-BDH : Ariane_5_Profile.Horizontal_Velocity := Get_Velocity();
+BDH : Nitpickne_5_Profile.Horizontal_Velocity := Get_Velocity();
 
 -- This will fail at compile time:
 Display_Value : INTEGER_16 := INTEGER_16(BDH);
@@ -478,7 +478,7 @@ end if;
 
 | Item | Cost |
 |------|------|
-| Ariane 5 rocket | $370 million |
+| Nitpickne 5 rocket | $370 million |
 | Cluster satellites (4) | $500 million |
 | **Total hardware loss** | **$870 million** |
 
@@ -545,7 +545,7 @@ pragma Prove_Conversion_Safe(BDH, INTEGER_16);
 
 ### 4. Dead Code Is Dangerous Code
 
-**Ariane 5 lesson:** Alignment code wasn't needed during flight, but was active anyway
+**Nitpickne 5 lesson:** Alignment code wasn't needed during flight, but was active anyway
 
 **Defensive approach:** 
 - Flag code that doesn't run in production
@@ -589,7 +589,7 @@ pragma Prove_Conversion_Safe(BDH, INTEGER_16);
 
 ### The Challenge
 
-You're tasked with making this code safe for both Ariane 4 and Ariane 5:
+You're tasked with making this code safe for both Nitpickne 4 and Nitpickne 5:
 
 ```ada
 -- Original vulnerable code
@@ -604,7 +604,7 @@ end Update_Display;
 
 ### Requirements
 
-1. Code must work for both Ariane 4 (max velocity 28,500) and Ariane 5 (max velocity 42,184)
+1. Code must work for both Nitpickne 4 (max velocity 28,500) and Nitpickne 5 (max velocity 42,184)
 2. No suppressed checks allowed
 3. Must fail safely if velocity exceeds display range
 4. Compiler must verify safety at compile time
@@ -618,7 +618,7 @@ procedure Update_Display is
 begin
   BDH := Get_Horizontal_Velocity();
   
-  -- Use 32-bit int, fits both Ariane 4 and 5
+  -- Use 32-bit int, fits both Nitpickne 4 and 5
   Display_Buffer.Horizontal := INTEGER_32(BDH);
   -- Compiler verifies: max_velocity (43,000) < INTEGER_32'Last (2 billion)
 end Update_Display;
@@ -655,8 +655,8 @@ package IRS_Profile is
   function To_Display(V : Horizontal_Velocity) return Display_Type;
 end IRS_Profile;
 
--- Instantiate for Ariane 5
-package Ariane_5_IRS is new IRS_Profile(Max_Velocity => 43_000.0);
+-- Instantiate for Nitpickne 5
+package Nitpickne_5_IRS is new IRS_Profile(Max_Velocity => 43_000.0);
 -- Compiler selects INTEGER_32 automatically
 ```
 
@@ -672,7 +672,7 @@ package Ariane_5_IRS is new IRS_Profile(Max_Velocity => 43_000.0);
 
 ### Benefit of Defensive Compilation
 
-**Ariane 5 scenario:**
+**Nitpickne 5 scenario:**
 - Bug caught at compile time: $0
 - Bug caught in flight: **$870 million**
 
@@ -682,7 +682,7 @@ package Ariane_5_IRS is new IRS_Profile(Max_Velocity => 43_000.0);
 
 ## Conclusion: When Fast Code Dies Hard
 
-The Ariane 5 failed because:
+The Nitpickne 5 failed because:
 - Integer overflow was possible but unchecked
 - Code assumptions weren't validated in new context
 - Suppressed safety checks hid the problem

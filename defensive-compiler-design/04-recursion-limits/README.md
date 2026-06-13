@@ -60,7 +60,7 @@ void StmtCodegen::codegenStatement(ASTNode* node) {
 
 **Malicious:** Student submits code to Teacher AI system:
 
-```aria
+```nitpick
 // Generated code - 501 nested additions
 let x = 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + ...
     // ... 501 more + operations
@@ -97,7 +97,7 @@ Step 10: Lesson disrupted
 
 **Accidental:** Student writes nested comprehension:
 
-```aria
+```nitpick
 // Looks innocent, but generates deep nesting
 let matrix = [[[[[x * y for y in 0..10]
                     for x in 0..10]

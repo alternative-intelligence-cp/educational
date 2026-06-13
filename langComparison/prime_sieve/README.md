@@ -30,8 +30,8 @@ python3 sieve.py
 # Rust
 rustc -C opt-level=2 -o sieve_rs sieve.rs && ./sieve_rs
 
-# Aria
-ariac sieve.aria -o sieve_aria && ./sieve_aria
+# Nitpick
+nitpickc sieve.npk -o sieve_nitpick && ./sieve_nitpick
 ```
 
 All four should output the same 168 primes up to 1,000.
@@ -47,9 +47,9 @@ All four should output the same 168 primes up to 1,000.
 | C | `char is_prime[N+1]` | 1 byte/slot | Stack (for small N), static |
 | Python | `bytearray([1]) * (N+1)` | 1 byte/slot | Heap (GC managed) |
 | Rust | `vec![true; N+1]` | heap `Vec<bool>` | Heap (RAII, freed on scope exit) |
-| Aria | `bool[1001]:is_prime` | stack | Stack (fixed compile-time size) |
+| Nitpick | `bool[1001]:is_prime` | stack | Stack (fixed compile-time size) |
 
-The C and Aria versions allocate on the stack. Rust and Python use the heap, but Rust cleans up automatically (RAII; no GC needed). Python's GC adds a small overhead but not visible at this scale.
+The C and Nitpick versions allocate on the stack. Rust and Python use the heap, but Rust cleans up automatically (RAII; no GC needed). Python's GC adds a small overhead but not visible at this scale.
 
 ### Array initialization
 
@@ -58,30 +58,30 @@ The C and Aria versions allocate on the stack. Rust and Python use the heap, but
 | C | `memset(is_prime, 1, sizeof(is_prime))` — one system call, very fast |
 | Python | `bytearray([1]) * (N+1)` — slice multiplication; fast |
 | Rust | `vec![true; N+1]` — fills at allocation time |
-| Aria | `while (idx <= N) { is_prime[idx] = true; ... }` — explicit loop; no memset equivalent in current stdlib |
+| Nitpick | `while (idx <= N) { is_prime[idx] = true; ... }` — explicit loop; no memset equivalent in current stdlib |
 
 ### Variable array indexing
 
-All four use `is_prime[j] = false` with a variable index `j`. In C/Aria this is direct hardware array access. In Python it's a method call on `bytearray`. In Rust the compiler proves the access is in-bounds (or inserts a panic check where it can't).
+All four use `is_prime[j] = false` with a variable index `j`. In C/Nitpick this is direct hardware array access. In Python it's a method call on `bytearray`. In Rust the compiler proves the access is in-bounds (or inserts a panic check where it can't).
 
-### The key limitation in Aria
+### The key limitation in Nitpick
 
-Aria requires the array size to be a **compile-time constant**: `bool[1001]`. You cannot write `bool[n]` where `n` is a runtime value. This means:
+Nitpick requires the array size to be a **compile-time constant**: `bool[1001]`. You cannot write `bool[n]` where `n` is a runtime value. This means:
 
 - The N=1,000 limit is baked into the binary
 - To support larger N, you'd recompile with a different constant
-- For truly dynamic sizes, the arena allocator is available via `@extern("aria_arena_alloc", ...)` — but it requires manual sizing calculations
+- For truly dynamic sizes, the arena allocator is available via `@extern("nitpick_arena_alloc", ...)` — but it requires manual sizing calculations
 
 C, Python, and Rust can all accept `n` as a runtime argument and allocate accordingly.
 
 ### String arena limitation (visible when N is large)
 
-When printing 168 primes in a loop, `int32_toString()` is called 168 times inside the loop. Each call allocates a new `AriaString` on the string arena. By the end of the loop, the arena is nearly exhausted. Calling `string_concat()` afterward triggers a segfault.
+When printing 168 primes in a loop, `int32_toString()` is called 168 times inside the loop. Each call allocates a new `NitpickString` on the string arena. By the end of the loop, the arena is nearly exhausted. Calling `string_concat()` afterward triggers a segfault.
 
 **Workaround:** split the final output into two separate `print()` calls instead of
 `println(string_concat(...))`. This avoids a new allocation.
 
-This is a known Aria runtime issue: the string arena pool size needs to grow with allocation demand (planned fix).
+This is a known Nitpick runtime issue: the string arena pool size needs to grow with allocation demand (planned fix).
 
 ---
 
@@ -94,9 +94,9 @@ For N=10,000,000 (a real-world size for prime counting), the performance spread 
 | C (`-O2`) | ~0.05s |
 | Rust (`-O2`) | ~0.05–0.08s |
 | Python | ~2–5s |
-| Aria | ~0.05s (expected — same memory pattern as C) |
+| Nitpick | ~0.05s (expected — same memory pattern as C) |
 
-At N=1,000 the differences are imperceptible. The sieve algorithm is a good benchmark for large N specifically because it exercises cache behavior — the C/Rust/Aria versions stay in cache better than Python's due to lower per-element overhead.
+At N=1,000 the differences are imperceptible. The sieve algorithm is a good benchmark for large N specifically because it exercises cache behavior — the C/Rust/Nitpick versions stay in cache better than Python's due to lower per-element overhead.
 
 ---
 

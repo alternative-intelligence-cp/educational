@@ -253,7 +253,7 @@ const value = q.crystallize();  // Decide when confident
 
 This JavaScript POC shows the concept. The full ARIA language will have native syntax:
 
-```aria
+```nitpick
 // Native ARIA (future)
 q9 altitude = {gps_reading, baro_reading, 0};
 altitude.qif(new_evidence, 0, 0, 1);

@@ -397,7 +397,7 @@ This POC demonstrates quantum types in **JavaScript** (a familiar language) befo
 
 In the full ARIA language, quantum types will have native syntax:
 
-```aria
+```nitpick
 // Native ARIA quantum types (future)
 q9 sensor_reading = {100, 150, 0};  // Q9 type
 

@@ -165,4 +165,4 @@ This started as a quick POC (`many.js`) to explore how ARIA's `any` type would f
 
 - [Quantum Types POC](../quantum-types-poc/) — Another ARIA concept demonstrated in JavaScript
 - [Defensive Compiler Design](../defensive-compiler-design/) — Real bugs from ARIA's safety audit
-- [ARIA Language](https://github.com/alternative-intelligence-cp/aria) — The compiler itself
+- [ARIA Language](https://github.com/alternative-intelligence-cp/nitpick) — The compiler itself

@@ -32,7 +32,7 @@ People who would never read a security whitepaper will spend hours perfecting th
 - Team-based asymmetric gameplay (attackers vs defenders)
 - Class system with unique abilities
 - Multiple game modes (PvP, co-op, async)
-- Full implementation in Aria language (when ready)
+- Full implementation in Nitpick language (when ready)
 - Web-based multiplayer version
 
 ## Quick Start

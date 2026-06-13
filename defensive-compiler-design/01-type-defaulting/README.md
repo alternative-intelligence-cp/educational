@@ -30,9 +30,9 @@ llvm::Type* getLLVMType(Type* type) {
 
 ### The Attack Vector
 
-Developer writes perfectly valid Aria code:
+Developer writes perfectly valid Nitpick code:
 
-```aria
+```nitpick
 struct SensorReading {
     timestamp: int64,
     value: fix256      // Q128.128 fixed-point (256 bits total)
@@ -155,7 +155,7 @@ PHYSICAL HARM
 
 **Setup:**
 
-1. Compile the vulnerable version of Aria (tag: `vulnerable-ARIA-026-1`)
+1. Compile the vulnerable version of Nitpick (tag: `vulnerable-ARIA-026-1`)
 2. Write code that uses a custom struct
 3. Run in debugger and watch the carnage
 
@@ -163,7 +163,7 @@ PHYSICAL HARM
 
 - `vulnerable_compiler.cpp` - The buggy type mapper
 - `safe_compiler.cpp` - The defensive version
-- `test_struct.aria` - Code that triggers the bug
+- `test_struct.npk` - Code that triggers the bug
 - `Makefile` - Build and run both versions
 - `debug_guide.md` - How to use GDB to see the corruption
 

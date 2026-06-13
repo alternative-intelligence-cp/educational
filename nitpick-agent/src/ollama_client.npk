@@ -1,0 +1,448 @@
+use "nitpick_http.npk";
+use "nitpick_json.npk";
+
+// Hardcoded for milestone 1
+fixed string:OLLAMA_LOCAL_URL = "http://localhost:11434/api/chat";
+fixed string:OLLAMA_EMBED_URL = "http://localhost:11434/api/embeddings";
+
+//! Generates embeddings for a given text.
+pub func:generate_embedding = string(string:model, string:text) {
+    int32:root = raw json_create_object();
+    int32:model_val = raw json_create_string(model);
+    int32:prompt_val = raw json_create_string(text);
+    
+    drop json_object_set(root, "model", model_val);
+    drop json_object_set(root, "prompt", prompt_val);
+    
+    drop json_serialize(root);
+    string:payload = raw json_last_result();
+    drop json_builder_clear();
+
+    int32:init_res = raw http_init();
+    drop http_clear_headers();
+    drop http_set_header("Content-Type: application/json");
+    
+    int32:post_res = raw http_post(OLLAMA_EMBED_URL, payload);
+    string:resp_body = raw http_body();
+    drop http_cleanup();
+    
+    int64:start_idx = string_index_of(resp_body, "[");
+    int64:end_idx = string_index_of(resp_body, "]");
+    if (start_idx >= 0i64) {
+        if (end_idx > start_idx) {
+            string:arr_str = string_substring(resp_body, start_idx, end_idx + 1i64);
+            pass(arr_str);
+        }
+    }
+    pass("");
+};
+
+//! Generates a chat response from Ollama.
+//!
+//! @param model           The Ollama model name (e.g. "llama3")
+//! @param system_prompt   The system instructions
+//! @param user_msg        The user's prompt
+//! @returns               response string
+pub func:generate_chat = string(string:model, string:history, string:dashboard_state, string:role_prompt) {
+    // 1. Build JSON payload natively using the builder API
+    int32:history_arr = raw json_parse_to_builder(history);
+    
+    if (string_length(dashboard_state) > 0i64) {
+        int32:dash_msg = raw json_create_object();
+        drop json_object_set(dash_msg, "role", raw json_create_string("system"));
+        drop json_object_set(dash_msg, "content", raw json_create_string(string_concat("[SYSTEM DASHBOARD]\n", dashboard_state)));
+        drop json_array_append(history_arr, dash_msg);
+    }
+    
+    if (string_length(role_prompt) > 0i64) {
+        int32:role_msg = raw json_create_object();
+        drop json_object_set(role_msg, "role", raw json_create_string("system"));
+        drop json_object_set(role_msg, "content", raw json_create_string(string_concat("[ACTIVE ROLE]\n", role_prompt)));
+        drop json_array_append(history_arr, role_msg);
+    }
+    
+    int32:root = raw json_create_object();
+    int32:model_val = raw json_create_string(model);
+    int32:stream_val = raw json_create_bool(1i32);
+    
+    drop json_object_set(root, "model", model_val);
+    drop json_object_set(root, "stream", stream_val);
+    drop json_object_set(root, "messages", history_arr);
+    
+    // Define Tools
+    int32:tools_arr = raw json_create_array();
+    
+    // Tool: get_system_time
+    int32:tool_obj_time = raw json_create_object();
+    int32:func_obj_time = raw json_create_object();
+    drop json_object_set(func_obj_time, "name", raw json_create_string("get_system_time"));
+    drop json_object_set(func_obj_time, "description", raw json_create_string("Get the current time on the system"));
+    int32:func_params_time = raw json_create_object();
+    drop json_object_set(func_params_time, "type", raw json_create_string("object"));
+    int32:props_time = raw json_create_object();
+    int32:prop_conf_time = raw json_create_object();
+    drop json_object_set(prop_conf_time, "type", raw json_create_string("integer"));
+    drop json_object_set(props_time, "confidence", prop_conf_time);
+    drop json_object_set(func_params_time, "properties", props_time);
+    drop json_object_set(func_obj_time, "parameters", func_params_time);
+    drop json_object_set(tool_obj_time, "type", raw json_create_string("function"));
+    drop json_object_set(tool_obj_time, "function", func_obj_time);
+    drop json_array_append(tools_arr, tool_obj_time);
+
+    // Tool: create_snapshot
+    int32:tool_obj_create = raw json_create_object();
+    int32:func_obj_create = raw json_create_object();
+    drop json_object_set(func_obj_create, "name", raw json_create_string("create_snapshot"));
+    drop json_object_set(func_obj_create, "description", raw json_create_string("Creates a speculative branch of the codebase. Run this before making changes. Provide a snapshot_name."));
+    int32:func_params_create = raw json_create_object();
+    drop json_object_set(func_params_create, "type", raw json_create_string("object"));
+    int32:props_create = raw json_create_object();
+    int32:prop_name = raw json_create_object();
+    drop json_object_set(prop_name, "type", raw json_create_string("string"));
+    drop json_object_set(props_create, "snapshot_name", prop_name);
+    int32:prop_conf_c = raw json_create_object();
+    drop json_object_set(prop_conf_c, "type", raw json_create_string("integer"));
+    drop json_object_set(props_create, "confidence", prop_conf_c);
+    drop json_object_set(func_params_create, "properties", props_create);
+    drop json_object_set(func_obj_create, "parameters", func_params_create);
+    drop json_object_set(tool_obj_create, "type", raw json_create_string("function"));
+    drop json_object_set(tool_obj_create, "function", func_obj_create);
+    drop json_array_append(tools_arr, tool_obj_create);
+
+    // Tool: revert_snapshot
+    int32:tool_obj_revert = raw json_create_object();
+    int32:func_obj_revert = raw json_create_object();
+    drop json_object_set(func_obj_revert, "name", raw json_create_string("revert_snapshot"));
+    drop json_object_set(func_obj_revert, "description", raw json_create_string("Reverts the current speculative branch and deletes it, restoring the codebase and context."));
+    int32:func_params_revert = raw json_create_object();
+    drop json_object_set(func_params_revert, "type", raw json_create_string("object"));
+    int32:props_revert = raw json_create_object();
+    int32:prop_name_r = raw json_create_object();
+    drop json_object_set(prop_name_r, "type", raw json_create_string("string"));
+    drop json_object_set(props_revert, "snapshot_name", prop_name_r);
+    int32:prop_conf_r = raw json_create_object();
+    drop json_object_set(prop_conf_r, "type", raw json_create_string("integer"));
+    drop json_object_set(props_revert, "confidence", prop_conf_r);
+    drop json_object_set(func_params_revert, "properties", props_revert);
+    drop json_object_set(func_obj_revert, "parameters", func_params_revert);
+    drop json_object_set(tool_obj_revert, "type", raw json_create_string("function"));
+    drop json_object_set(tool_obj_revert, "function", func_obj_revert);
+    drop json_array_append(tools_arr, tool_obj_revert);
+
+    // Tool: commit_snapshot
+    int32:tool_obj_commit = raw json_create_object();
+    int32:func_obj_commit = raw json_create_object();
+    drop json_object_set(func_obj_commit, "name", raw json_create_string("commit_snapshot"));
+    drop json_object_set(func_obj_commit, "description", raw json_create_string("Commits the successful speculative branch changes back to the main codebase and deletes the branch."));
+    int32:func_params_commit = raw json_create_object();
+    drop json_object_set(func_params_commit, "type", raw json_create_string("object"));
+    int32:props_commit = raw json_create_object();
+    int32:prop_name_c = raw json_create_object();
+    drop json_object_set(prop_name_c, "type", raw json_create_string("string"));
+    drop json_object_set(props_commit, "snapshot_name", prop_name_c);
+    int32:prop_conf_cm = raw json_create_object();
+    drop json_object_set(prop_conf_cm, "type", raw json_create_string("integer"));
+    drop json_object_set(props_commit, "confidence", prop_conf_cm);
+    drop json_object_set(func_params_commit, "properties", props_commit);
+    drop json_object_set(func_obj_commit, "parameters", func_params_commit);
+    drop json_object_set(tool_obj_commit, "type", raw json_create_string("function"));
+    drop json_object_set(tool_obj_commit, "function", func_obj_commit);
+    drop json_array_append(tools_arr, tool_obj_commit);
+
+    // Tool: update_dashboard
+    int32:tool_obj_dash = raw json_create_object();
+    int32:func_obj_dash = raw json_create_object();
+    drop json_object_set(func_obj_dash, "name", raw json_create_string("update_dashboard"));
+    drop json_object_set(func_obj_dash, "description", raw json_create_string("Update the hierarchical dashboard context. You MUST provide exactly one argument named 'dashboard_state' containing the goal, files, and errors."));
+    int32:func_params_dash = raw json_create_object();
+    drop json_object_set(func_params_dash, "type", raw json_create_string("object"));
+    int32:props_dash = raw json_create_object();
+    int32:prop_name_d = raw json_create_object();
+    drop json_object_set(prop_name_d, "type", raw json_create_string("string"));
+    drop json_object_set(props_dash, "dashboard_state", prop_name_d);
+    int32:prop_conf_d = raw json_create_object();
+    drop json_object_set(prop_conf_d, "type", raw json_create_string("integer"));
+    drop json_object_set(props_dash, "confidence", prop_conf_d);
+    drop json_object_set(func_params_dash, "properties", props_dash);
+    drop json_object_set(func_obj_dash, "parameters", func_params_dash);
+    drop json_object_set(tool_obj_dash, "type", raw json_create_string("function"));
+    drop json_object_set(tool_obj_dash, "function", func_obj_dash);
+    drop json_array_append(tools_arr, tool_obj_dash);
+
+    // Tool: watch_and_publish
+    int32:tool_obj_watch = raw json_create_object();
+    int32:func_obj_watch = raw json_create_object();
+    drop json_object_set(func_obj_watch, "name", raw json_create_string("watch_and_publish"));
+    drop json_object_set(func_obj_watch, "description", raw json_create_string("Spawns a background bash command. The command should pipe its output to .bus.fifo to inject async events into the agent's context. Example: watch -n 5 ./check.sh > .bus.fifo &"));
+    int32:func_params_watch = raw json_create_object();
+    drop json_object_set(func_params_watch, "type", raw json_create_string("object"));
+    int32:props_watch = raw json_create_object();
+    int32:prop_name_w = raw json_create_object();
+    drop json_object_set(prop_name_w, "type", raw json_create_string("string"));
+    drop json_object_set(props_watch, "command", prop_name_w);
+    int32:prop_conf_w = raw json_create_object();
+    drop json_object_set(prop_conf_w, "type", raw json_create_string("integer"));
+    drop json_object_set(props_watch, "confidence", prop_conf_w);
+    drop json_object_set(func_params_watch, "properties", props_watch);
+    drop json_object_set(func_obj_watch, "parameters", func_params_watch);
+    drop json_object_set(tool_obj_watch, "type", raw json_create_string("function"));
+    drop json_object_set(tool_obj_watch, "function", func_obj_watch);
+    drop json_array_append(tools_arr, tool_obj_watch);
+    
+    // Tool: set_role
+    int32:tool_obj_role = raw json_create_object();
+    int32:func_obj_role = raw json_create_object();
+    drop json_object_set(func_obj_role, "name", raw json_create_string("set_role"));
+    drop json_object_set(func_obj_role, "description", raw json_create_string("Set the active personality or role for yourself (e.g. 'Reviewer', 'Debugger', 'Architect'). The role string will be injected into your system context."));
+    int32:func_params_role = raw json_create_object();
+    drop json_object_set(func_params_role, "type", raw json_create_string("object"));
+    int32:props_role = raw json_create_object();
+    int32:prop_name_rl = raw json_create_object();
+    drop json_object_set(prop_name_rl, "type", raw json_create_string("string"));
+    drop json_object_set(props_role, "role_name", prop_name_rl);
+    int32:prop_conf_rl = raw json_create_object();
+    drop json_object_set(prop_conf_rl, "type", raw json_create_string("integer"));
+    drop json_object_set(props_role, "confidence", prop_conf_rl);
+    drop json_object_set(func_params_role, "properties", props_role);
+    drop json_object_set(func_obj_role, "parameters", func_params_role);
+    drop json_object_set(tool_obj_role, "type", raw json_create_string("function"));
+    drop json_object_set(tool_obj_role, "function", func_obj_role);
+    drop json_array_append(tools_arr, tool_obj_role);
+    
+    // Tool: read_file
+    int32:tool_obj_rf = raw json_create_object();
+    int32:func_obj_rf = raw json_create_object();
+    drop json_object_set(func_obj_rf, "name", raw json_create_string("read_file"));
+    drop json_object_set(func_obj_rf, "description", raw json_create_string("Read the entire contents of a file into memory and return it."));
+    int32:func_params_rf = raw json_create_object();
+    drop json_object_set(func_params_rf, "type", raw json_create_string("object"));
+    int32:props_rf = raw json_create_object();
+    int32:prop_path_rf = raw json_create_object();
+    drop json_object_set(prop_path_rf, "type", raw json_create_string("string"));
+    drop json_object_set(props_rf, "path", prop_path_rf);
+    int32:prop_conf_rf = raw json_create_object();
+    drop json_object_set(prop_conf_rf, "type", raw json_create_string("integer"));
+    drop json_object_set(props_rf, "confidence", prop_conf_rf);
+    drop json_object_set(func_params_rf, "properties", props_rf);
+    drop json_object_set(func_obj_rf, "parameters", func_params_rf);
+    drop json_object_set(tool_obj_rf, "type", raw json_create_string("function"));
+    drop json_object_set(tool_obj_rf, "function", func_obj_rf);
+    drop json_array_append(tools_arr, tool_obj_rf);
+
+    // Tool: write_file
+    int32:tool_obj_wf = raw json_create_object();
+    int32:func_obj_wf = raw json_create_object();
+    drop json_object_set(func_obj_wf, "name", raw json_create_string("write_file"));
+    drop json_object_set(func_obj_wf, "description", raw json_create_string("Write content to a file, replacing its current contents."));
+    int32:func_params_wf = raw json_create_object();
+    drop json_object_set(func_params_wf, "type", raw json_create_string("object"));
+    int32:props_wf = raw json_create_object();
+    int32:prop_path_wf = raw json_create_object();
+    drop json_object_set(prop_path_wf, "type", raw json_create_string("string"));
+    drop json_object_set(props_wf, "path", prop_path_wf);
+    int32:prop_content_wf = raw json_create_object();
+    drop json_object_set(prop_content_wf, "type", raw json_create_string("string"));
+    drop json_object_set(props_wf, "content", prop_content_wf);
+    int32:prop_conf_wf = raw json_create_object();
+    drop json_object_set(prop_conf_wf, "type", raw json_create_string("integer"));
+    drop json_object_set(props_wf, "confidence", prop_conf_wf);
+    drop json_object_set(func_params_wf, "properties", props_wf);
+    drop json_object_set(func_obj_wf, "parameters", func_params_wf);
+    drop json_object_set(tool_obj_wf, "type", raw json_create_string("function"));
+    drop json_object_set(tool_obj_wf, "function", func_obj_wf);
+    drop json_array_append(tools_arr, tool_obj_wf);
+
+    // Tool: run_command
+    int32:tool_obj_rc = raw json_create_object();
+    int32:func_obj_rc = raw json_create_object();
+    drop json_object_set(func_obj_rc, "name", raw json_create_string("run_command"));
+    drop json_object_set(func_obj_rc, "description", raw json_create_string("Synchronously execute a bash command and capture its standard output."));
+    int32:func_params_rc = raw json_create_object();
+    drop json_object_set(func_params_rc, "type", raw json_create_string("object"));
+    int32:props_rc = raw json_create_object();
+    int32:prop_cmd_rc = raw json_create_object();
+    drop json_object_set(prop_cmd_rc, "type", raw json_create_string("string"));
+    drop json_object_set(props_rc, "command", prop_cmd_rc);
+    int32:prop_conf_rc = raw json_create_object();
+    drop json_object_set(prop_conf_rc, "type", raw json_create_string("integer"));
+    drop json_object_set(props_rc, "confidence", prop_conf_rc);
+    drop json_object_set(func_params_rc, "properties", props_rc);
+    drop json_object_set(func_obj_rc, "parameters", func_params_rc);
+    drop json_object_set(tool_obj_rc, "type", raw json_create_string("function"));
+    drop json_object_set(tool_obj_rc, "function", func_obj_rc);
+    drop json_array_append(tools_arr, tool_obj_rc);
+    
+    // Tool: spawn_subagent
+    int32:t_spawn = raw json_create_object();
+    drop json_object_set(t_spawn, "type", raw json_create_string("function"));
+    int32:t_spawn_func = raw json_create_object();
+    drop json_object_set(t_spawn_func, "name", raw json_create_string("spawn_subagent"));
+    drop json_object_set(t_spawn_func, "description", raw json_create_string("Spawns a background headless subagent to complete a long-running or complex task."));
+    int32:t_spawn_func_p = raw json_create_object();
+    drop json_object_set(t_spawn_func_p, "type", raw json_create_string("object"));
+    int32:t_spawn_props = raw json_create_object();
+    int32:t_spawn_task = raw json_create_object();
+    drop json_object_set(t_spawn_task, "type", raw json_create_string("string"));
+    drop json_object_set(t_spawn_props, "task_description", t_spawn_task);
+    int32:t_spawn_out = raw json_create_object();
+    drop json_object_set(t_spawn_out, "type", raw json_create_string("string"));
+    drop json_object_set(t_spawn_props, "output_file", t_spawn_out);
+    drop json_object_set(t_spawn_func_p, "properties", t_spawn_props);
+    int32:t_spawn_func_req = raw json_create_array();
+    drop json_array_append(t_spawn_func_req, raw json_create_string("task_description"));
+    drop json_object_set(t_spawn_func_p, "required", t_spawn_func_req);
+    drop json_object_set(t_spawn_func, "parameters", t_spawn_func_p);
+    drop json_object_set(t_spawn, "function", t_spawn_func);
+    drop json_array_append(tools_arr, t_spawn);
+    
+    int32:t_get = raw json_create_object();
+    drop json_object_set(t_get, "type", raw json_create_string("function"));
+    int32:t_get_f = raw json_create_object();
+    drop json_object_set(t_get_f, "name", raw json_create_string("http_get_url"));
+    drop json_object_set(t_get_f, "description", raw json_create_string("Fetches raw HTML/text from a specified URL."));
+    int32:t_get_p = raw json_create_object();
+    drop json_object_set(t_get_p, "type", raw json_create_string("object"));
+    int32:t_get_props = raw json_create_object();
+    int32:t_get_url = raw json_create_object();
+    drop json_object_set(t_get_url, "type", raw json_create_string("string"));
+    drop json_object_set(t_get_props, "url", t_get_url);
+    drop json_object_set(t_get_p, "properties", t_get_props);
+    int32:t_get_req = raw json_create_array();
+    drop json_array_append(t_get_req, raw json_create_string("url"));
+    drop json_object_set(t_get_p, "required", t_get_req);
+    drop json_object_set(t_get_f, "parameters", t_get_p);
+    drop json_object_set(t_get, "function", t_get_f);
+    drop json_array_append(tools_arr, t_get);
+    
+    int32:t_search = raw json_create_object();
+    drop json_object_set(t_search, "type", raw json_create_string("function"));
+    int32:t_search_f = raw json_create_object();
+    drop json_object_set(t_search_f, "name", raw json_create_string("web_search"));
+    drop json_object_set(t_search_f, "description", raw json_create_string("Searches the web for a given query and returns raw search results."));
+    int32:t_search_p = raw json_create_object();
+    drop json_object_set(t_search_p, "type", raw json_create_string("object"));
+    int32:t_search_props = raw json_create_object();
+    int32:t_search_q = raw json_create_object();
+    drop json_object_set(t_search_q, "type", raw json_create_string("string"));
+    drop json_object_set(t_search_props, "query", t_search_q);
+    drop json_object_set(t_search_p, "properties", t_search_props);
+    int32:t_search_req = raw json_create_array();
+    drop json_array_append(t_search_req, raw json_create_string("query"));
+    drop json_object_set(t_search_p, "required", t_search_req);
+    drop json_object_set(t_search_f, "parameters", t_search_p);
+    drop json_object_set(t_search, "function", t_search_f);
+    drop json_array_append(tools_arr, t_search);
+
+    int32:t_mem = raw json_create_object();
+    drop json_object_set(t_mem, "type", raw json_create_string("function"));
+    int32:t_mem_f = raw json_create_object();
+    drop json_object_set(t_mem_f, "name", raw json_create_string("store_memory"));
+    drop json_object_set(t_mem_f, "description", raw json_create_string("Permanently encodes a concept, fact, or rule into long-term vector memory. Format memories clearly so they can be easily retrieved by semantic similarity later."));
+    int32:t_mem_p = raw json_create_object();
+    drop json_object_set(t_mem_p, "type", raw json_create_string("object"));
+    int32:t_mem_props = raw json_create_object();
+    int32:t_mem_c = raw json_create_object();
+    drop json_object_set(t_mem_c, "type", raw json_create_string("string"));
+    drop json_object_set(t_mem_props, "concept", t_mem_c);
+    drop json_object_set(t_mem_p, "properties", t_mem_props);
+    int32:t_mem_req = raw json_create_array();
+    drop json_array_append(t_mem_req, raw json_create_string("concept"));
+    drop json_object_set(t_mem_p, "required", t_mem_req);
+    drop json_object_set(t_mem_f, "parameters", t_mem_p);
+    drop json_object_set(t_mem, "function", t_mem_f);
+    drop json_array_append(tools_arr, t_mem);
+
+    int32:t_ld = raw json_create_object();
+    drop json_object_set(t_ld, "type", raw json_create_string("function"));
+    int32:t_ld_f = raw json_create_object();
+    drop json_object_set(t_ld_f, "name", raw json_create_string("list_directory"));
+    drop json_object_set(t_ld_f, "description", raw json_create_string("Lists all files and folders inside a given directory path."));
+    int32:t_ld_p = raw json_create_object();
+    drop json_object_set(t_ld_p, "type", raw json_create_string("object"));
+    int32:t_ld_props = raw json_create_object();
+    int32:t_ld_path = raw json_create_object();
+    drop json_object_set(t_ld_path, "type", raw json_create_string("string"));
+    drop json_object_set(t_ld_props, "path", t_ld_path);
+    drop json_object_set(t_ld_p, "properties", t_ld_props);
+    int32:t_ld_req = raw json_create_array();
+    drop json_array_append(t_ld_req, raw json_create_string("path"));
+    drop json_object_set(t_ld_p, "required", t_ld_req);
+    drop json_object_set(t_ld_f, "parameters", t_ld_p);
+    drop json_object_set(t_ld, "function", t_ld_f);
+    drop json_array_append(tools_arr, t_ld);
+
+    int32:t_rep = raw json_create_object();
+    drop json_object_set(t_rep, "type", raw json_create_string("function"));
+    int32:t_rep_f = raw json_create_object();
+    drop json_object_set(t_rep_f, "name", raw json_create_string("replace_file_content"));
+    drop json_object_set(t_rep_f, "description", raw json_create_string("Replaces an exact snippet of text inside a file with a new snippet."));
+    int32:t_rep_p = raw json_create_object();
+    drop json_object_set(t_rep_p, "type", raw json_create_string("object"));
+    int32:t_rep_props = raw json_create_object();
+    int32:t_rep_path = raw json_create_object();
+    drop json_object_set(t_rep_path, "type", raw json_create_string("string"));
+    int32:t_rep_old = raw json_create_object();
+    drop json_object_set(t_rep_old, "type", raw json_create_string("string"));
+    int32:t_rep_new = raw json_create_object();
+    drop json_object_set(t_rep_new, "type", raw json_create_string("string"));
+    drop json_object_set(t_rep_props, "path", t_rep_path);
+    drop json_object_set(t_rep_props, "old_text", t_rep_old);
+    drop json_object_set(t_rep_props, "new_text", t_rep_new);
+    drop json_object_set(t_rep_p, "properties", t_rep_props);
+    int32:t_rep_req = raw json_create_array();
+    drop json_array_append(t_rep_req, raw json_create_string("path"));
+    drop json_array_append(t_rep_req, raw json_create_string("old_text"));
+    drop json_array_append(t_rep_req, raw json_create_string("new_text"));
+    drop json_object_set(t_rep_p, "required", t_rep_req);
+    drop json_object_set(t_rep_f, "parameters", t_rep_p);
+    drop json_object_set(t_rep, "function", t_rep_f);
+    drop json_array_append(tools_arr, t_rep);
+
+    drop json_object_set(root, "tools", tools_arr);
+    
+    drop json_serialize(root);
+    string:payload = raw json_last_result();
+    drop json_builder_clear();
+
+    // 2. Setup HTTP
+    int32:init_res = raw http_init();
+    drop http_clear_headers();
+    drop http_set_header("Content-Type: application/json");
+
+    // 3. POST
+    drop http_enable_ollama_stream(1i32);
+    int32:post_res = raw http_post(OLLAMA_LOCAL_URL, payload);
+    drop http_enable_ollama_stream(0i32);
+    
+    // 4. Check status
+    int32:status = raw http_status();
+    if (status != 200i32) {
+        string:err_body = raw http_body();
+        drop http_cleanup();
+        pass(err_body);
+    }
+
+    // 5. Get streamed tool calls
+    string:tool_call = raw http_get_ollama_tool();
+    if (string_length(tool_call) > 0i64) {
+        string:tool_arg = raw http_get_ollama_arg();
+        int32:tool_conf_int = raw http_get_ollama_conf();
+        string:tool_conf = string_from_int(@cast<int64>(tool_conf_int));
+        drop http_cleanup();
+        pass(string_concat(string_concat("TOOL:", tool_conf), string_concat(string_concat(":", tool_call), string_concat(":", tool_arg))));
+    }
+    
+    // 6. Get streamed content
+    string:content = raw http_get_ollama_content();
+    drop http_cleanup();
+    
+    string:trimmed_content = string_trim(content);
+    int64:args_idx = string_index_of(trimmed_content, "[ARGS]");
+    if (args_idx > 0i64) {
+        string:fallback_name = string_trim(string_substring(trimmed_content, 0i64, args_idx));
+        string:fallback_arg = string_trim(string_substring(trimmed_content, args_idx + 6i64, string_length(trimmed_content)));
+        pass(string_concat("TOOL:0:", string_concat(fallback_name, string_concat(":", fallback_arg))));
+    }
+
+    pass(string_concat("TEXT:", content));
+};

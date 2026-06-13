@@ -63,11 +63,11 @@ WARNING: Shared memory access without synchronization
 
 ---
 
-## Case Study 2: Ariane 5 - $370 Million Explosion
+## Case Study 2: Nitpickne 5 - $370 Million Explosion
 
 ### The Incident
 
-June 4, 1996. The European Space Agency launched the Ariane 5 rocket carrying four satellites worth hundreds of millions of dollars.
+June 4, 1996. The European Space Agency launched the Nitpickne 5 rocket carrying four satellites worth hundreds of millions of dollars.
 
 37 seconds after launch, it **exploded**.
 
@@ -91,7 +91,7 @@ The velocity value was too large to fit in 16 bits. The conversion overflowed.
 
 ### The Cruel Irony
 
-This code was copied from Ariane 4, where it worked fine. Ariane 5 flew faster. Nobody checked if the old code could handle the new speeds.
+This code was copied from Nitpickne 4, where it worked fine. Nitpickne 5 flew faster. Nobody checked if the old code could handle the new speeds.
 
 The compiler said: "Integer conversion accepted."  
 The compiler didn't say: "This conversion can overflow."
@@ -202,7 +202,7 @@ Doesn't work. Therac-25 engineers were careful. They had code reviews, testing, 
 
 ### "Just Test Better"
 
-Doesn't work. Ariane 5 was extensively tested. The bug only appeared under flight conditions.
+Doesn't work. Nitpickne 5 was extensively tested. The bug only appeared under flight conditions.
 
 **Why:** Tests only cover scenarios you think of. Defensive compilers find scenarios you didn't imagine.
 
@@ -343,7 +343,7 @@ If defensive compilers can prevent these catastrophes, **why don't all compilers
 
 **Reality check:**
 - Therac-25 lawsuits: Millions in damages + criminal investigations
-- Ariane 5 explosion: $370 million lost in 37 seconds
+- Nitpickne 5 explosion: $370 million lost in 37 seconds
 - Toyota recalls: $3+ billion in costs, brand damage, 89 deaths
 
 **The "overhead" of safety is microscopic compared to the cost of failure.**
@@ -399,7 +399,7 @@ Start here. This module shows you **why this work matters** before diving into *
 
 When technical modules feel abstract, come back to this. Remember:
 - Therac-25: Real people, real pain
-- Ariane 5: Real explosion, real money
+- Nitpickne 5: Real explosion, real money
 - Toyota: Real deaths, real families
 
 **You're not learning syntax. You're learning to save lives.**
@@ -437,7 +437,7 @@ Different brains, different entry points, same destination.
 
 ## The Question Only You Can Answer
 
-After reading about Therac-25, Ariane 5, and Toyota:
+After reading about Therac-25, Nitpickne 5, and Toyota:
 
 **Do you want to build compilers that prevent these failures, or compilers that enable them?**
 
@@ -481,5 +481,5 @@ Let's build something that keeps people safe.
 
 **Resources:**
 - [Full Therac-25 Analysis](../case_studies/therac25_detailed.md)
-- [Ariane 5 Flight 501 Report](../case_studies/ariane5_technical.md)
+- [Nitpickne 5 Flight 501 Report](../case_studies/nitpickne5_technical.md)
 - [Toyota Software Analysis Report](../case_studies/toyota_unintended_acceleration.md)

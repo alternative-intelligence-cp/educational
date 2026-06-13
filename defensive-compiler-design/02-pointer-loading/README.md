@@ -11,7 +11,7 @@
 ### The Vulnerability
 
 **Developer's Intent:**
-```aria
+```nitpick
 const MAX_FORCE: i32 = 10;  // Maximum safe force in Newtons
 
 func apply_grip_force(force: i32) {
@@ -50,7 +50,7 @@ llvm::Value* codegenIdentifier(IdentifierExpr* expr) {
 
 No malice required. This happens automatically:
 
-```aria
+```nitpick
 const MAX_FORCE: i32 = 10;  // Global constant
 
 // Compiler processes this:
@@ -126,7 +126,7 @@ llvm::Value* codegenIdentifier(IdentifierExpr* expr) {
             loadType = llvm::cast<llvm::AllocaInst>(var_ptr)->getAllocatedType();
         } else {
             // Look up global type from tracking map
-            loadType = getLLVMTypeFromString(var_aria_types[expr->name]);
+            loadType = getLLVMTypeFromString(var_nitpick_types[expr->name]);
         }
         
         // Create load instruction for BOTH stack and global
@@ -169,7 +169,7 @@ Children at risk:          NONE
 
 - `vulnerable_codegen.cpp` - Buggy identifier loading
 - `safe_codegen.cpp` - Defensive version
-- `test_globals.aria` - Code with global constants
+- `test_globals.npk` - Code with global constants
 - `print_addresses.sh` - Script to show the address confusion
 - `Makefile` - Build and test
 

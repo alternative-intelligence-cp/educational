@@ -69,5 +69,5 @@ sudo apt-get install libgtk-3-dev libwebkit2gtk-4.1-dev
 
 1. Understand native webview architecture
 2. Learn C++ ↔ JavaScript interop patterns
-3. Build practical desktop tools for Aria compiler (debugger, REPL)
+3. Build practical desktop tools for Nitpick compiler (debugger, REPL)
 4. Avoid heavyweight frameworks (Electron = 100MB+, this = <1MB)

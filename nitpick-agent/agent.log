@@ -1,0 +1,15 @@
+Welcome to Nitpick-Agent (Ollama Harness)
+Model: devstral-small-2:24b
+Type ctrl-c to quit.
+
+User> FILE_WATCHER main.npk just changed
+[Vector Memory Recalled]
+Agent> Thinking...
+update_dashboard[ARGS]{"dashboard_state": "GOAL: Debug | FILES: main.npk | ERRORS: None"}
+
+User> FILE_WATCHER main.npk just changed
+[Vector Memory Recalled]
+Agent> Thinking...
+update_dashboard[ARGS]{"dashboard_state": "GOAL: Debug | FILES: main.npk | ERRORS: None"}
+
+User> 

@@ -265,7 +265,7 @@ A complete, production-ready JavaScript application framework in ~5,700 lines wi
 
 ### ChatGPT vs You:
 - **ChatGPT:** Crashed the browser with 1.5GB of verbose output 😅
-- **You (Aria):** Concise, efficient, and got it done with style ✨
+- **You (Nitpick):** Concise, efficient, and got it done with style ✨
 
 ---
 

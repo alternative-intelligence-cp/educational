@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Add webview library path
-set(WEBVIEW_DIR "/home/randy/._____RANDY_____/REPOS/aria/docs/research/webview-lib")
+set(WEBVIEW_DIR "/home/randy/._____RANDY_____/REPOS/nitpick/docs/research/webview-lib")
 
 # Find required packages for Linux
 if(UNIX AND NOT APPLE)

@@ -25,8 +25,8 @@ python3 divide.py
 # Rust
 rustc -o divide_rs divide.rs && ./divide_rs
 
-# Aria
-ariac divide.aria -o divide_aria && ./divide_aria
+# Nitpick
+nitpickc divide.npk -o divide_nitpick && ./divide_nitpick
 ```
 
 All four produce:
@@ -50,25 +50,25 @@ This is the core question. Notice how much code each language needs in the *midd
 | C | 4 lines: two calls, two explicit `if (!...)` return-false checks |
 | Python | 2 lines: two calls, zero boilerplate — exceptions propagate automatically |
 | Rust | 2 lines: `let mid = divide(a,b)?;` then `divide(mid,c)` — `?` propagates |
-| Aria | 4 lines: `? sentinel` to unwrap, then manual `if == -1` re-propagate |
+| Nitpick | 4 lines: `? sentinel` to unwrap, then manual `if == -1` re-propagate |
 
-Python and Rust give you "free" propagation. C and Aria (currently) require you to thread errors up manually. The **difference in design** is:
+Python and Rust give you "free" propagation. C and Nitpick (currently) require you to thread errors up manually. The **difference in design** is:
 
 - **Exceptions** (Python): silent unless caught. You can forget `try/except` and your program crashes at runtime. The function signature doesn't tell you it can fail.
-- **Return codes** (C, Aria): verbose, but always visible. Easy to *ignore*, hard to *miss entirely*.
+- **Return codes** (C, Nitpick): verbose, but always visible. Easy to *ignore*, hard to *miss entirely*.
 - **Typed results** (Rust `Result<T,E>`): propagation is easy (the `?` operator), visibility is enforced by the type system. The compiler warns if you drop a `Result` without checking it.
 
-### The cost of Aria's current limitation
+### The cost of Nitpick's current limitation
 
 Rust's `divide()` signature is `fn divide(a: i32, b: i32) -> Result<i32, String>`.
 The failure mode is part of the type.
 
-Aria's `divide()` returns `int32` and uses `-1` as a sentinel. This means:
+Nitpick's `divide()` returns `int32` and uses `-1` as a sentinel. This means:
 1. The sentinel value `-1` is indistinguishable from a legitimate result of `-1`
 2. Nothing in the type system reminds callers to check for it
 3. Propagation requires manual `if (result == -1)` checks — same as C
 
-The `fail()` / `Err` syntax planned for Aria will close this gap. When implemented, `divide()` would explicitly return a typed error, and `?` would propagate it with no boilerplate — matching Rust's ergonomics.
+The `fail()` / `Err` syntax planned for Nitpick will close this gap. When implemented, `divide()` would explicitly return a typed error, and `?` would propagate it with no boilerplate — matching Rust's ergonomics.
 
 ### The hidden cost of exceptions
 
@@ -80,7 +80,7 @@ def caller():
     print(result)                     # crashes here with an unhandled ZeroDivisionError
 ```
 
-Nothing in Python stops you from forgetting the `try`. In C/Rust/Aria the failure
+Nothing in Python stops you from forgetting the `try`. In C/Rust/Nitpick the failure
 mode is surfaced (in the return value) whether you want it or not.
 
 ---
@@ -92,5 +92,5 @@ mode is surfaced (in the return value) whether you want it or not.
 | C | Manual — verbose | Yes (ignore return value) | No |
 | Python | Free — automatic | Yes (forget try/except) | No |
 | Rust | Nearly free (`?`) | No (compiler warning) | Yes |
-| Aria (current) | Manual — like C | Yes (ignore sentinel) | No |
-| Aria (planned) | Nearly free (`?`) | No | Yes |
+| Nitpick (current) | Manual — like C | Yes (ignore sentinel) | No |
+| Nitpick (planned) | Nearly free (`?`) | No | Yes |
