@@ -28,7 +28,7 @@ func:args_load = string() {
             }
         }
         if (c > 0i32) {
-            current = string_concat(current, string_from_char(@cast<int8>(c)));
+            current = string_concat(current, string_from_char(cast<int8>(c)));
         }
         c = fgetc(fp);
     }
@@ -218,7 +218,7 @@ pub func:main = int32() {
                 }
                 
                 int64:conf_int64 = string_to_int(t_conf_str);
-                int32:confidence = @cast<int32>(conf_int64);
+                int32:confidence = cast<int32>(conf_int64);
                 int32:risk_level = raw get_risk_level(t_name);
                 int32:threshold = raw get_risk_threshold(risk_level);
                 

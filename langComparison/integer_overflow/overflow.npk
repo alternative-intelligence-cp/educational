@@ -57,7 +57,7 @@ func:main = int32() {
     drop(println(int64_toString(umax_display)));
     uint32:uwrapped = umax + 1u32;
     drop(print("UINT32_MAX + 1    = "));
-    drop(println(int64_toString(@cast<int64>(uwrapped))));
+    drop(println(int64_toString(cast<int64>(uwrapped))));
     drop(println("                    (defined: wraps to 0 — unsigned overflow is not UB)"));
 
     pass(0i32);

@@ -427,7 +427,7 @@ pub func:generate_chat = string(string:model, string:history, string:dashboard_s
     if (string_length(tool_call) > 0i64) {
         string:tool_arg = raw http_get_ollama_arg();
         int32:tool_conf_int = raw http_get_ollama_conf();
-        string:tool_conf = string_from_int(@cast<int64>(tool_conf_int));
+        string:tool_conf = string_from_int(cast<int64>(tool_conf_int));
         drop http_cleanup();
         pass(string_concat(string_concat("TOOL:", tool_conf), string_concat(string_concat(":", tool_call), string_concat(":", tool_arg))));
     }

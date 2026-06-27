@@ -14,7 +14,7 @@ pub func:generate_chat_gemini = string(string:model, string:history, string:dash
         int32:count = raw json_array_count("");
         int32:i = 0i32;
         while (i < count) {
-            string:idx_str = string_from_int(@cast<int64>(i));
+            string:idx_str = string_from_int(cast<int64>(i));
             string:role = raw json_get_string(string_concat(idx_str, ".role"));
             string:content = raw json_get_string(string_concat(idx_str, ".content"));
             
